@@ -1,0 +1,29 @@
+-- local path = (...):gsub("%.[^%.]+$", "")
+-- 
+-- local suit = require(path .. ".lib.suit")
+-- 
+-- function suit.theme.Slider(fraction, opt, x,y,w,h)
+-- 	local xb, yb, wb, hb -- size of the progress bar
+-- 	local r =  math.min(w,h) / 2.1
+-- 	if opt.vertical then
+-- 		x, w = x + w*.25, w*.5
+-- 		xb, yb, wb, hb = x, y+h*(1-fraction), w, h*fraction
+-- 	else
+-- 		y, h = y + h*.25, h*.5
+-- 		xb, yb, wb, hb = x,y, w*fraction, h
+-- 	end
+-- 
+-- 	local c = suit.theme.getColorForState(opt)
+-- 	suit.theme.drawBox(x,y,w,h, c, opt.cornerRadius)
+-- 	suit.theme.drawBox(xb,yb,wb,hb, {bg=c.fg}, opt.cornerRadius)
+-- 
+-- 	if opt.state ~= nil and opt.state ~= "normal" then
+-- 		love.graphics.setColor((opt.color and opt.color.active or {}).fg or suit.theme.color.active.fg)
+-- 		if opt.vertical then
+-- 			love.graphics.circle('fill', x+wb/2, yb, r)
+-- 		else
+-- 			love.graphics.circle('fill', x+wb, yb+hb/2, r)
+-- 		end
+-- 	end
+-- end
+-- 
