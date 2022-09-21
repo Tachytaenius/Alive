@@ -76,7 +76,8 @@ local world
 function boilerplate.load(args)
 	world = concord.world()
 	world
-		:addSystem(systems.quantities)
+		:addSystem(systems.quantities) -- Should be first
+		:addSystem(systems.map)
 		:addSystem(systems.flying)
 		:addSystem(systems.wills)
 		:addSystem(systems.walking)
@@ -89,7 +90,7 @@ function boilerplate.load(args)
 	world
 		:addEntity(player)
 		:addEntity(otherGuy)
-	world:emit("newWorld")
+	world:emit("newWorld", 256, 256)
 	world.unsaved = true
 end
 
