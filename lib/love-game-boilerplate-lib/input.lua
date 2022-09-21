@@ -5,63 +5,94 @@ local settings = require(path .. ".settings")
 
 local input = {}
 
-local previousFrameRawCommands, thisFrameRawCommands, fixedCommandsList
-
-local function didCommandBase(name, commandsTable, settingsTable)
-	assert(commandsTable[name], name .. " is not a valid command")
+local function checkCommand(command, updateType)
+	assert(updateType == "fixed" or updateType == "frame", "Commands are either for fixed or frame updates")
 	
-	local assignee = settingsTable[name]
-	local down
-	if type(assignee) == "string" then
-		local func = settings.useScancodes and love.keyboard.isScancodeDown or love.keyboard.isDown
-		down = func(assignee)
-	elseif type(assignee) == "number" then
-		if love.mouse.getRelativeMode() then
-			if assignee ~= require(path).disableMouseButtonUntilReleased then -- HACK to avoid a circular dependency
-				down = love.mouse.isDown(assignee)
-			end
-		end
+	local list = input[updateType .. "Updates"]
+	local this = list[#list]
+	local last = list[#list - 1]
+	
+	assert(config[updateType .. "Commands"][command], "A command has to be registered if you want to check for it")
+	
+	-- Don't do it multiple times
+	local current = this[command]
+	if current ~= nil then return current end
+	
+	-- Get the input from the OS. Mouse or keyboard
+	local assignee = settings[updateType .. "Commands"][command]
+	if (type(assignee) == "string" and love.keyboard.isScancodeDown(assignee)) or (type(assignee) == "number" and love.mouse.isGrabbed() and love.mouse.isDown(assignee)) then
+		this[command] = true
 	end
-	down = not not down
-	thisFrameRawCommands[name] = down
 	
-	local deltaPolicy = commandsTable[name]
+	-- Check it against the previous frame if need be
+	local ret
+	local deltaPolicy = config[updateType .. "Commands"][command]
 	if deltaPolicy == "onPress" then
-		return thisFrameRawCommands[name] and not previousFrameRawCommands[name]
+		return this[command] and not last[command]
 	elseif deltaPolicy == "onRelease" then
-		return not thisFrameRawCommands[name] and previousFrameRawCommands[name]
+		return not this[command] and last[command]
 	elseif deltaPolicy == "whileDown" then
-		return thisFrameRawCommands[name]
+		return this[command]
 	else
-		error(deltaPolicy .. " is not a valid delta policy")
+		error("Command delta policies must be either \"onPress\", \"onRelease\" or \"whileDown\"")
 	end
 end
 
-function input.didFrameCommand(name)
-	return didCommandBase(name, config.frameCommands, settings.frameCommands)
+function input.stepFixedUpdate()
+	assert(not input.replaying, "input.stepFixedUpdate is called every fixed update when you are making new footage or playing unrecorded")
+	
+	if not input.recording then
+		table.remove(input.fixedUpdates, 1)
+	end
+	table.insert(input.fixedUpdates, {})
 end
 
-function input.didFixedCommand(name)
-	return fixedCommandsList[name]
+function input.checkFixedUpdateCommand(command)
+	return checkCommand(command, "fixed")
 end
 
-function input.stepRawCommands(paused)
-	if not paused then
-		for name, deltaPolicy in pairs(config.fixedCommands) do
-			local didCommandThisFrame = didCommandBase(name, config.fixedCommands, settings.fixedCommands)
-			fixedCommandsList[name] = fixedCommandsList[name] or didCommandThisFrame
+function input.doFixedUpdateCommand(command)
+	input.fixedUpdates[#input.fixedUpdates][command] = true
+end
+
+local function getRecordString(tick)
+	local ret = ""
+	for command in pairs(tick) do
+		if command then
+			ret = ret .. command .. ","
 		end
 	end
+	return ret .. "\n"
+end
+
+function input.flushFixedUpdateRecording()
+	assert(input.recording, "input.flushRecording is called when recording, generally every frame update")
 	
-	previousFrameRawCommands, thisFrameRawCommands = thisFrameRawCommands, {}
+	local append = ""
+	
+	while #input.fixedUpdates > 2 do
+		-- accumulate the tick's inputs (TODO, dont know format)
+		local tick = table.remove(input.fixedUpdates, 1)
+		if not tick.recorded then
+			append = append .. getRecordString(tick)
+		end
+	end
+	append = append .. getRecordString(input.fixedUpdates[1]) .. getRecordString(input.fixedUpdates[2])
+	
+	-- write it to demo file
 end
 
-function input.clearRawCommands()
-	previousFrameRawCommands, thisFrameRawCommands = {}, {}
+function input.stepFrameUpdate()
+	table.remove(input.frameUpdates, 1)
+	table.insert(input.frameUpdates, {})
 end
 
-function input.clearFixedCommandsList()
-	fixedCommandsList = {}
+function input.checkFrameUpdateCommand(command)
+	return checkCommand(command, "frame")
+end
+
+function input.doFrameUpdateCommand(command, value)
+	input.frameUpdates[#input.frameUpdates][command] = true
 end
 
 return input

@@ -210,9 +210,6 @@ function boilerplate.init(initConfig, arg)
 					end
 				else
 					performance = nil
-					if previousFramePaused then
-						input.clearFixedCommandsList()
-					end
 				end
 				previousFramePaused = ui.current and ui.current.causesPause
 				love.update(delta, performance)
@@ -235,6 +232,10 @@ function boilerplate.init(initConfig, arg)
 	end
 	
 	function love.load(arg, unfilteredArg)
+		input.frameUpdates = {{}, {}}
+		input.fixedUpdates = {{}, {}}
+		input.recording = false -- TODO
+		input.replaying = false -- TODO
 		settings("load")
 		settings("apply")
 		settings("save")
@@ -244,8 +245,6 @@ function boilerplate.init(initConfig, arg)
 		boilerplate.hudCanvas = love.graphics.newCanvas(config.canvasSystemWidth, config.canvasSystemHeight)
 		boilerplate.infoCanvas = love.graphics.newCanvas(config.canvasSystemWidth, config.canvasSystemHeight)
 		boilerplate.outputCanvas = love.graphics.newCanvas(config.canvasSystemWidth, config.canvasSystemHeight)
-		input.clearRawCommands()
-		input.clearFixedCommandsList()
 		if boilerplate.load then
 			boilerplate.load(arg, unfilteredArg)
 		end
@@ -262,46 +261,46 @@ function boilerplate.init(initConfig, arg)
 			end
 		end
 		
-		if input.didFrameCommand("toggleMouseGrab") then
+		if input.checkFrameUpdateCommand("toggleMouseGrab") then
 			love.mouse.setRelativeMode(not love.mouse.getRelativeMode())
 		end
 		
-		if input.didFrameCommand("takeScreenshot") then
+		if input.checkFrameUpdateCommand("takeScreenshot") then
 			-- If uiModifier is held then takeScreenshot will include HUD et cetera.
-			takeScreenshot(input.didFrameCommand("uiModifier") and boilerplate.outputCanvas or boilerplate.gameCanvas)
+			takeScreenshot(input.checkFrameUpdateCommand("uiModifier") and boilerplate.outputCanvas or boilerplate.gameCanvas)
 		end
 		
 		if not ui.current or ui.current.type ~= "settings" then
-			if input.didFrameCommand("toggleInfo") then
+			if input.checkFrameUpdateCommand("toggleInfo") then
 				settings.graphics.showPerformance = not settings.graphics.showPerformance
 				settings("save")
 			end
 			
-			if input.didFrameCommand("previousDisplay") and love.window.getDisplayCount() > 1 then
+			if input.checkFrameUpdateCommand("previousDisplay") and love.window.getDisplayCount() > 1 then
 				settings.graphics.display = (settings.graphics.display - 2) % love.window.getDisplayCount() + 1
 				settings("apply") -- TODO: Test thingy... y'know, "press enter to save or wait 5 seconds to revert"
 				settings("save")
 			end
 			
-			if input.didFrameCommand("nextDisplay") and love.window.getDisplayCount() > 1 then
+			if input.checkFrameUpdateCommand("nextDisplay") and love.window.getDisplayCount() > 1 then
 				settings.graphics.display = (settings.graphics.display) % love.window.getDisplayCount() + 1
 				settings("apply")
 				settings("save")
 			end
 			
-			if input.didFrameCommand("scaleDown") and settings.graphics.scale > 1 then
+			if input.checkFrameUpdateCommand("scaleDown") and settings.graphics.scale > 1 then
 				settings.graphics.scale = settings.graphics.scale - 1
 				settings("apply")
 				settings("save")
 			end
 			
-			if input.didFrameCommand("scaleUp") then
+			if input.checkFrameUpdateCommand("scaleUp") then
 				settings.graphics.scale = math.min(getMaxScale(), settings.graphics.scale + 1)
 				settings("apply")
 				settings("save")
 			end
 			
-			if input.didFrameCommand("toggleFullscreen") then
+			if input.checkFrameUpdateCommand("toggleFullscreen") then
 				settings.graphics.fullscreen = not settings.graphics.fullscreen
 				settings("apply")
 				settings("save")
@@ -316,7 +315,7 @@ function boilerplate.init(initConfig, arg)
 			boilerplate.update(dt)
 		end
 		
-		input.stepRawCommands(paused())
+		input.stepFrameUpdate()
 		pausePressed, pauseReleased = false, false
 	end
 	
@@ -326,7 +325,9 @@ function boilerplate.init(initConfig, arg)
 		end
 		
 		boilerplate.fixedMouseDx, boilerplate.fixedMouseDy = 0, 0
-		input.clearFixedCommandsList()
+		if not paused() then
+			input.stepFixedUpdate()
+		end
 	end
 	
 	function love.draw(lerp, dt, performance)
