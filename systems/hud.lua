@@ -17,7 +17,11 @@ function hud:draw(lerp, dt, performance)
 	
 	love.graphics.setCanvas(boilerplate.hudCanvas)
 	love.graphics.clear()
-	love.graphics.print(math.floor(player.position.ival.x) .. "\n" .. math.floor(player.position.ival.y))
+	love.graphics.print(
+		"X: " .. math.round(player.position.ival.x) .. "\n" ..
+		"Y: " .. math.round(player.position.ival.y) .. "\n" ..
+		"Speed: " .. math.round(#player.velocity.val)
+	)
 	love.graphics.setCanvas()
 end
 

@@ -14,18 +14,21 @@ function wills:fixedUpdate(dt)
 	
 	for _, e in ipairs(self.willPlayers) do
 		local will = e.will
-		will.movement = vec2()
+		will.targetVelocityMultiplier = vec2()
 		if boilerplate.input.didFixedCommand("moveForward") then
-			will.movement.y = will.movement.y - 10
+			will.targetVelocityMultiplier.y = will.targetVelocityMultiplier.y - 10
 		end
 		if boilerplate.input.didFixedCommand("moveBackward") then
-			will.movement.y = will.movement.y + 10
+			will.targetVelocityMultiplier.y = will.targetVelocityMultiplier.y + 10
 		end
 		if boilerplate.input.didFixedCommand("moveLeft") then
-			will.movement.x = will.movement.x - 10
+			will.targetVelocityMultiplier.x = will.targetVelocityMultiplier.x - 10
 		end
 		if boilerplate.input.didFixedCommand("moveRight") then
-			will.movement.x = will.movement.x + 10
+			will.targetVelocityMultiplier.x = will.targetVelocityMultiplier.x + 10
+		end
+		if #will.targetVelocityMultiplier > 0 then
+			will.targetVelocityMultiplier = vec2.normalise(will.targetVelocityMultiplier)
 		end
 	end
 end

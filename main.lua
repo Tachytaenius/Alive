@@ -50,8 +50,8 @@ local assets = {
 
 local initConfig = {
 	fixedUpdateTickLength = 1 / 24,
-	canvasSystemWidth = 384,
-	canvasSystemHeight = 256,
+	canvasSystemWidth = 480,
+	canvasSystemHeight = 270,
 	frameCommands = frameCommands,
 	fixedCommands = fixedCommands,
 	settingsUiLayout = settingsUiLayout,
@@ -77,13 +77,15 @@ function boilerplate.load(args)
 	world = concord.world()
 	world
 		:addSystem(systems.quantities)
+		:addSystem(systems.flying)
 		:addSystem(systems.wills)
 		:addSystem(systems.walking)
 		:addSystem(systems.movement)
 		:addSystem(systems.rendering)
 		:addSystem(systems.hud)
-	local player = concord.entity():give("position", 0, 0):give("velocity"):give("sprite", 10):give("will"):give("player")
-	local otherGuy = concord.entity():give("position", 0, 0):give("velocity"):give("sprite", 5):give("will")
+	local player = concord.entity():give("position", 0, 0):give("velocity"):give("sprite", 10):give("will"):give("grounded"):give("gait", 100, 800, 100, 10):give("flyingRecoveryRate", 100)
+	local otherGuy = concord.entity():give("position", 0, 0):give("velocity"):give("sprite", 10):give("will"):give("grounded"):give("gait", 100, 800, 100, 10):give("flyingRecoveryRate", 100)
+	player:give("player")
 	world
 		:addEntity(player)
 		:addEntity(otherGuy)

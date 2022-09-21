@@ -2,7 +2,8 @@ local concord = require("lib.concord")
 
 local quantities = concord.system({
 	-- Pools that use lerp
-	position = {"position"}
+	position = {"position"},
+	velocity = {"velocity"}
 })
 
 function quantities:fixedUpdate(dt)
