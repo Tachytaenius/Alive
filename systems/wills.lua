@@ -14,18 +14,18 @@ function wills:fixedUpdate(dt)
 	
 	for _, e in ipairs(self.willPlayers) do
 		local will = e.will
-		will.accel = vec2()
+		will.movement = vec2()
 		if boilerplate.input.didFixedCommand("moveForward") then
-			will.accel.y = will.accel.y - 10
+			will.movement.y = will.movement.y - 10
 		end
 		if boilerplate.input.didFixedCommand("moveBackward") then
-			will.accel.y = will.accel.y + 10
+			will.movement.y = will.movement.y + 10
 		end
 		if boilerplate.input.didFixedCommand("moveLeft") then
-			will.accel.x = will.accel.x - 10
+			will.movement.x = will.movement.x - 10
 		end
 		if boilerplate.input.didFixedCommand("moveRight") then
-			will.accel.x = will.accel.x + 10
+			will.movement.x = will.movement.x + 10
 		end
 	end
 end

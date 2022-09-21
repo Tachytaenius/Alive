@@ -4,7 +4,7 @@ local walking = concord.system({walkers = {"will", "velocity"}})
 
 function walking:fixedUpdate(dt)
 	for _, e in ipairs(self.walkers) do
-		if e.will.accel then
+		if e.will.movement then
 			e.velocity.val = e.velocity.val + e.will.accel * dt
 		end
 	end
