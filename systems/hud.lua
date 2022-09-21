@@ -18,9 +18,9 @@ function hud:draw(lerp, dt, performance)
 	love.graphics.setCanvas(boilerplate.hudCanvas)
 	love.graphics.clear()
 	love.graphics.print(
-		"X: " .. math.round(player.position.ival.x) .. "\n" ..
-		"Y: " .. math.round(player.position.ival.y) .. "\n" ..
-		"Speed: " .. math.round(#player.velocity.val)
+		"X: " .. math.round(player.position.lerpedValue.x) .. "\n" ..
+		"Y: " .. math.round(player.position.lerpedValue.y) .. "\n" ..
+		"Speed: " .. math.round(#player.velocity.value)
 	)
 	love.graphics.setCanvas()
 end

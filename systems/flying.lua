@@ -7,8 +7,8 @@ local flying = concord.system({flyers = {"flying", "velocity"}, walkers = {"grou
 
 function flying:fixedUpdate(dt)
 	for _, e in ipairs(self.flyers) do
-		local speed = #e.velocity.val
-		local speedReduction = e.flyingRecoveryRate and e.flyingRecoveryRate.val or consts.defaultFlyingRecoveryRate
+		local speed = #e.velocity.value
+		local speedReduction = e.flyingRecoveryRate and e.flyingRecoveryRate.value or consts.defaultFlyingRecoveryRate
 		speed = math.max(0, speed - speedReduction * dt)
 		if e.gait then
 			if speed <= e.gait.standThreshold then
@@ -25,14 +25,14 @@ function flying:fixedUpdate(dt)
 				end
 			end
 		end
-		if #e.velocity.val > 0 then
-			e.velocity.val = vec2.normalise(e.velocity.val) * speed
+		if #e.velocity.value > 0 then
+			e.velocity.value = vec2.normalise(e.velocity.value) * speed
 		end
 	end
 	
 	for _, e in ipairs(self.walkers) do
 		-- Have entities moving faster than their tripThreshold trip up
-		if #e.velocity.val > e.gait.tripThreshold then
+		if #e.velocity.value > e.gait.tripThreshold then
 			e:remove("grounded")
 			e:give("flying")
 		end

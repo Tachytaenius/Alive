@@ -12,7 +12,7 @@ function quantities:fixedUpdate(dt)
 		local component = pool.__name
 		for _, e in ipairs(pool) do
 			local bag = e:get(component)
-			bag.pval = bag.val
+			bag.previousValue = bag.value
 		end
 	end
 end
@@ -22,7 +22,7 @@ function quantities:draw(lerp, dt, performance)
 		local component = pool.__name
 		for _, e in ipairs(pool) do
 			local bag = e:get(component)
-			bag.ival = math.lerp(bag.pval, bag.val, lerp)
+			bag.lerpedValue = math.lerp(bag.previousValue, bag.value, lerp)
 		end
 	end
 	

@@ -18,10 +18,10 @@ function rendering:draw(lerp, dt, performance)
 	
 	love.graphics.setCanvas(boilerplate.gameCanvas)
 	love.graphics.clear(0, 0, 0, 1)
-	love.graphics.translate(-player.position.ival.x, -player.position.ival.y)
+	love.graphics.translate(-player.position.lerpedValue.x, -player.position.lerpedValue.y)
 	love.graphics.translate(boilerplate.config.canvasSystemWidth / 2, boilerplate.config.canvasSystemHeight / 2)
 	for _, e in ipairs(self.sprites) do
-		love.graphics.circle("fill", e.position.ival.x, e.position.ival.y, e.sprite.radius)
+		love.graphics.circle("fill", e.position.lerpedValue.x, e.position.lerpedValue.y, e.sprite.radius)
 	end
 	love.graphics.origin()
 	love.graphics.setCanvas()
