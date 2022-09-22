@@ -3,7 +3,7 @@
 **Not all of this is implemented yet.**
 **Subject to change, too.**
 
-## Gameplay Details
+## Gameplay Details and Goals
 
 The tilemap layer sits over a layer of bedrock.
 Which should be able to have holes in it (that may fill up with water!).
@@ -27,7 +27,7 @@ When building, constituents are taken from the last chunks in the builder's inve
 A chunk should have a constant size and the maximum total constituents of a tile should be a multiple of it.
 We want to avoid numeric drift with tile constituent ratios when mining and building.
 
-## Technical Details
+## Fields and Technical Details
 
 Mostly to-decide-upon.
 
