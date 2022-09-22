@@ -5,6 +5,8 @@ consts.preCrushCanvasHeight = 1024
 
 consts.tileWidth = 16
 consts.tileHeight = 16
+consts.chunkConstituentsTotal = 256 -- How much the constituents counts of a chunk should add up to
+consts.chunksPerLayer = 16 -- How many chunks make up a super topping wall or topping
 
 consts.defaultFlyingRecoveryRate = 100
 
