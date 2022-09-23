@@ -11,6 +11,8 @@ concord.utils.loadNamespace("assemblages", assemblages)
 
 require("monkeypatch")
 
+local registry = require("registry")
+
 local frameCommands = {
 	
 }
@@ -74,6 +76,7 @@ local initConfig = {
 local world
 
 function boilerplate.load(args)
+	registry.load()
 	world = concord.world()
 	world
 		:addSystem(systems.quantities) -- Should be first

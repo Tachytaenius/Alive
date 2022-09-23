@@ -38,10 +38,12 @@ function rendering:draw(lerp, dt, performance)
 		for y = tilesY1, tilesY2 do
 			local tile = column[y]
 			if tile.topping then
+				love.graphics.setColor(tile.topping.r, tile.topping.g, tile.topping.b)
 				love.graphics.rectangle("fill", x * consts.tileWidth, y * consts.tileHeight, consts.tileWidth, consts.tileHeight)
 			end
 		end
 	end
+	love.graphics.setColor(1, 1, 1)
 	
 	-- Draw entities in ditches
 	for _, e in ipairs(normalHeightSprites) do

@@ -1,5 +1,6 @@
 local concord = require("lib.concord")
 
+local registry = require("registry")
 local consts = require("consts")
 
 local map = concord.system({})
@@ -8,9 +9,9 @@ function map:newWorld(width, height)
 	self.width, self.height = width, height
 	
 	self.soilMaterials = {
-		{material = "loam", abundance = 10}, -- TODO: Links to the materials registry instead of just strings
-		{material = "clay", abundance = 5},
-		{material = "sand", abundance = 2}
+		{material = registry.materials.byName.loam, abundance = 10},
+		{material = registry.materials.byName.clay, abundance = 5},
+		{material = registry.materials.byName.sand, abundance = 2}
 	}
 	
 	local tiles = {}
@@ -20,6 +21,8 @@ function map:newWorld(width, height)
 		tiles[x] = column
 		for y = 0, height - 1 do
 			local tile = {}
+			
+			-- Generate topping
 			column[y] = tile
 			tile.topping = {
 				type = "solid",
@@ -31,9 +34,34 @@ function map:newWorld(width, height)
 				tile.topping.chunks[#tile.topping.chunks + 1] = chunk
 				chunk.constituents = constituents
 			end
+			self:updateToppingDrawFields(x, y)
+			
 			tile.superTopping = nil
 		end
 	end
+end
+
+function map:updateToppingDrawFields(x, y)
+	local tileTopping = self.tiles[x][y].topping
+	local materialAmount = {}
+	for _, chunk in ipairs(tileTopping.chunks) do
+		for _, constituent in ipairs(chunk.constituents) do
+			local material = constituent.material
+			materialAmount[material] = (materialAmount[material] or 0) + constituent.amount
+		end
+	end
+	local weightTotal = 0
+	local r, g, b = 0, 0, 0
+	for material, amount in pairs(materialAmount) do
+		local weight = amount * (material.visualWeight or 1)
+		weightTotal = weightTotal + weight
+		r = r + material.colour[1] * weight
+		g = g + material.colour[2] * weight
+		b = b + material.colour[3] * weight
+	end
+	tileTopping.r = r / weightTotal
+	tileTopping.g = g / weightTotal
+	tileTopping.b = b / weightTotal
 end
 
 function map:generateConstituents(x, y, materialsSet)
