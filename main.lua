@@ -93,7 +93,7 @@ function boilerplate.load(args)
 	world
 		:addEntity(player)
 		:addEntity(otherGuy)
-	world:emit("newWorld", 256, 256)
+	world:emit("newWorld", 64, 64)
 	world.unsaved = true
 end
 
