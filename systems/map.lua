@@ -9,10 +9,10 @@ function map:newWorld(width, height)
 	self.width, self.height = width, height
 	
 	self.soilMaterials = {
-		{material = registry.materials.byName.loam, abundance = 4, noiseWidth = 20, noiseHeight = 20},
-		{material = registry.materials.byName.clay, abundance = 3, noiseWidth = 20, noiseHeight = 20},
-		{material = registry.materials.byName.sand, abundance = 2, noiseWidth = 20, noiseHeight = 20},
-		{material = registry.materials.byName.silt, abundance = 1, noiseWidth = 20, noiseHeight = 20}
+		{material = registry.materials.byName.loam, abundance = 14, noiseWidth = 50, noiseHeight = 50},
+		{material = registry.materials.byName.clay, abundance = 13, noiseWidth = 50, noiseHeight = 50},
+		{material = registry.materials.byName.sand, abundance = 12, noiseWidth = 50, noiseHeight = 50},
+		{material = registry.materials.byName.silt, abundance = 11, noiseWidth = 50, noiseHeight = 50}
 	}
 	
 	local tiles = {}
