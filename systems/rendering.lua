@@ -8,7 +8,10 @@ local rendering = concord.system({players = {"player"}, sprites = {"position", "
 function rendering:init()
 	self.preCrushCanvas = love.graphics.newCanvas(consts.preCrushCanvasWidth, consts.preCrushCanvasHeight)
 	-- self.crushShader = love.graphics.newShader("shaders/crush.glsl")
+	
 	self.dummyImage = love.graphics.newImage(love.image.newImageData(1, 1))
+	
+	self.textureShader = love.graphics.newShader("shaders/texture.glsl")
 end
 
 function rendering:drawSprite(e)
@@ -29,21 +32,28 @@ function rendering:draw(lerp, dt, performance)
 	local normalHeightSprites = self.sprites -- TODO
 	
 	local mapSystem = self:getWorld().map
-	local tilesX1, tilesX2 = 0, mapSystem.width - 1
+	local tilesX1, tilesX2 = 0, mapSystem.width - 1 -- TODO
 	local tilesY1, tilesY2 = 0, mapSystem.height - 1
 	
 	-- Draw toppings
+	love.graphics.setShader(self.textureShader)
+	self.textureShader:send("tileSize", {consts.tileWidth, consts.tileHeight})
 	for x = tilesX1, tilesX2 do
 		local column = mapSystem.tiles[x]
 		for y = tilesY1, tilesY2 do
 			local tile = column[y]
 			if tile.topping then
+				self.textureShader:send("useNoise", true)
+				local drawX, drawY = x * consts.tileWidth, y * consts.tileHeight
+				self.textureShader:send("tilePosition", {drawX, drawY})
+				self.textureShader:send("noiseSize", tile.topping.noiseSize)
 				love.graphics.setColor(tile.topping.r, tile.topping.g, tile.topping.b)
-				love.graphics.rectangle("fill", x * consts.tileWidth, y * consts.tileHeight, consts.tileWidth, consts.tileHeight)
+				love.graphics.draw(self.dummyImage, drawX, drawY, 0, consts.tileWidth, consts.tileHeight)
 			end
 		end
 	end
 	love.graphics.setColor(1, 1, 1)
+	love.graphics.setShader()
 	
 	-- Draw entities in ditches
 	for _, e in ipairs(normalHeightSprites) do

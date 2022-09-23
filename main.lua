@@ -1,3 +1,6 @@
+local ffi = require("ffi")
+local uint64 = ffi.typeof("uint64_t")
+
 local boilerplate = require("lib.love-game-boilerplate-lib")
 local concord = require("lib.concord")
 
@@ -73,12 +76,26 @@ local initConfig = {
 	pauseInputType = "released"
 }
 
-local world
+local superWorld -- The whole game instance
 
 function boilerplate.load(args)
 	registry.load()
-	world = concord.world()
-	world
+	
+	local max32 = math.ldexp(1, 32)-1
+	local seed = love.math.random(0, max32)
+	local rng = love.math.newRandomGenerator(seed)
+	
+	superWorld = {
+		seed = seed,
+		rng = rng,
+		unsaved = true,
+		subWorlds = {}
+	}
+	
+	local mainSubWorld = concord.world()
+	superWorld.subWorlds[#superWorld.subWorlds + 1] = mainSubWorld
+	mainSubWorld.superWorld = superWorld
+	mainSubWorld
 		:addSystem(systems.quantities) -- Should be first
 		:addSystem(systems.map)
 		:addSystem(systems.flying)
@@ -87,36 +104,45 @@ function boilerplate.load(args)
 		:addSystem(systems.movement)
 		:addSystem(systems.rendering)
 		:addSystem(systems.hud)
+	
 	local player = concord.entity():give("position", 0, 0):give("velocity"):give("sprite", 10):give("will"):give("grounded"):give("gait", 100, 800, 100, 10):give("flyingRecoveryRate", 100)
 	local otherGuy = concord.entity():give("position", 0, 0):give("velocity"):give("sprite", 10):give("will"):give("grounded"):give("gait", 100, 800, 100, 10):give("flyingRecoveryRate", 100)
 	player:give("player")
-	world
+	
+	mainSubWorld
 		:addEntity(player)
 		:addEntity(otherGuy)
-	world:emit("newWorld", 64, 64)
-	world.unsaved = true
+	
+	for _, subWorld in ipairs(superWorld.subWorlds) do
+		subWorld:emit("newWorld", 64, 64)
+	end
 end
 
 function boilerplate.update(dt, performance)
-	world:emit("update", dt)
+	for _, subWorld in ipairs(superWorld.subWorlds) do
+		subWorld:emit("update", dt)
+	end
 end
 
 function boilerplate.fixedUpdate(dt)
-	world:emit("fixedUpdate", dt)
-	world.unsaved = true
-	-- use boilerplate.fixedMouseDx and boilerplate.fixedMouseDy to look around et cetera
+	for _, subWorld in ipairs(superWorld.subWorlds) do
+		subWorld:emit("fixedUpdate", dt)
+	end
+	superWorld.unsaved = true
 end
 
 function boilerplate.draw(lerp, dt, performance)
-	world:emit("draw", lerp, dt, performance)
+	for _, subWorld in ipairs(superWorld.subWorlds) do -- TEMP
+		subWorld:emit("draw", lerp, dt, performance)
+	end
 end
 
 function boilerplate.getUnsaved()
-	return world.unsaved
+	return superWorld.unsaved
 end
 
 function boilerplate.save()
-	world.unsaved = false
+	superWorld.unsaved = false
 end
 
 function boilerplate.quit()

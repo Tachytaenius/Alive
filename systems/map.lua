@@ -9,9 +9,10 @@ function map:newWorld(width, height)
 	self.width, self.height = width, height
 	
 	self.soilMaterials = {
-		{material = registry.materials.byName.loam, abundance = 10},
-		{material = registry.materials.byName.clay, abundance = 5},
-		{material = registry.materials.byName.sand, abundance = 2}
+		{material = registry.materials.byName.loam, abundance = 4},
+		{material = registry.materials.byName.clay, abundance = 3},
+		{material = registry.materials.byName.sand, abundance = 2},
+		{material = registry.materials.byName.silt, abundance = 1}
 	}
 	
 	local tiles = {}
@@ -51,27 +52,35 @@ function map:updateToppingDrawFields(x, y)
 		end
 	end
 	local weightTotal = 0
-	local r, g, b = 0, 0, 0
+	local r, g, b, noiseSize = 0, 0, 0, 0
 	for material, amount in pairs(materialAmount) do
 		local weight = amount * (material.visualWeight or 1)
 		weightTotal = weightTotal + weight
 		r = r + material.colour[1] * weight
 		g = g + material.colour[2] * weight
 		b = b + material.colour[3] * weight
+		noiseSize = noiseSize + (material.noiseSize or 10) * weight
 	end
 	tileTopping.r = r / weightTotal
 	tileTopping.g = g / weightTotal
 	tileTopping.b = b / weightTotal
+	tileTopping.noiseSize = math.max(consts.minimumTextureNoiseSize,
+		math.floor((noiseSize / weightTotal) / consts.textureNoiseSizeIrresolution) *
+		consts.textureNoiseSizeIrresolution
+	)
 end
 
 function map:generateConstituents(x, y, materialsSet)
+	local materialNoiseWidth, materialNoiseHeight = 20, 20 -- TEMP
+	local materialNoiseLayerDistance = 5 -- is 1 enough?
+	
 	-- All constituents must add up to const.chunkConstituentsTotal
 	local constituents = {}
 	
 	-- Get base weights
 	local total1 = 0
 	for i, materialsSetEntry in pairs(materialsSet) do
-		local amount = math.random() * materialsSetEntry.abundance -- TODO: replace with clouds
+		local amount = love.math.noise(x / materialNoiseWidth, y / materialNoiseHeight, materialsSetEntry.material.id * materialNoiseLayerDistance) * materialsSetEntry.abundance
 		constituents[i] = {material = materialsSetEntry.material, amount = amount}
 		total1 = total1 + amount
 	end
