@@ -32,7 +32,7 @@ local function createMaterial(jsonData, entryName, path)
 	return entry
 end
 
-local function createRealmTheme(jsonData, entryName, path)
+local function createWorldTheme(jsonData, entryName, path)
 	local entry = jsonData
 	
 end
