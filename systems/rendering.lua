@@ -47,6 +47,8 @@ function rendering:draw(lerp, dt, performance)
 				local drawX, drawY = x * consts.tileWidth, y * consts.tileHeight
 				self.textureShader:send("tilePosition", {drawX, drawY})
 				self.textureShader:send("noiseSize", tile.topping.noiseSize)
+				self.textureShader:send("contrast", tile.topping.contrast)
+				self.textureShader:send("brightness", tile.topping.brightness)
 				love.graphics.setColor(tile.topping.r, tile.topping.g, tile.topping.b)
 				love.graphics.draw(self.dummyImage, drawX, drawY, 0, consts.tileWidth, consts.tileHeight)
 			end

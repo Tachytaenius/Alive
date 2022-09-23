@@ -52,7 +52,7 @@ function map:updateToppingDrawFields(x, y)
 		end
 	end
 	local weightTotal = 0
-	local r, g, b, noiseSize = 0, 0, 0, 0
+	local r, g, b, noiseSize, contrast, brightness = 0, 0, 0, 0, 0, 0
 	for material, amount in pairs(materialAmount) do
 		local weight = amount * (material.visualWeight or 1)
 		weightTotal = weightTotal + weight
@@ -60,6 +60,8 @@ function map:updateToppingDrawFields(x, y)
 		g = g + material.colour[2] * weight
 		b = b + material.colour[3] * weight
 		noiseSize = noiseSize + (material.noiseSize or 10) * weight
+		contrast = contrast + (material.contrast or 0.5) * weight
+		brightness = brightness + (material.brightness or 0.5) * weight
 	end
 	tileTopping.r = r / weightTotal
 	tileTopping.g = g / weightTotal
@@ -68,6 +70,8 @@ function map:updateToppingDrawFields(x, y)
 		math.floor((noiseSize / weightTotal) / consts.textureNoiseSizeIrresolution) *
 		consts.textureNoiseSizeIrresolution
 	)
+	tileTopping.contrast = contrast / weightTotal
+	tileTopping.brightness = brightness / weightTotal
 end
 
 function map:generateConstituents(x, y, materialsSet)

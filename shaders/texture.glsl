@@ -120,13 +120,18 @@ uniform vec2 tileSize;
 
 uniform bool useNoise;
 uniform vec2 tilePosition;
+
 uniform float noiseSize;
+uniform float contrast;
+uniform float brightness;
 
 vec4 effect(vec4 colour, sampler2D texture, vec2 textureCoords, vec2 windowCoords) {
 	vec4 fragmentColour = Texel(texture, textureCoords);
 	if (useNoise) {
 		vec2 noisePos = (textureCoords * tileSize + tilePosition) / noiseSize;
 		float noise = (perlin2d(noisePos) + 1) / 2.0;
+		noise = (noise - 0.5) * 2.0 * contrast + 0.5;
+		noise += brightness;
 		return vec4(colour.rgb * noise, 1.0);
 	}
 	return colour * fragmentColour;
