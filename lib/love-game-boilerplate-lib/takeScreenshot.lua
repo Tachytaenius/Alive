@@ -1,6 +1,4 @@
--- TODO: Organise into canvasName folders
-
-return function(canvas)
+return function(canvas, canvasName)
 	local info = love.filesystem.getInfo("screenshots")
 	if not info then
 		print("Couldn't find screenshots folder. Creating")
@@ -10,12 +8,23 @@ return function(canvas)
 		return
 	end
 	
-	local current = 0
-	for _, filename in pairs(love.filesystem.getDirectoryItems("screenshots")) do
-		if string.match(filename, "^%d+%.png$") then -- Make sure this file could have been created by this function
-			current = math.max(current, tonumber(string.sub(filename, 1, -5)))
-		end
+	local dateTime = os.date("%Y-%m-%d %H-%M-%S") -- Can't use colons!
+	
+	local currentIdentifier = 1
+	local currentPath
+	local function generatePath()
+		currentPath =
+			"screenshots/" ..
+			dateTime .. " " ..
+			(canvasName and canvasName .. " " or "") ..
+			currentIdentifier ..
+			".png"
+	end
+	generatePath()
+	while love.filesystem.getInfo(currentPath) do
+		currentIdentifier = currentIdentifier + 1
+		generatePath()
 	end
 	
-	canvas:newImageData():encode("png", "screenshots/" .. current + 1 .. ".png")
+	canvas:newImageData():encode("png", currentPath)
 end

@@ -245,6 +245,7 @@ function boilerplate.init(initConfig, arg)
 		boilerplate.hudCanvas = love.graphics.newCanvas(config.canvasSystemWidth, config.canvasSystemHeight)
 		boilerplate.infoCanvas = love.graphics.newCanvas(config.canvasSystemWidth, config.canvasSystemHeight)
 		boilerplate.outputCanvas = love.graphics.newCanvas(config.canvasSystemWidth, config.canvasSystemHeight)
+		boilerplate.outlineShader = love.graphics.newShader(path:gsub("%.", "/") .. "/shaders/outline.glsl")
 		if boilerplate.load then
 			boilerplate.load(arg, unfilteredArg)
 		end
@@ -266,8 +267,12 @@ function boilerplate.init(initConfig, arg)
 		end
 		
 		if input.checkFrameUpdateCommand("takeScreenshot") then
-			-- If uiModifier is held then takeScreenshot will include HUD et cetera.
-			takeScreenshot(input.checkFrameUpdateCommand("uiModifier") and boilerplate.outputCanvas or boilerplate.gameCanvas)
+			-- If uiModifier is held then takeScreenshot will exclude HUD et cetera.
+			if input.checkFrameUpdateCommand("uiModifier") then
+				takeScreenshot(boilerplate.gameCanvas, "game")
+			else
+				takeScreenshot(boilerplate.outputCanvas, "game & HUD")
+			end
 		end
 		
 		if not ui.current or ui.current.type ~= "settings" then
@@ -340,22 +345,21 @@ function boilerplate.init(initConfig, arg)
 				"Tick time: " .. (performance and math.floor(performance * 100 + 0.5) .. "%" or "N/A"),
 			1, 1)
 		end
+		
 		if boilerplate.draw and not paused() then
 			-- Draw to input canvas
 			boilerplate.draw(settings.graphics.interpolation and lerp or 1, dt, performance)
 		end
+		
 		love.graphics.setCanvas(boilerplate.outputCanvas)
 		love.graphics.clear(0, 0, 0, 1)
+		
 		if ui.current then
 			love.graphics.setColor(initConfig.uiTint or {1, 1, 1})
 		end
 		love.graphics.draw(boilerplate.gameCanvas)
-		if settings.graphics.showPerformance then
-			love.graphics.setColor(1, 1, 1)
-			love.graphics.setShader(boilerplate.outlineShader)
-			love.graphics.draw(boilerplate.infoCanvas, 1, 1)
-			love.graphics.setShader()
-		end
+		love.graphics.setColor(1, 1, 1)
+		
 		if ui.current then
 			suit.draw()
 			if ui.current.draw then
@@ -363,10 +367,18 @@ function boilerplate.init(initConfig, arg)
 			end
 			love.graphics.setColor(settings.mouse.cursorColour)
 			love.graphics.draw(assets.ui.cursor.value, math.floor(ui.current.mouseX), math.floor(ui.current.mouseY))
+			love.graphics.setColor(1, 1, 1)
 		else
 			love.graphics.draw(boilerplate.hudCanvas)
 		end
-		love.graphics.setColor(1, 1, 1)
+		
+		if settings.graphics.showPerformance then
+			love.graphics.setShader(boilerplate.outlineShader)
+			boilerplate.outlineShader:send("windowSize", {config.canvasSystemWidth, config.canvasSystemHeight})
+			love.graphics.draw(boilerplate.infoCanvas, 1, 1)
+			love.graphics.setShader()
+		end
+		
 		love.graphics.setCanvas()
 		
 		love.graphics.draw(boilerplate.outputCanvas,
