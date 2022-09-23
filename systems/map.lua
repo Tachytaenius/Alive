@@ -9,10 +9,10 @@ function map:newWorld(width, height)
 	self.width, self.height = width, height
 	
 	self.soilMaterials = {
-		{material = registry.materials.byName.loam, abundance = 4},
-		{material = registry.materials.byName.clay, abundance = 3},
-		{material = registry.materials.byName.sand, abundance = 2},
-		{material = registry.materials.byName.silt, abundance = 1}
+		{material = registry.materials.byName.loam, abundance = 4, noiseWidth = 20, noiseHeight = 20},
+		{material = registry.materials.byName.clay, abundance = 3, noiseWidth = 20, noiseHeight = 20},
+		{material = registry.materials.byName.sand, abundance = 2, noiseWidth = 20, noiseHeight = 20},
+		{material = registry.materials.byName.silt, abundance = 1, noiseWidth = 20, noiseHeight = 20}
 	}
 	
 	local tiles = {}
@@ -71,16 +71,18 @@ function map:updateToppingDrawFields(x, y)
 end
 
 function map:generateConstituents(x, y, materialsSet)
-	local materialNoiseWidth, materialNoiseHeight = 20, 20 -- TEMP
-	local materialNoiseLayerDistance = 5 -- is 1 enough?
-	
 	-- All constituents must add up to const.chunkConstituentsTotal
 	local constituents = {}
 	
 	-- Get base weights
 	local total1 = 0
 	for i, materialsSetEntry in pairs(materialsSet) do
-		local amount = love.math.noise(x / materialNoiseWidth, y / materialNoiseHeight, materialsSetEntry.material.id * materialNoiseLayerDistance) * materialsSetEntry.abundance
+		local noise = love.math.noise(
+			x / materialsSetEntry.noiseWidth,
+			y / materialsSetEntry.noiseHeight,
+			materialsSetEntry.material.id
+		)
+		local amount = noise * materialsSetEntry.abundance
 		constituents[i] = {material = materialsSetEntry.material, amount = amount}
 		total1 = total1 + amount
 	end
