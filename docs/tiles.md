@@ -20,6 +20,10 @@ Configurations of tiles and entities that should be able to exist:
 - Basic soil (topping) with grass (super topping).
 - Stone foundation (topping) with a wall (super topping).
 
+Configurations of tiles that would not be able to exist:
+- A grate on top of bedrock.
+- Flowing liquid in the super toppign layer.
+
 When mining tiles, chunks of the part that you are mining will be taken off the tile and added to the game world, probably randomly selected.
 Each chunk would be its own inventory item.
 A chunk would be little more than a consituents table that maps material definitions to their counts, adding up to a constant size.
@@ -37,6 +41,13 @@ If you have soil with chunks that all contain a distribution of loam and clay, i
 Mostly to-decide-upon.
 
 - The tilemap indices start at 0 and ends at (width or height) - 1.
+- Chunk constituents must only have one entry per material.
+
+Chunk fields:
+- `constituents`: An array of entries with the following fields:
+	- `material`: The material registry entry for this constituents entry.
+	- `amount`: How much of the material is in the chunk.
+- `health`: Health of grass that was dug up. Should decrease over time.
 
 Tile fields:
 - `topping`: The topping layer's table, or `nil` for no topping.
@@ -57,5 +68,6 @@ Tile fields:
 		- `grate`: Solid, for a grate texture.
 	- `chunk`: A single chunk that defines the materials of the sub-layer.
 	- `health`: For grass, defines how healthy the grass is.
+		Goes from 0 to 1.
 		Would be based on water amount in soil beneath.
 		For ordinary grass grass, low values should make it yellower and patchier.

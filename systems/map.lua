@@ -9,10 +9,11 @@ function map:newWorld(width, height)
 	self.width, self.height = width, height
 	
 	self.soilMaterials = {
-		{material = registry.materials.byName.loam, abundance = 14, noiseWidth = 50, noiseHeight = 50},
-		{material = registry.materials.byName.clay, abundance = 13, noiseWidth = 50, noiseHeight = 50},
-		{material = registry.materials.byName.sand, abundance = 5, noiseWidth = 50, noiseHeight = 50},
-		{material = registry.materials.byName.silt, abundance = 7, noiseWidth = 50, noiseHeight = 50}
+		{material = registry.materials.byName.loam, abundanceMultiply = 14, noiseWidth = 50, noiseHeight = 50},
+		{material = registry.materials.byName.clay, abundanceMultiply = 13, noiseWidth = 50, noiseHeight = 50},
+		{material = registry.materials.byName.sand, abundanceMultiply = 5, noiseWidth = 50, noiseHeight = 50},
+		{material = registry.materials.byName.silt, abundanceMultiply = 7, noiseWidth = 50, noiseHeight = 50},
+		{material = registry.materials.byName.water, abundanceMultiply = 0, abundanceAdd = 10}
 	}
 	
 	local tiles = {}
@@ -22,9 +23,9 @@ function map:newWorld(width, height)
 		tiles[x] = column
 		for y = 0, height - 1 do
 			local tile = {}
+			column[y] = tile
 			
 			-- Generate topping
-			column[y] = tile
 			tile.topping = {
 				type = "solid",
 				chunks = {}
@@ -37,13 +38,79 @@ function map:newWorld(width, height)
 			end
 			self:updateToppingDrawFields(x, y)
 			
-			tile.superTopping = nil
+			-- Generate super topping
+			tile.superTopping = {
+				type = "layers",
+				subLayers = {}
+			}
+			local grassHealth
+			do -- TODO: not hardcoded (grass loam requirement, grass water requirement...)
+				-- grass should only be able to grow on toppings with chunksPerLayer chunks
+				local loamAmount, waterAmount = 0, 0
+				for _, entry in ipairs(tile.topping.chunks[consts.chunksPerLayer].constituents) do
+					if entry.material.name == "loam" then
+						loamAmount = entry.amount
+					elseif entry.material.name == "water" then
+						waterAmount = entry.amount
+					end
+				end
+				local loamFractionTarget = 0.3
+				local waterFractionTarget = 0.3
+				local loamHealthMultiplier = math.min(1, (loamAmount / consts.chunkConstituentsTotal) / loamFractionTarget)
+				local waterHealthMultiplier = math.min(1, (waterAmount / consts.chunkConstituentsTotal) / waterFractionTarget)
+				grassHealth = loamHealthMultiplier * waterHealthMultiplier
+			end
+			tile.superTopping.subLayers[1] = {
+				type = "grass",
+				chunk = {
+					constituents = {
+						{material = registry.materials.byName.grass, amount = consts.chunkConstituentsTotal}
+					}
+				},
+				health = grassHealth
+			}
+			self:updateSuperToppingDrawFields(x, y)
 		end
 	end
 end
 
+local function calculateConstituentDrawFields(materialAmount, tableToWriteTo, health)
+	local weightTotal = 0
+	local r, g, b, noiseSize, contrast, brightness = 0, 0, 0, 0, 0, 0
+	for material, amount in pairs(materialAmount) do
+		local weight = amount * (material.visualWeight or 1)
+		weightTotal = weightTotal + weight
+		local materialRed = material.colour[1]
+		local materialGreen = material.colour[2]
+		local materialBlue = material.colour[3]
+		if health and material.deadColour then
+			materialRed = math.lerp(material.deadColour[1], materialRed, health)
+			materialGreen = math.lerp(material.deadColour[2], materialGreen, health)
+			materialBlue = math.lerp(material.deadColour[3], materialBlue, health)
+		end
+		r = r + materialRed * weight
+		g = g + materialGreen * weight
+		b = b + materialBlue * weight
+		noiseSize = noiseSize + (material.noiseSize or 10) * weight
+		contrast = contrast + (material.contrast or 0.5) * weight
+		brightness = brightness + (material.brightness or 0.5) * weight
+	end
+	tableToWriteTo.r = r / weightTotal
+	tableToWriteTo.g = g / weightTotal
+	tableToWriteTo.b = b / weightTotal
+	tableToWriteTo.noiseSize = math.max(consts.minimumTextureNoiseSize,
+		math.floor((noiseSize / weightTotal) / consts.textureNoiseSizeIrresolution) *
+		consts.textureNoiseSizeIrresolution
+	)
+	tableToWriteTo.contrast = contrast / weightTotal
+	tableToWriteTo.brightness = brightness / weightTotal
+end
+
 function map:updateToppingDrawFields(x, y)
 	local tileTopping = self.tiles[x][y].topping
+	if not tileTopping then
+		return
+	end
 	local materialAmount = {}
 	for _, chunk in ipairs(tileTopping.chunks) do
 		for _, constituent in ipairs(chunk.constituents) do
@@ -51,27 +118,32 @@ function map:updateToppingDrawFields(x, y)
 			materialAmount[material] = (materialAmount[material] or 0) + constituent.amount
 		end
 	end
-	local weightTotal = 0
-	local r, g, b, noiseSize, contrast, brightness = 0, 0, 0, 0, 0, 0
-	for material, amount in pairs(materialAmount) do
-		local weight = amount * (material.visualWeight or 1)
-		weightTotal = weightTotal + weight
-		r = r + material.colour[1] * weight
-		g = g + material.colour[2] * weight
-		b = b + material.colour[3] * weight
-		noiseSize = noiseSize + (material.noiseSize or 10) * weight
-		contrast = contrast + (material.contrast or 0.5) * weight
-		brightness = brightness + (material.brightness or 0.5) * weight
+	calculateConstituentDrawFields(materialAmount, tileTopping)
+end
+
+function map:updateSuperToppingDrawFields(x, y)
+	local tileSuperTopping = self.tiles[x][y].superTopping
+	if not tileSuperTopping then
+		return
 	end
-	tileTopping.r = r / weightTotal
-	tileTopping.g = g / weightTotal
-	tileTopping.b = b / weightTotal
-	tileTopping.noiseSize = math.max(consts.minimumTextureNoiseSize,
-		math.floor((noiseSize / weightTotal) / consts.textureNoiseSizeIrresolution) *
-		consts.textureNoiseSizeIrresolution
-	)
-	tileTopping.contrast = contrast / weightTotal
-	tileTopping.brightness = brightness / weightTotal
+	if tileSuperTopping.type == "layers" then
+		for _, subLayer in ipairs(tileSuperTopping.subLayers) do
+			local materialAmount = {}
+			for _, constituent in ipairs(subLayer.chunk.constituents) do
+				materialAmount[constituent.material] = constituent.amount
+			end
+			calculateConstituentDrawFields(materialAmount, subLayer, subLayer.type == "grass" and subLayer.health)
+		end
+	else -- type == "wall"
+		local materialAmount = {}
+		for _, chunk in ipairs(tileSuperTopping.chunks) do
+			for _, constituent in ipairs(chunk.constituents) do
+				local material = constituent.material
+				materialAmount[material] = (materialAmount[material] or 0) + constituent.amount
+			end
+		end
+		calculateConstituentDrawFields(materialAmount, tileSuperTopping)
+	end
 end
 
 function map:generateConstituents(x, y, materialsSet)
@@ -82,11 +154,11 @@ function map:generateConstituents(x, y, materialsSet)
 	local total1 = 0
 	for i, materialsSetEntry in pairs(materialsSet) do
 		local noise = love.math.noise(
-			x / materialsSetEntry.noiseWidth,
-			y / materialsSetEntry.noiseHeight,
+			x / (materialsSetEntry.noiseWidth or 1),
+			y / (materialsSetEntry.noiseHeight or 1),
 			materialsSetEntry.material.id
 		)
-		local amount = noise * materialsSetEntry.abundance
+		local amount = noise * materialsSetEntry.abundanceMultiply + (materialsSetEntry.abundanceAdd or 0)
 		constituents[i] = {material = materialsSetEntry.material, amount = amount}
 		total1 = total1 + amount
 	end

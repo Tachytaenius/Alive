@@ -63,19 +63,38 @@ function rendering:draw(lerp, dt, performance)
 	end
 	
 	-- Draw superToppings
+	love.graphics.setShader(self.textureShader)
 	for x = tilesX1, tilesX2 do
 		local column = mapSystem.tiles[x]
 		for y = tilesY1, tilesY2 do
 			local tile = column[y]
 			if tile.superTopping then
-				if tile.superTopping.type == "layer" then
-					love.graphics.rectangle("fill", x * consts.tileWidth, y * consts.tileHeight, consts.tileWidth, consts.tileHeight)
+				if tile.superTopping.type == "layers" then
+					for _, subLayer in ipairs(tile.superTopping.subLayers) do
+						self.textureShader:send("useNoise", true)
+						local drawX, drawY = x * consts.tileWidth, y * consts.tileHeight
+						self.textureShader:send("tilePosition", {drawX, drawY})
+						self.textureShader:send("noiseSize", subLayer.noiseSize)
+						self.textureShader:send("contrast", subLayer.contrast)
+						self.textureShader:send("brightness", subLayer.brightness)
+						love.graphics.setColor(subLayer.r, subLayer.g, subLayer.b)
+						love.graphics.draw(self.dummyImage, drawX, drawY, 0, consts.tileWidth, consts.tileHeight)
+					end
 				else -- wall
-					love.graphics.rectangle("fill", x * consts.tileWidth, y * consts.tileHeight, consts.tileWidth, consts.tileHeight)
+					self.textureShader:send("useNoise", true)
+					local drawX, drawY = x * consts.tileWidth, y * consts.tileHeight
+					self.textureShader:send("tilePosition", {drawX, drawY})
+					self.textureShader:send("noiseSize", tile.superTopping.noiseSize)
+					self.textureShader:send("contrast", tile.superTopping.contrast)
+					self.textureShader:send("brightness", tile.superTopping.brightness)
+					love.graphics.setColor(subLayer.r, subLayer.g, subLayer.b)
+					love.graphics.draw(self.dummyImage, drawX, drawY, 0, consts.tileWidth, consts.tileHeight)
 				end
 			end
 		end
 	end
+	love.graphics.setColor(1, 1, 1)
+	love.graphics.setShader()
 	
 	-- Draw entities at normal height
 	for _, e in ipairs(normalHeightSprites) do
