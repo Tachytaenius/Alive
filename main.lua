@@ -110,13 +110,18 @@ function boilerplate.load(args)
 		:addSystem(systems.rendering)
 		:addSystem(systems.hud)
 	
-	local player = concord.entity():give("position", 0, 0):give("velocity"):give("sprite", 10):give("will"):give("grounded"):give("gait", 100, 800, 100, 10):give("flyingRecoveryRate", 100)
-	local otherGuy = concord.entity():give("position", 0, 0):give("velocity"):give("sprite", 10):give("will"):give("grounded"):give("gait", 100, 800, 100, 10):give("flyingRecoveryRate", 100)
-	player:give("player")
+	local player = concord.entity()
+		:give("position", 0, 0)
+		:give("velocity")
+		:give("sprite", 10)
+		:give("will")
+		:give("grounded")
+		:give("gait", 100, 800, 100, 10)
+		:give("flyingRecoveryRate", 100)
+		:give("player")
 	
 	mainSubWorld
 		:addEntity(player)
-		:addEntity(otherGuy)
 	
 	for _, subWorld in ipairs(superWorld.subWorlds) do
 		subWorld:emit("newWorld", 64, 64)
