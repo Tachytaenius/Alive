@@ -202,7 +202,9 @@ function map:fixedUpdate(dt)
 					for _, subLayer in ipairs(tile.superTopping.subLayers) do
 						local grassMaterial = subLayer.chunk.constituents[1].material
 						if subLayer.type == "grass" then
-							-- TODO: Grass amount of grass with health x should approach x. Check docs/materials.md.
+							-- TODO: Grass amount of grass with health x should approach x.
+							-- Speed of approach should be multiplied with 1 - health downwards and with health upwards.
+							-- Check docs/materials.md.
 							subLayer.grassAmount = math.min(1, subLayer.grassAmount + grassMaterial.growthRate * subLayer.grassHealth * dt)
 						end
 					end
