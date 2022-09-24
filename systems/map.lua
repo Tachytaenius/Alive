@@ -100,8 +100,7 @@ local function calculateConstituentDrawFields(materialAmount, tableToWriteTo, gr
 	tableToWriteTo.g = g / weightTotal
 	tableToWriteTo.b = b / weightTotal
 	tableToWriteTo.noiseSize = math.max(consts.minimumTextureNoiseSize,
-		math.floor((noiseSize / weightTotal) / consts.textureNoiseSizeIrresolution) *
-		consts.textureNoiseSizeIrresolution
+		math.floor((noiseSize / weightTotal) / consts.textureNoiseSizeIrresolution) * consts.textureNoiseSizeIrresolution
 	)
 	tableToWriteTo.contrast = contrast / weightTotal
 	tableToWriteTo.brightness = brightness / weightTotal
