@@ -8,5 +8,6 @@
 	"healthDecreaseRate": 0.005,
 	"growthRate": 0.01,
 	"decayRate": 0.01,
+	"targetGrassAmountAdd": 0.25,
 	"fullness1": 1
 }

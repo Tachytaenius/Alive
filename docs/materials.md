@@ -14,3 +14,5 @@ Fields:
 - `healthIncreaseRate`: For grass, how much `grassHealth` is added to per second when grass health is increasing.
 - `healthDecreaseRate`: For grass, how much `grassHealth` loses per second when grass target health is lower than current health.
 - `fullness1`: The `grassAmount` at and above which the texture fullness is 1. Defaults to 1.
+- `targetGrassAmountAdd`: Amount to add to health to get target grass amount when doing growth/decay calculations.
+	Target remains clamped between 0 and 1.

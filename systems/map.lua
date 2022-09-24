@@ -228,7 +228,7 @@ function map:fixedUpdate(dt)
 							-- TODO: Grass amount of grass with health x should approach x.
 							-- Speed of approach should be multiplied with 1 - health downwards and with health upwards.
 							-- Check docs/materials.md.
-							local targetAmount = subLayer.grassHealth
+							local targetAmount = math.max(0, math.min(1, subLayer.grassHealth + grassMaterial.targetGrassAmountAdd))
 							if targetAmount > subLayer.grassAmount then -- Add to amount using grassHealth and growthRate
 								subLayer.grassAmount = math.min(targetAmount, subLayer.grassAmount + grassMaterial.growthRate * subLayer.grassHealth * dt)
 							elseif targetAmount < subLayer.grassAmount then -- Subtract from amount using 1 - grassHealth and decayRate
