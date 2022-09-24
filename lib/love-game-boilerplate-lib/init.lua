@@ -170,8 +170,6 @@ function boilerplate.init(initConfig, arg)
 	config.uiButtonPad = initConfig.uiButtonPad or 2
 	config.pauseInputType = initConfig.pauseInputType or "released"
 	
-	require(path .. ".suitTheme")
-	
 	local mouseMovedDt, pausePressed, pauseReleased
 	
 	function love.run()
@@ -246,6 +244,7 @@ function boilerplate.init(initConfig, arg)
 		boilerplate.infoCanvas = love.graphics.newCanvas(config.canvasSystemWidth, config.canvasSystemHeight)
 		boilerplate.outputCanvas = love.graphics.newCanvas(config.canvasSystemWidth, config.canvasSystemHeight)
 		boilerplate.outlineShader = love.graphics.newShader(path:gsub("%.", "/") .. "/shaders/outline.glsl")
+		boilerplate.fixedMouseDx, boilerplate.fixedMouseDy = 0, 0 -- Prevent first frame nil, nil
 		if boilerplate.load then
 			boilerplate.load(arg, unfilteredArg)
 		end
