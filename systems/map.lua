@@ -43,36 +43,52 @@ function map:newWorld(width, height)
 				type = "layers",
 				subLayers = {}
 			}
-			local grassHealth
-			do -- TODO: not hardcoded (grass loam requirement, grass water requirement...)
-				-- grass should only be able to grow on toppings with chunksPerLayer chunks
-				local loamAmount, waterAmount = 0, 0
-				for _, entry in ipairs(tile.topping.chunks[consts.chunksPerLayer].constituents) do
-					if entry.material.name == "loam" then
-						loamAmount = entry.amount
-					elseif entry.material.name == "water" then
-						waterAmount = entry.amount
-					end
-				end
-				local loamFractionTarget = 0.3
-				local waterFractionTarget = 0.3
-				local loamHealthMultiplier = math.min(1, (loamAmount / consts.chunkConstituentsTotal) / loamFractionTarget)
-				local waterHealthMultiplier = math.min(1, (waterAmount / consts.chunkConstituentsTotal) / waterFractionTarget)
-				grassHealth = loamHealthMultiplier * waterHealthMultiplier
-			end
-			tile.superTopping.subLayers[1] = {
+			local subLayerIndex = 1
+			local newSubLayer = {
 				type = "grass",
 				chunk = {
 					constituents = {
 						{material = registry.materials.byName.grass, amount = consts.chunkConstituentsTotal}
 					}
-				},
-				grassHealth = grassHealth,
-				grassAmount = grassHealth
+				}
 			}
+			tile.superTopping.subLayers[subLayerIndex] = newSubLayer
+			local grassHealth = self:getGrassTargetHealth(x, y, subLayerIndex)
+			newSubLayer.grassHealth = grassHealth
+			newSubLayer.grassAmount	= grassHealth
 			self:updateSuperToppingDrawFields(x, y)
 		end
 	end
+end
+
+function map:getGrassTargetHealth(x, y, subLayerIndex)
+	local tile = self.tiles[x][y]
+	-- TODO: not hardcoded (grass loam requirement, grass water requirement...)
+	-- grass should only be able to grow on toppings with chunksPerLayer chunks
+	local loamAmount, waterAmount = 0, 0
+	if subLayerIndex == 1 and tile.topping then
+		for _, entry in ipairs(tile.topping.chunks[consts.chunksPerLayer].constituents) do
+			if entry.material.name == "loam" then
+				loamAmount = entry.amount
+			elseif entry.material.name == "water" then
+				waterAmount = entry.amount
+			end
+		end
+	else
+		-- NOTE: Could have even more complex code where grass passes through grates and the like
+		for _, entry in ipairs(tile.superTopping.subLayers[subLayerIndex - 1]) do
+			if entry.material.name == "loam" then
+				loamAmount = entry.amount
+			elseif entry.material.name == "water" then
+				waterAmount = entry.amount
+			end
+		end
+	end
+	local loamFractionTarget = 0.3
+	local waterFractionTarget = 0.3
+	local loamHealthMultiplier = math.min(1, (loamAmount / consts.chunkConstituentsTotal) / loamFractionTarget)
+	local waterHealthMultiplier = math.min(1, (waterAmount / consts.chunkConstituentsTotal) / waterFractionTarget)
+	return loamHealthMultiplier * waterHealthMultiplier
 end
 
 local function calculateConstituentDrawFields(materialAmount, tableToWriteTo, grassHealth)
@@ -193,23 +209,36 @@ function map:fixedUpdate(dt)
 		for y = 0, self.height - 1 do
 			local tile = column[y]
 			
-			-- Update grass health
-			-- TODO
-			
 			-- Update grass
 			if tile.superTopping then
 				if tile.superTopping.type == "layers" then
-					for _, subLayer in ipairs(tile.superTopping.subLayers) do
-						local grassMaterial = subLayer.chunk.constituents[1].material
+					for i, subLayer in ipairs(tile.superTopping.subLayers) do
 						if subLayer.type == "grass" then
+							local grassMaterial = subLayer.chunk.constituents[1].material
+							
+							-- Update health
+							local targetHealth = self:getGrassTargetHealth(x, y, i)
+							if targetHealth > subLayer.grassHealth then -- Add to health using healthIncreaseRate
+								subLayer.grassHealth = math.min(targetHealth, subLayer.grassHealth + grassMaterial.healthIncreaseRate * dt)
+							elseif targetHealth < subLayer.grassHealth then -- Subtract from health using healthDecreaseRate
+								subLayer.grassHealth = math.min(targetHealth, subLayer.grassHealth - grassMaterial.healthDecreaseRate * dt)
+							end
+							
+							-- Update amount
 							-- TODO: Grass amount of grass with health x should approach x.
 							-- Speed of approach should be multiplied with 1 - health downwards and with health upwards.
 							-- Check docs/materials.md.
-							subLayer.grassAmount = math.min(1, subLayer.grassAmount + grassMaterial.growthRate * subLayer.grassHealth * dt)
+							local targetAmount = subLayer.grassHealth
+							if targetAmount > subLayer.grassAmount then -- Add to amount using grassHealth and growthRate
+								subLayer.grassAmount = math.min(targetAmount, subLayer.grassAmount + grassMaterial.growthRate * subLayer.grassHealth * dt)
+							elseif targetAmount < subLayer.grassAmount then -- Subtract from amount using 1 - grassHealth and decayRate
+								subLayer.grassAmount = math.max(targetAmount, subLayer.grassAmount - grassMaterial.decayRate * (1 - subLayer.grassHealth) * dt)
+							end
 						end
 					end
 				end
 			end
+			self:updateSuperToppingDrawFields(x, y)
 		end
 	end
 end

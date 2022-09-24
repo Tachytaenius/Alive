@@ -11,4 +11,6 @@ Fields:
 - `brightness`: The brightness of the noise texture.
 - `growthRate`: For grass, how much `grassAmount` is added to per second at full `grassHealth`.
 - `decayRate`: For grass, how much `grassAmount` loses per second at 0 `grassHealth`.
+- `healthIncreaseRate`: For grass, how much `grassHealth` is added to per second when grass health is increasing.
+- `healthDecreaseRate`: For grass, how much `grassHealth` loses per second when grass target health is lower than current health.
 - `fullness1`: The `grassAmount` at and above which the texture fullness is 1. Defaults to 1.

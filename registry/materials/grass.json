@@ -4,6 +4,9 @@
 	"noiseSize": 0.5,
 	"contrast": 0.25,
 	"brightness": 0,
-	"growthRate": 0.005,
+	"healthIncreaseRate": 0.005,
+	"healthDecreaseRate": 0.005,
+	"growthRate": 0.01,
+	"decayRate": 0.01,
 	"fullness1": 1
 }
