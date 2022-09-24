@@ -85,8 +85,14 @@ function boilerplate.init(initConfig, arg)
 		
 		{title = "Mouse",
 			{name = "Divide by Scale", "mouse","divideByScale"},
-			{name = "X Sensitivity", "mouse","xSensitivity"},
-			{name = "Y Sensitivity", "mouse","ySensitivity"},
+			{name = "X Sensitivity", "mouse","xSensitivity",
+				getLowLimit = function() return 0.1 end,
+				getLimit = function() return 2 end
+			},
+			{name = "Y Sensitivity", "mouse","ySensitivity",
+				getLowLimit = function() return 0.1 end,
+				getLimit = function() return 2 end
+			},
 			{name = "Cursor Colour", "mouse","cursorColour"}
 		},
 		

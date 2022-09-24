@@ -62,8 +62,8 @@ local function applyChanges(changes)
 end
 
 function settingsUI.update(state)
-	local x, y = config.canvasSystemWidth / 3, config.uiPad
-	local w, h = config.canvasSystemWidth / 3, assets.ui.font.value:getHeight() + config.uiButtonPad
+	local x, y = config.canvasSystemWidth / 4, config.uiPad
+	local w, h = config.canvasSystemWidth / 2, assets.ui.font.value:getHeight() + config.uiButtonPad
 	state.scrollOffset = math.min(0, state.scrollOffset + state.scrollAmountY * config.scrollSpeed)
 	y = y + state.scrollOffset
 	suit.layout:reset(x, y, config.uiPad)
@@ -131,15 +131,26 @@ function settingsUI.update(state)
 				-- if --[=[suit.Slider call]=].changed then
 				-- The above line is not used because settings.graphics.scale's limit changes depending on the current display, which can be changed by moving the window while in the settings menu which does not refresh
 				suit.Slider(sliderSettings, {id = id}, x,y,w,h)
-				id = id + 1
 				set(state, math.min(item.getLimit(), math.floor(sliderSettings.value + 0.5)), unpack(item))
-			elseif settingsType == types.rgb then
+				id = id + 1
+			elseif settingType == types.rgb then
 				-- TODO
-			elseif settingsType == types.rgba then
+			elseif settingType == types.rgba then
 				-- TODO
-			elseif settingsType == types.number then
-				-- TODO
-			elseif settingsType == types.commands then
+			elseif settingType == types.number then
+				suit.Label(
+					item.name .. ": (" ..
+					string.format("%.2f", item.getLowLimit()) .. ", " ..
+					string.format("%.2f", settingState) .. ", " ..
+					string.format("%.2f", item.getLimit()) .. ")",
+					{align = "left"}, x,y,w,h
+				)
+				x,y,w,h=suit.layout:row(w, h)
+				local sliderSettings = {value = settingState, min = item.getLowLimit(), max = item.getLimit()}
+				suit.Slider(sliderSettings, {id = id}, x,y,w,h)
+				set(state, math.max(item.getLowLimit(), math.min(item.getLimit(), sliderSettings.value)), unpack(item))
+				id = id + 1
+			elseif settingType == types.commands then
 				-- TODO
 			end
 		end
