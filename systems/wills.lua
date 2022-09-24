@@ -16,16 +16,16 @@ function wills:fixedUpdate(dt)
 		local will = e.will
 		will.targetVelocityMultiplier = vec2()
 		if boilerplate.input.checkFixedUpdateCommand("moveForward") then
-			will.targetVelocityMultiplier.y = will.targetVelocityMultiplier.y - 10
+			will.targetVelocityMultiplier.y = will.targetVelocityMultiplier.y - 1
 		end
 		if boilerplate.input.checkFixedUpdateCommand("moveBackward") then
-			will.targetVelocityMultiplier.y = will.targetVelocityMultiplier.y + 10
+			will.targetVelocityMultiplier.y = will.targetVelocityMultiplier.y + 1
 		end
 		if boilerplate.input.checkFixedUpdateCommand("moveLeft") then
-			will.targetVelocityMultiplier.x = will.targetVelocityMultiplier.x - 10
+			will.targetVelocityMultiplier.x = will.targetVelocityMultiplier.x - 1
 		end
 		if boilerplate.input.checkFixedUpdateCommand("moveRight") then
-			will.targetVelocityMultiplier.x = will.targetVelocityMultiplier.x + 10
+			will.targetVelocityMultiplier.x = will.targetVelocityMultiplier.x + 1
 		end
 		if #will.targetVelocityMultiplier > 0 then
 			will.targetVelocityMultiplier = vec2.normalise(will.targetVelocityMultiplier)
