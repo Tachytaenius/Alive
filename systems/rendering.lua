@@ -49,7 +49,7 @@ function rendering:draw(lerp, dt, performance)
 		local column = mapSystem.tiles[x]
 		for y = tilesY1, tilesY2 do
 			local tile = column[y]
-			if tile.topping then
+			if tile.topping and (not tile.superTopping or not tile.superTopping.occludes) then
 				self.textureShader:send("useNoise", true)
 				local drawX, drawY = x * consts.tileWidth, y * consts.tileHeight
 				self.textureShader:send("tilePosition", {drawX, drawY})
@@ -86,10 +86,7 @@ function rendering:draw(lerp, dt, performance)
 						self.textureShader:send("contrast", subLayer.contrast)
 						self.textureShader:send("brightness", subLayer.brightness)
 						if subLayer.type == "grass" then
-							local grassMaterial = subLayer.chunk.constituents[1].material
-							local fullness1 = grassMaterial.fullness1 or 1
-							local fullness = fullness1 == 0 and 1 or subLayer.grassAmount / fullness1 -- NOTE: Does not need to be capped to 1
-							self.textureShader:send("fullness", fullness)
+							self.textureShader:send("fullness", subLayer.fullness)
 						else
 							self.textureShader:send("fullness", 1)
 						end

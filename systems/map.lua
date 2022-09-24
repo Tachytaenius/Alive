@@ -44,18 +44,19 @@ function map:newWorld(width, height)
 				subLayers = {}
 			}
 			local subLayerIndex = 1
+			local grassMaterial = registry.materials.byName.grass
 			local newSubLayer = {
 				type = "grass",
 				chunk = {
 					constituents = {
-						{material = registry.materials.byName.grass, amount = consts.chunkConstituentsTotal}
+						{material = grassMaterial, amount = consts.chunkConstituentsTotal}
 					}
 				}
 			}
 			tile.superTopping.subLayers[subLayerIndex] = newSubLayer
 			local grassHealth = self:getGrassTargetHealth(x, y, subLayerIndex)
 			newSubLayer.grassHealth = grassHealth
-			newSubLayer.grassAmount	= grassHealth
+			newSubLayer.grassAmount	= math.max(0, math.min(1, grassHealth + grassMaterial.targetGrassAmountAdd))
 			self:updateSuperToppingDrawFields(x, y)
 		end
 	end
@@ -137,19 +138,49 @@ function map:updateToppingDrawFields(x, y)
 	calculateConstituentDrawFields(materialAmount, tileTopping)
 end
 
+local function getGrassNoiseFullness(subLayer)
+	local grassMaterial = subLayer.chunk.constituents[1].material
+	local fullness1 = grassMaterial.fullness1 or 1
+	return fullness1 == 0 and 1 or subLayer.grassAmount / fullness1 -- NOTE: Does not need to be capped at 1
+end
+
+local function subLayerFullyOccludes(subLayer)
+	if subLayer.type == "grass" then
+		if getGrassNoiseFullness(subLayer) >= 1 then
+			return true -- TODO: When transparent materialas are added, wrap this return in another check for alpha
+		end
+		return false
+	else
+		error("Haven't implemented subLayerFullyOccludes for subLayer type " .. subLayer.type)
+	end
+end
+
+local function wallFullyOccludes(superTopping)
+	assert(superTopping.type == "wall", "Tried to check wall occlusion of non-wall-type super topping")
+	return true -- TODO: Alpha check
+end
+
 function map:updateSuperToppingDrawFields(x, y)
 	local tileSuperTopping = self.tiles[x][y].superTopping
 	if not tileSuperTopping then
 		return
 	end
 	if tileSuperTopping.type == "layers" then
+		local anySubLayerFullyOccludes
 		for _, subLayer in ipairs(tileSuperTopping.subLayers) do
 			local materialAmount = {}
 			for _, constituent in ipairs(subLayer.chunk.constituents) do
 				materialAmount[constituent.material] = constituent.amount
 			end
 			calculateConstituentDrawFields(materialAmount, subLayer, subLayer.type == "grass" and subLayer.grassHealth)
+			
+			subLayer.fullness = getGrassNoiseFullness(subLayer)
+			
+			local occludes = subLayerFullyOccludes(subLayer)
+			subLayer.occludes = occludes
+			anySubLayerFullyOccludes = anySubLayerFullyOccludes or occludes
 		end
+		tileSuperTopping.occludes = anySubLayerFullyOccludes
 	else -- type == "wall"
 		local materialAmount = {}
 		for _, chunk in ipairs(tileSuperTopping.chunks) do
@@ -159,6 +190,7 @@ function map:updateSuperToppingDrawFields(x, y)
 			end
 		end
 		calculateConstituentDrawFields(materialAmount, tileSuperTopping)
+		tileSuperTopping.occludes = wallFullyOccludes(tileSuperTopping)
 	end
 end
 
