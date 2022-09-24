@@ -5,13 +5,19 @@ local consts = require("consts")
 
 local rendering = concord.system({players = {"player"}, sprites = {"position", "sprite"}})
 
+function:rendering:sendConstantsToShaders()
+	self.textureShader:send("tileSize", {consts.tileWidth, consts.tileHeight})
+end
+
 function rendering:init()
 	self.preCrushCanvas = love.graphics.newCanvas(consts.preCrushCanvasWidth, consts.preCrushCanvasHeight)
-	-- self.crushShader = love.graphics.newShader("shaders/crush.glsl")
 	
 	self.dummyImage = love.graphics.newImage(love.image.newImageData(1, 1))
 	
+	-- self.crushShader = love.graphics.newShader("shaders/crush.glsl")
 	self.textureShader = love.graphics.newShader("shaders/texture.glsl")
+	
+	self:sendConstantsToShaders()
 end
 
 function rendering:drawSprite(e)
@@ -37,7 +43,6 @@ function rendering:draw(lerp, dt, performance)
 	
 	-- Draw toppings
 	love.graphics.setShader(self.textureShader)
-	self.textureShader:send("tileSize", {consts.tileWidth, consts.tileHeight})
 	for x = tilesX1, tilesX2 do
 		local column = mapSystem.tiles[x]
 		for y = tilesY1, tilesY2 do
