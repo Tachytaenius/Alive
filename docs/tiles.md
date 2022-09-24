@@ -43,6 +43,8 @@ Mostly to-decide-upon.
 - The tilemap indices start at 0 and ends at (width or height) - 1.
 - Chunk constituents must only have one entry per material.
 - Grass chunks may only have one material entry.
+- Chunks may not be modified without creating a new constituents table in case the table is used by another chunk.
+	Chunks probably won't be able to be modified anyway, only broken down and produced.
 
 Chunk fields:
 - `constituents`: An array of entries with the following fields:
