@@ -1,7 +1,7 @@
 {
 	"colour": [0.3, 0.8, 0.3],
 	"deadColour": [0.8, 0.8, 0.3],
-	"noiseSize": 10,
+	"noiseSize": 0.5,
 	"contrast": 0.25,
 	"brightness": 0,
 	"growthRate": 0.005,
