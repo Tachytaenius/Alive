@@ -5,7 +5,7 @@ local consts = require("consts")
 
 local rendering = concord.system({players = {"player"}, sprites = {"position", "sprite"}})
 
-function:rendering:sendConstantsToShaders()
+function rendering:sendConstantsToShaders()
 	self.textureShader:send("tileSize", {consts.tileWidth, consts.tileHeight})
 end
 
