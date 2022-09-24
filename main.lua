@@ -49,6 +49,7 @@ local assetsConstructors, assetsUtilities = boilerplate.assetsConstructors, boil
 local assets = {
 	noiseTexture = {load = function(self)
 		self.value = love.graphics.newImage("assets/images/noiseTexture.png")
+		self.value:setFilter("linear")
 		self.value:setWrap("repeat")
 	end},
 	ui = {
