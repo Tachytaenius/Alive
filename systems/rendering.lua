@@ -49,6 +49,7 @@ function rendering:draw(lerp, dt, performance)
 				self.textureShader:send("noiseSize", tile.topping.noiseSize)
 				self.textureShader:send("contrast", tile.topping.contrast)
 				self.textureShader:send("brightness", tile.topping.brightness)
+				self.textureShader:send("fullness", 1)
 				love.graphics.setColor(tile.topping.r, tile.topping.g, tile.topping.b)
 				love.graphics.draw(self.dummyImage, drawX, drawY, 0, consts.tileWidth, consts.tileHeight)
 			end
@@ -77,6 +78,14 @@ function rendering:draw(lerp, dt, performance)
 						self.textureShader:send("noiseSize", subLayer.noiseSize)
 						self.textureShader:send("contrast", subLayer.contrast)
 						self.textureShader:send("brightness", subLayer.brightness)
+						if subLayer.type == "grass" then
+							local grassMaterial = subLayer.chunk.constituents[1].material
+							local fullness1 = grassMaterial.fullness1 or 1
+							local fullness = fullness1 == 0 and 1 or subLayer.grassAmount / fullness1 -- NOTE: Does not need to be capped to 1
+							self.textureShader:send("fullness", fullness)
+						else
+							self.textureShader:send("fullness", 1)
+						end
 						love.graphics.setColor(subLayer.r, subLayer.g, subLayer.b)
 						love.graphics.draw(self.dummyImage, drawX, drawY, 0, consts.tileWidth, consts.tileHeight)
 					end
@@ -87,6 +96,7 @@ function rendering:draw(lerp, dt, performance)
 					self.textureShader:send("noiseSize", tile.superTopping.noiseSize)
 					self.textureShader:send("contrast", tile.superTopping.contrast)
 					self.textureShader:send("brightness", tile.superTopping.brightness)
+					self.textureShader:send("fullness", 1)
 					love.graphics.setColor(subLayer.r, subLayer.g, subLayer.b)
 					love.graphics.draw(self.dummyImage, drawX, drawY, 0, consts.tileWidth, consts.tileHeight)
 				end

@@ -42,12 +42,14 @@ Mostly to-decide-upon.
 
 - The tilemap indices start at 0 and ends at (width or height) - 1.
 - Chunk constituents must only have one entry per material.
+- Grass chunks may only have one material entry.
 
 Chunk fields:
 - `constituents`: An array of entries with the following fields:
 	- `material`: The material registry entry for this constituents entry.
 	- `amount`: How much of the material is in the chunk.
-- `health`: Health of grass that was dug up. Should decrease over time.
+- `grassHealth`: Health of grass that was dug up. Should decrease over time.
+- `grassAmount`: Amount of grass that was dug up.
 
 Tile fields:
 - `topping`: The topping layer's table, or `nil` for no topping.
@@ -67,7 +69,9 @@ Tile fields:
 		- `carpet`: Solid, but requires solid topping or super topping.
 		- `grate`: Solid, for a grate texture.
 	- `chunk`: A single chunk that defines the materials of the sub-layer.
-	- `health`: For grass, defines how healthy the grass is.
+	- `grassHealth`: For grass, defines how healthy the grass is.
 		Goes from 0 to 1.
 		Would be based on water amount in soil beneath.
 		For ordinary grass grass, low values should make it yellower and patchier.
+	- `grassAmount`: For grass, defines how much grass there is.
+		Goes from 0 to 1.

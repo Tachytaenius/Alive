@@ -67,14 +67,15 @@ function map:newWorld(width, height)
 						{material = registry.materials.byName.grass, amount = consts.chunkConstituentsTotal}
 					}
 				},
-				health = grassHealth
+				grassHealth = grassHealth,
+				grassAmount = grassHealth
 			}
 			self:updateSuperToppingDrawFields(x, y)
 		end
 	end
 end
 
-local function calculateConstituentDrawFields(materialAmount, tableToWriteTo, health)
+local function calculateConstituentDrawFields(materialAmount, tableToWriteTo, grassHealth)
 	local weightTotal = 0
 	local r, g, b, noiseSize, contrast, brightness = 0, 0, 0, 0, 0, 0
 	for material, amount in pairs(materialAmount) do
@@ -83,10 +84,10 @@ local function calculateConstituentDrawFields(materialAmount, tableToWriteTo, he
 		local materialRed = material.colour[1]
 		local materialGreen = material.colour[2]
 		local materialBlue = material.colour[3]
-		if health and material.deadColour then
-			materialRed = math.lerp(material.deadColour[1], materialRed, health)
-			materialGreen = math.lerp(material.deadColour[2], materialGreen, health)
-			materialBlue = math.lerp(material.deadColour[3], materialBlue, health)
+		if grassHealth and material.deadColour then
+			materialRed = math.lerp(material.deadColour[1], materialRed, grassHealth)
+			materialGreen = math.lerp(material.deadColour[2], materialGreen, grassHealth)
+			materialBlue = math.lerp(material.deadColour[3], materialBlue, grassHealth)
 		end
 		r = r + materialRed * weight
 		g = g + materialGreen * weight
@@ -132,7 +133,7 @@ function map:updateSuperToppingDrawFields(x, y)
 			for _, constituent in ipairs(subLayer.chunk.constituents) do
 				materialAmount[constituent.material] = constituent.amount
 			end
-			calculateConstituentDrawFields(materialAmount, subLayer, subLayer.type == "grass" and subLayer.health)
+			calculateConstituentDrawFields(materialAmount, subLayer, subLayer.type == "grass" and subLayer.grassHealth)
 		end
 	else -- type == "wall"
 		local materialAmount = {}
@@ -185,6 +186,31 @@ function map:generateConstituents(x, y, materialsSet)
 	-- assert(total3 == consts.chunkConstituentsTotal)
 	
 	return constituents
+end
+
+function map:fixedUpdate(dt)
+	for x = 0, self.width - 1 do
+		local column = self.tiles[x]
+		for y = 0, self.height - 1 do
+			local tile = column[y]
+			
+			-- Update grass health
+			-- TODO
+			
+			-- Update grass
+			if tile.superTopping then
+				if tile.superTopping.type == "layers" then
+					for _, subLayer in ipairs(tile.superTopping.subLayers) do
+						local grassMaterial = subLayer.chunk.constituents[1].material
+						if subLayer.type == "grass" then
+							-- TODO: Grass amount of grass with health x should approach x. Check docs/materials.md.
+							subLayer.grassAmount = math.min(1, subLayer.grassAmount + grassMaterial.growthRate * subLayer.grassHealth * dt)
+						end
+					end
+				end
+			end
+		end
+	end
 end
 
 function map:validate()
