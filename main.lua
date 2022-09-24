@@ -47,6 +47,10 @@ local uiNames = {
 
 local assetsConstructors, assetsUtilities = boilerplate.assetsConstructors, boilerplate.assetsUtilities
 local assets = {
+	noiseTexture = {load = function(self)
+		self.value = love.graphics.newImage("assets/images/noiseTexture.png")
+		self.value:setWrap("repeat")
+	end},
 	ui = {
 		font = {load = function(self) self.value = love.graphics.newImageFont("assets/images/ui/font.png", " ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.!?$,#@~:;-{}&()<>'%/*0123456789") end},
 		cursor = {load = function(self) self.value = love.graphics.newImage("assets/images/ui/cursor.png") end}

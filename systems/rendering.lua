@@ -7,6 +7,8 @@ local rendering = concord.system({players = {"player"}, sprites = {"position", "
 
 function rendering:sendConstantsToShaders()
 	self.textureShader:send("tileSize", {consts.tileWidth, consts.tileHeight})
+	self.textureShader:send("noiseTexture", boilerplate.assets.noiseTexture.value)
+	self.textureShader:send("noiseTextureSize", {boilerplate.assets.noiseTexture.value:getDimensions()})
 end
 
 function rendering:init()
