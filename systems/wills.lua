@@ -14,22 +14,25 @@ function wills:fixedUpdate(dt)
 	
 	for _, e in ipairs(self.willPlayers) do
 		local will = e.will
-		will.targetVelocityMultiplier = vec2()
+		
+		will.targetRelativeVelocityMultiplier = vec2()
 		if boilerplate.input.checkFixedUpdateCommand("moveForward") then
-			will.targetVelocityMultiplier.y = will.targetVelocityMultiplier.y - 1
+			will.targetRelativeVelocityMultiplier.y = will.targetRelativeVelocityMultiplier.y - 1
 		end
 		if boilerplate.input.checkFixedUpdateCommand("moveBackward") then
-			will.targetVelocityMultiplier.y = will.targetVelocityMultiplier.y + 1
+			will.targetRelativeVelocityMultiplier.y = will.targetRelativeVelocityMultiplier.y + 1
 		end
 		if boilerplate.input.checkFixedUpdateCommand("moveLeft") then
-			will.targetVelocityMultiplier.x = will.targetVelocityMultiplier.x - 1
+			will.targetRelativeVelocityMultiplier.x = will.targetRelativeVelocityMultiplier.x - 1
 		end
 		if boilerplate.input.checkFixedUpdateCommand("moveRight") then
-			will.targetVelocityMultiplier.x = will.targetVelocityMultiplier.x + 1
+			will.targetRelativeVelocityMultiplier.x = will.targetRelativeVelocityMultiplier.x + 1
 		end
-		if #will.targetVelocityMultiplier > 0 then
-			will.targetVelocityMultiplier = vec2.normalise(will.targetVelocityMultiplier)
+		if #will.targetRelativeVelocityMultiplier > 0 then
+			will.targetRelativeVelocityMultiplier = vec2.normalise(will.targetRelativeVelocityMultiplier)
 		end
+		
+		will.targetAngularVelocityMultiplier = math.max(-1, math.min(1, boilerplate.fixedMouseDx * boilerplate.settings.mouse.turnSensitivity))
 	end
 end
 

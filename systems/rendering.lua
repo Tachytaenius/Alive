@@ -34,8 +34,9 @@ function rendering:draw(lerp, dt, performance)
 	
 	love.graphics.setCanvas(boilerplate.gameCanvas)
 	love.graphics.clear(0, 0, 0, 1)
-	love.graphics.translate(-player.position.lerpedValue.x, -player.position.lerpedValue.y)
 	love.graphics.translate(boilerplate.config.canvasSystemWidth / 2, boilerplate.config.canvasSystemHeight / 2)
+	love.graphics.rotate(-player.angle.lerpedValue)
+	love.graphics.translate(-player.position.lerpedValue.x, -player.position.lerpedValue.y)
 	
 	local normalHeightSprites = self.sprites -- TODO
 	

@@ -1,7 +1,7 @@
 local concord = require("lib.concord")
 local vec2 = require("lib.mathsies").vec2
 
-local walking = concord.system({walkers = {"will", "gait", "velocity", "grounded"}})
+local walking = concord.system({walkers = {"will", "gait", "velocity", "grounded"}, turners = {"will", "angularGait", "angularVelocity", "grounded"}})
 
 local function handleAxis(current, target, acceleration, dt)
 	if acceleration > 0 then
@@ -15,10 +15,12 @@ end
 
 function walking:fixedUpdate(dt)
 	for _, e in ipairs(self.walkers) do
-		if e.will.targetVelocityMultiplier then
-			local targetVelocity = e.will.targetVelocityMultiplier * e.gait.maxSpeed
+		if e.will.targetRelativeVelocityMultiplier then
+			local targetRelativeVelocity = e.will.targetRelativeVelocityMultiplier * e.gait.maxSpeed
 			
-			local difference = targetVelocity - e.velocity.value
+			local relativeVelocity = vec2.rotate(e.velocity.value, e.angle and -e.angle.value or 0)
+			
+			local difference = targetRelativeVelocity - relativeVelocity
 			local direction
 			if #difference > 0 then
 				direction = vec2.normalise(difference)
@@ -27,14 +29,18 @@ function walking:fixedUpdate(dt)
 			end
 			local accelerationDistribution = direction * e.gait.acceleration -- So that you don't get to use all of acceleration on both axes
 			
-			-- e.velocity.value = vec2.clone(e.velocity.value) -- The test below returns 0 for acceleration this tick without this line
-			e.velocity.value.x = handleAxis(e.velocity.value.x, targetVelocity.x, e.gait.acceleration * math.sign(targetVelocity.x - e.velocity.value.x), dt)
-			e.velocity.value.y = handleAxis(e.velocity.value.y, targetVelocity.y, e.gait.acceleration * math.sign(targetVelocity.y - e.velocity.value.y), dt)
+			-- relativeVelocity = vec2.clone(relativeVelocity) -- The test below returns 0 for acceleration this tick without this line
+			relativeVelocity.x = handleAxis(relativeVelocity.x, targetRelativeVelocity.x, e.gait.acceleration * math.sign(targetRelativeVelocity.x - relativeVelocity.x), dt)
+			relativeVelocity.y = handleAxis(relativeVelocity.y, targetRelativeVelocity.y, e.gait.acceleration * math.sign(targetRelativeVelocity.y - relativeVelocity.y), dt)
 			
-			-- Test that acceleration is never (beyond acceptable floating point error) greater than e.gait.acceleration
-			-- if e.velocity.previousValue then
-			-- 	print(e.gait.acceleration, #(e.velocity.value - e.velocity.previousValue))
-			-- end
+			e.velocity.value = vec2.rotate(relativeVelocity, e.angle and e.angle.value or 0)
+		end
+	end
+	
+	for _, e in ipairs(self.turners) do
+		if e.will.targetAngularVelocityMultiplier then
+			local targetAngularVelocity = e.will.targetAngularVelocityMultiplier * e.angularGait.maxSpeed
+			e.angularVelocity.value = handleAxis(e.angularVelocity.value, targetAngularVelocity, e.angularGait.acceleration * math.sign(targetAngularVelocity - e.angularVelocity.value), dt)
 		end
 	end
 end

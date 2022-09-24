@@ -12,6 +12,13 @@ do
 	function math.lerp(a, b, i)
 		return a + (b - a) * i
 	end
+	local function shortAngleDist(a, b)
+		local d = (b - a) % math.tau
+		return 2 * d % math.tau - d
+	end
+	function math.angleLerp(a, b, i)
+		return a + shortAngleDist(a, b) * i
+	end
 end
 
 -- do

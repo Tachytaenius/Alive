@@ -3,7 +3,7 @@ local concord = require("lib.concord")
 local quantities = concord.system({
 	-- Pools that use lerp
 	position = {"position"},
-	velocity = {"velocity"}
+	angle = {"angle"}
 })
 
 function quantities:fixedUpdate(dt)
@@ -26,7 +26,16 @@ function quantities:draw(lerp, dt, performance)
 		end
 	end
 	
+	local function angleLerpPool(pool)
+		local component = pool.__name
+		for _, e in ipairs(pool) do
+			local bag = e:get(component)
+			bag.lerpedValue = math.angleLerp(bag.previousValue, bag.value, lerp)
+		end
+	end
+	
 	lerpPool(self.position)
+	angleLerpPool(self.angle)
 end
 
 return quantities

@@ -28,11 +28,19 @@ local fixedCommands = {
 }
 
 local settingsUiLayout = {
-	
+	{title = "Mouse",
+		{name = "Turn Sensitivity", "mouse","turnSensitivity",
+			getLowLimit = function() return 0 end,
+			getLimit = function() return 1 end
+		}
+	}
 }
 
 local settingsTypes = boilerplate.settingsTypes
 local settingsTemplate = {
+	mouse = {
+		turnSensitivity = settingsTypes.number(0.2)
+	},
 	fixedCommands = settingsTypes.commands("fixed", {
 		moveForward = "w",
 		moveBackward = "s",
@@ -118,6 +126,9 @@ function boilerplate.load(args)
 		:give("grounded")
 		:give("gait", 100, 800, 100, 10)
 		:give("flyingRecoveryRate", 100)
+		:give("angle", 0)
+		:give("angularVelocity")
+		:give("angularGait", math.tau * 1.5, math.tau * 16)
 		:give("player")
 	
 	mainSubWorld
