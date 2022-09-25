@@ -6,6 +6,7 @@ local consts = require("consts")
 local rendering = concord.system({players = {"player"}, sprites = {"position", "sprite"}})
 
 function rendering:sendConstantsToShaders()
+	self.crushAndClipShader:send("inputCanvasSize", {self.preCrushCanvas:getDimensions()})
 	self.textureShader:send("tileSize", {consts.tileWidth, consts.tileHeight})
 	self.textureShader:send("noiseTexture", boilerplate.assets.noiseTexture.value)
 	self.textureShader:send("noiseTextureSize", {boilerplate.assets.noiseTexture.value:getDimensions()})
@@ -13,10 +14,11 @@ end
 
 function rendering:init()
 	self.preCrushCanvas = love.graphics.newCanvas(consts.preCrushCanvasWidth, consts.preCrushCanvasHeight)
+	self.preCrushCanvas:setWrap("clampzero")
 	
 	self.dummyImage = love.graphics.newImage(love.image.newImageData(1, 1))
 	
-	-- self.crushShader = love.graphics.newShader("shaders/crush.glsl")
+	self.crushAndClipShader = love.graphics.newShader("shaders/crushAndClip.glsl")
 	self.textureShader = love.graphics.newShader("shaders/texture.glsl")
 	
 	self:sendConstantsToShaders()
@@ -32,9 +34,9 @@ function rendering:draw(lerp, dt, performance)
 		return
 	end
 	
-	love.graphics.setCanvas(boilerplate.gameCanvas)
-	love.graphics.clear(0, 0, 0, 1)
-	love.graphics.translate(boilerplate.config.canvasSystemWidth / 2, boilerplate.config.canvasSystemHeight / 2)
+	love.graphics.setCanvas(self.preCrushCanvas)
+	love.graphics.clear()
+	love.graphics.translate(self.preCrushCanvas:getWidth() / 2, self.preCrushCanvas:getHeight() / 2)
 	love.graphics.rotate(-player.angle.lerpedValue)
 	love.graphics.translate(-player.position.lerpedValue.x, -player.position.lerpedValue.y)
 	
@@ -117,7 +119,26 @@ function rendering:draw(lerp, dt, performance)
 	end
 	
 	love.graphics.origin()
+	love.graphics.setCanvas(boilerplate.gameCanvas)
+	love.graphics.clear(0, 0, 0, 1)
+	love.graphics.setShader(self.crushAndClipShader)
+	
+	local fullViewDistance = math.min(self.preCrushCanvas:getDimensions()) / 2
+	local crushCentreX, crushCentreY = self.preCrushCanvas:getWidth() / 2, self.preCrushCanvas:getHeight() / 2
+	local crushStart, crushEnd = 100, math.min(boilerplate.gameCanvas:getDimensions()) / 2
+	local power = math.log(fullViewDistance / crushStart) / math.log(crushEnd / crushStart)
+	self.crushAndClipShader:send("crushCentre", {crushCentreX, crushCentreY})
+	self.crushAndClipShader:send("crushStart", crushStart)
+	self.crushAndClipShader:send("crushEnd", crushEnd)
+	self.crushAndClipShader:send("power", power)
+	love.graphics.draw(self.preCrushCanvas,
+		boilerplate.gameCanvas:getWidth() / 2 - crushCentreX,
+		boilerplate.gameCanvas:getHeight() / 2 - crushCentreY
+	)
+	
 	love.graphics.setCanvas()
+	love.graphics.origin()
+	love.graphics.setShader()
 end
 
 return rendering
