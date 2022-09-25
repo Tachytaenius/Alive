@@ -14,6 +14,7 @@ concord.utils.loadNamespace("assemblages", assemblages)
 
 require("monkeypatch")
 
+local consts = require("consts")
 local registry = require("registry")
 
 local frameCommands = {
@@ -68,8 +69,8 @@ local assets = {
 
 local initConfig = {
 	fixedUpdateTickLength = 1 / 24,
-	canvasSystemWidth = 480,
-	canvasSystemHeight = 270,
+	canvasSystemWidth = consts.canvasSystemWidth,
+	canvasSystemHeight = consts.canvasSystemHeight,
 	frameCommands = frameCommands,
 	fixedCommands = fixedCommands,
 	settingsUiLayout = settingsUiLayout,

@@ -1,7 +1,11 @@
 local consts = {}
 
-consts.preCrushCanvasWidth = 1024
-consts.preCrushCanvasHeight = 1024
+consts.canvasSystemWidth = 480
+consts.canvasSystemHeight = 270
+consts.preCrushCanvasWidth = 2048
+consts.preCrushCanvasHeight = 2048
+consts.crushStart = 100
+consts.crushEnd = consts.canvasSystemHeight - 35 -- TODO: Dynamically
 
 consts.tileWidth = 16
 consts.tileHeight = 16

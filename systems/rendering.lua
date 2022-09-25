@@ -34,9 +34,16 @@ function rendering:draw(lerp, dt, performance)
 		return
 	end
 	
+	local sensingCircleRadius = 30 -- TODO
+	local viewPadding = 4 -- TODO
+	local fullViewDistance = 1024 -- TODO
+	local fov = 7 * math.tau / 16 -- TODO
+	
+	local preCrushPlayerPosX, preCrushPlayerPosY = self.preCrushCanvas:getWidth() / 2, self.preCrushCanvas:getHeight() - (sensingCircleRadius + viewPadding)
+	
 	love.graphics.setCanvas(self.preCrushCanvas)
 	love.graphics.clear()
-	love.graphics.translate(self.preCrushCanvas:getWidth() / 2, self.preCrushCanvas:getHeight() / 2)
+	love.graphics.translate(preCrushPlayerPosX, preCrushPlayerPosY)
 	love.graphics.rotate(-player.angle.lerpedValue)
 	love.graphics.translate(-player.position.lerpedValue.x, -player.position.lerpedValue.y)
 	
@@ -123,17 +130,19 @@ function rendering:draw(lerp, dt, performance)
 	love.graphics.clear(0, 0, 0, 1)
 	love.graphics.setShader(self.crushAndClipShader)
 	
-	local fullViewDistance = math.min(self.preCrushCanvas:getDimensions()) / 2
-	local crushCentreX, crushCentreY = self.preCrushCanvas:getWidth() / 2, self.preCrushCanvas:getHeight() / 2
-	local crushStart, crushEnd = 100, math.min(boilerplate.gameCanvas:getDimensions()) / 2
+	local crushCentreX, crushCentreY = preCrushPlayerPosX, preCrushPlayerPosY
+	local crushStart = consts.crushStart
+	local crushEnd = consts.crushEnd
 	local power = math.log(fullViewDistance / crushStart) / math.log(crushEnd / crushStart)
 	self.crushAndClipShader:send("crushCentre", {crushCentreX, crushCentreY})
 	self.crushAndClipShader:send("crushStart", crushStart)
 	self.crushAndClipShader:send("crushEnd", crushEnd)
+	self.crushAndClipShader:send("sensingCircleRadius", sensingCircleRadius)
+	self.crushAndClipShader:send("fov", fov)
 	self.crushAndClipShader:send("power", power)
 	love.graphics.draw(self.preCrushCanvas,
 		boilerplate.gameCanvas:getWidth() / 2 - crushCentreX,
-		boilerplate.gameCanvas:getHeight() / 2 - crushCentreY
+		boilerplate.gameCanvas:getHeight() - self.preCrushCanvas:getHeight()
 	)
 	
 	love.graphics.setCanvas()
