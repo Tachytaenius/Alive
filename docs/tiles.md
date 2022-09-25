@@ -11,7 +11,7 @@ Which should be able to have holes in it (that may fill up with water!).
 
 Tiles consist of:
 - A topping layer, which can have things like soil, liquid, or be empty.
-- A super topping layer, which can be either a series of flat sub-layers (or just one) or a wall, or be empty.
+- A super topping layer, which can be either a series of flat sub-layers (or just one) (with a maximum nubmer of allowed sub-layers) or a wall, or be empty.
 
 Configurations of tiles and entities that should be able to exist:
 - Covered booby trap (super topping) hole into spiked (entities) ditch (no topping) (ouch!).

@@ -22,7 +22,7 @@ function map:newWorld(width, height)
 		local column = {}
 		tiles[x] = column
 		for y = 0, height - 1 do
-			local tile = {}
+			local tile = {x = x, y = y}
 			column[y] = tile
 			
 			-- Generate topping
@@ -36,7 +36,7 @@ function map:newWorld(width, height)
 				tile.topping.chunks[#tile.topping.chunks + 1] = chunk
 				chunk.constituents = constituents
 			end
-			self:updateToppingDrawFields(x, y)
+			self:updateToppingRendering(x, y)
 			
 			-- Generate super topping
 			tile.superTopping = {
@@ -57,7 +57,8 @@ function map:newWorld(width, height)
 			local grassHealth = self:getGrassTargetHealth(x, y, subLayerIndex)
 			newSubLayer.grassHealth = grassHealth
 			newSubLayer.grassAmount	= math.max(0, math.min(1, grassHealth + grassMaterial.targetGrassAmountAdd))
-			self:updateSuperToppingDrawFields(x, y)
+			newSubLayer.grassAmount = 0
+			self:updateSuperToppingRendering(x, y)
 		end
 	end
 end
@@ -123,8 +124,9 @@ local function calculateConstituentDrawFields(materialAmount, tableToWriteTo, gr
 	tableToWriteTo.brightness = brightness / weightTotal
 end
 
-function map:updateToppingDrawFields(x, y)
-	local tileTopping = self.tiles[x][y].topping
+function map:updateToppingRendering(x, y)
+	local tile = self.tiles[x][y]
+	local tileTopping = tile.topping
 	if not tileTopping then
 		return
 	end
@@ -136,6 +138,8 @@ function map:updateToppingDrawFields(x, y)
 		end
 	end
 	calculateConstituentDrawFields(materialAmount, tileTopping)
+	local changedTiles = self:getWorld().rendering.changedTiles
+	changedTiles[#changedTiles + 1] = tile
 end
 
 local function getGrassNoiseFullness(subLayer)
@@ -160,8 +164,9 @@ local function wallFullyOccludes(superTopping)
 	return true -- TODO: Alpha check
 end
 
-function map:updateSuperToppingDrawFields(x, y)
-	local tileSuperTopping = self.tiles[x][y].superTopping
+function map:updateSuperToppingRendering(x, y)
+	local tile = self.tiles[x][y]
+	local tileSuperTopping = tile.superTopping
 	if not tileSuperTopping then
 		return
 	end
@@ -192,6 +197,8 @@ function map:updateSuperToppingDrawFields(x, y)
 		calculateConstituentDrawFields(materialAmount, tileSuperTopping)
 		tileSuperTopping.occludes = wallFullyOccludes(tileSuperTopping)
 	end
+	local changedTiles = self:getWorld().rendering.changedTiles
+	changedTiles[#changedTiles + 1] = tile
 end
 
 function map:generateConstituents(x, y, materialsSet)
@@ -242,6 +249,7 @@ function map:fixedUpdate(dt)
 			local tile = column[y]
 			
 			-- Update grass
+			local changedRendering
 			if tile.superTopping then
 				if tile.superTopping.type == "layers" then
 					for i, subLayer in ipairs(tile.superTopping.subLayers) do
@@ -249,11 +257,14 @@ function map:fixedUpdate(dt)
 							local grassMaterial = subLayer.chunk.constituents[1].material
 							
 							-- Update health
+							local prevHealth = subLayer.grassHealth
 							local targetHealth = self:getGrassTargetHealth(x, y, i)
 							if targetHealth > subLayer.grassHealth then -- Add to health using healthIncreaseRate
 								subLayer.grassHealth = math.min(targetHealth, subLayer.grassHealth + grassMaterial.healthIncreaseRate * dt)
+								changedRendering = true
 							elseif targetHealth < subLayer.grassHealth then -- Subtract from health using healthDecreaseRate
 								subLayer.grassHealth = math.min(targetHealth, subLayer.grassHealth - grassMaterial.healthDecreaseRate * dt)
+								changedRendering = true
 							end
 							
 							-- Update amount
@@ -263,14 +274,18 @@ function map:fixedUpdate(dt)
 							local targetAmount = math.max(0, math.min(1, subLayer.grassHealth + grassMaterial.targetGrassAmountAdd))
 							if targetAmount > subLayer.grassAmount then -- Add to amount using grassHealth and growthRate
 								subLayer.grassAmount = math.min(targetAmount, subLayer.grassAmount + grassMaterial.growthRate * subLayer.grassHealth * dt)
+								changedRendering = true
 							elseif targetAmount < subLayer.grassAmount then -- Subtract from amount using 1 - grassHealth and decayRate
 								subLayer.grassAmount = math.max(targetAmount, subLayer.grassAmount - grassMaterial.decayRate * (1 - subLayer.grassHealth) * dt)
+								changedRendering = true
 							end
 						end
 					end
 				end
 			end
-			self:updateSuperToppingDrawFields(x, y)
+			if changedRendering then
+				self:updateSuperToppingRendering(x, y)
+			end
 		end
 	end
 end

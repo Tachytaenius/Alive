@@ -7,7 +7,6 @@ local rendering = concord.system({players = {"player"}, sprites = {"position", "
 
 function rendering:sendConstantsToShaders()
 	self.crushAndClipShader:send("inputCanvasSize", {self.preCrushCanvas:getDimensions()})
-	self.textureShader:send("tileSize", {consts.tileWidth, consts.tileHeight})
 	self.textureShader:send("noiseTexture", boilerplate.assets.noiseTexture.value)
 	self.textureShader:send("noiseTextureSize", {boilerplate.assets.noiseTexture.value:getDimensions()})
 end
@@ -20,12 +19,142 @@ function rendering:init()
 	
 	self.crushAndClipShader = love.graphics.newShader("shaders/crushAndClip.glsl")
 	self.textureShader = love.graphics.newShader("shaders/texture.glsl")
-	
 	self:sendConstantsToShaders()
+	
+	self.changedTiles = {}
+end
+
+local tileMeshVertexFormat = {
+	{"VertexPosition", "float", 2},
+	{"VertexColour", "float", 3},
+	{"VertexNoiseSize", "float", 1},
+	{"VertexContrast", "float", 1},
+	{"VertexBrightness", "float", 1},
+	{"VertexFullness", "float", 1}
+}
+
+function rendering:newWorld(width, height)
+	local tileMeshVertexCount = width * height * 6
+	self.toppingMesh = love.graphics.newMesh(tileMeshVertexFormat, tileMeshVertexCount, "triangles", "dynamic")
+	self.superToppingMeshes = {}
+	for i = 1, consts.maxSubLayers do
+		self.superToppingMeshes[i] = love.graphics.newMesh(tileMeshVertexFormat, tileMeshVertexCount, "triangles", "dynamic")
+	end
 end
 
 function rendering:drawSprite(e)
 	love.graphics.circle("fill", e.position.lerpedValue.x, e.position.lerpedValue.y, e.sprite.radius)
+end
+
+local function setTileMeshVertices(mesh, iBase, x, y, col1, col2, col3, noiseSize, contrast, brightness, fullness)
+	mesh:setVertex(iBase,
+		x * consts.tileWidth, y * consts.tileHeight,
+		col1, col2, col3,
+		noiseSize, contrast, brightness, fullness
+	)
+	mesh:setVertex(iBase + 1,
+		(x + 1) * consts.tileWidth, y * consts.tileHeight,
+		col1, col2, col3,
+		noiseSize, contrast, brightness, fullness
+	)
+	mesh:setVertex(iBase + 2,
+		x * consts.tileWidth, (y + 1) * consts.tileHeight,
+		col1, col2, col3,
+		noiseSize, contrast, brightness, fullness
+	)
+	
+	mesh:setVertex(iBase + 3,
+		x * consts.tileWidth, (y + 1) * consts.tileHeight,
+		col1, col2, col3,
+		noiseSize, contrast, brightness, fullness
+	)
+	mesh:setVertex(iBase + 4,
+		(x + 1) * consts.tileWidth, y * consts.tileHeight,
+		col1, col2, col3,
+		noiseSize, contrast, brightness, fullness
+	)
+	mesh:setVertex(iBase + 5,
+		(x + 1) * consts.tileWidth, (y + 1) * consts.tileHeight,
+		col1, col2, col3,
+		noiseSize, contrast, brightness, fullness
+	)
+end
+
+function rendering:fixedUpdate(dt)
+	for _, tile in ipairs(self.changedTiles) do
+		local x, y = tile.x, tile.y
+		local iBase = (x + y * self:getWorld().map.width) * 6 + 1
+		
+		-- Update topping
+		if tile.topping then
+			local
+				col1, col2, col3,
+				noiseSize, contrast, brightness, fullness
+			=
+				tile.topping.r, tile.topping.g, tile.topping.b,
+				tile.topping.noiseSize, tile.topping.contrast, tile.topping.brightness, 1
+			
+			setTileMeshVertices(self.toppingMesh, iBase, x, y,
+				col1, col2, col3,
+				noiseSize, contrast, brightness, fullness
+			)
+		else
+			for i = 0, 5 do
+				self.toppingMesh:setVertex(iBase + i) -- nil all
+			end
+		end
+		
+		-- Update super topping
+		if tile.superTopping then
+			if tile.superTopping.type == "wall" then
+				local
+					col1, col2, col3,
+					noiseSize, contrast, brightness, fullness
+				=
+					tile.superTopping.r, tile.superTopping.g, tile.superTopping.b,
+					tile.superTopping.noiseSize, tile.superTopping.contrast, tile.superTopping.brightness, tile.superTopping.fullness
+				
+				setTileMeshVertices(self.superToppingMeshes[1], iBase, x, y,
+					col1, col2, col3,
+					noiseSize, contrast, brightness, fullness
+				)
+				
+				for j = 2, consts.maxSubLayers do
+					for i = 0, 5 do
+						self.superToppingMeshes[i]:setVertex(iBase + i) -- nil all
+					end
+				end
+			else -- "layers"
+				for j = 1, consts.maxSubLayers do
+					local subLayer = tile.superTopping.subLayers[j]
+					if subLayer then
+						local
+							col1, col2, col3,
+							noiseSize, contrast, brightness, fullness
+						=
+							subLayer.r, subLayer.g, subLayer.b,
+							subLayer.noiseSize, subLayer.contrast, subLayer.brightness, subLayer.fullness
+						
+						setTileMeshVertices(self.superToppingMeshes[j], iBase, x, y,
+							col1, col2, col3,
+							noiseSize, contrast, brightness, fullness
+						)
+					else
+						for i = 0, 5 do
+							self.superToppingMeshes[j]:setVertex(iBase + i) -- nil all
+						end
+					end
+				end
+			end
+		else
+			for j = 1, consts.maxSubLayers do
+				for i = 0, 5 do
+					self.superToppingMeshes[i]:setVertex(iBase + i) -- nil all
+				end
+			end
+		end
+	end
+	self.changedTiles = {}
 end
 
 function rendering:draw(lerp, dt, performance)
@@ -55,24 +184,7 @@ function rendering:draw(lerp, dt, performance)
 	
 	-- Draw toppings
 	love.graphics.setShader(self.textureShader)
-	for x = tilesX1, tilesX2 do
-		local column = mapSystem.tiles[x]
-		for y = tilesY1, tilesY2 do
-			local tile = column[y]
-			if tile.topping and (not tile.superTopping or not tile.superTopping.occludes) then
-				self.textureShader:send("useNoise", true)
-				local drawX, drawY = x * consts.tileWidth, y * consts.tileHeight
-				self.textureShader:send("tilePosition", {drawX, drawY})
-				self.textureShader:send("noiseSize", tile.topping.noiseSize)
-				self.textureShader:send("contrast", tile.topping.contrast)
-				self.textureShader:send("brightness", tile.topping.brightness)
-				self.textureShader:send("fullness", 1)
-				love.graphics.setColor(tile.topping.r, tile.topping.g, tile.topping.b)
-				love.graphics.draw(self.dummyImage, drawX, drawY, 0, consts.tileWidth, consts.tileHeight)
-			end
-		end
-	end
-	love.graphics.setColor(1, 1, 1)
+	love.graphics.draw(self.toppingMesh)
 	love.graphics.setShader()
 	
 	-- Draw entities in ditches
@@ -82,42 +194,9 @@ function rendering:draw(lerp, dt, performance)
 	
 	-- Draw superToppings
 	love.graphics.setShader(self.textureShader)
-	for x = tilesX1, tilesX2 do
-		local column = mapSystem.tiles[x]
-		for y = tilesY1, tilesY2 do
-			local tile = column[y]
-			if tile.superTopping then
-				if tile.superTopping.type == "layers" then
-					for _, subLayer in ipairs(tile.superTopping.subLayers) do
-						self.textureShader:send("useNoise", true)
-						local drawX, drawY = x * consts.tileWidth, y * consts.tileHeight
-						self.textureShader:send("tilePosition", {drawX, drawY})
-						self.textureShader:send("noiseSize", subLayer.noiseSize)
-						self.textureShader:send("contrast", subLayer.contrast)
-						self.textureShader:send("brightness", subLayer.brightness)
-						if subLayer.type == "grass" then
-							self.textureShader:send("fullness", subLayer.fullness)
-						else
-							self.textureShader:send("fullness", 1)
-						end
-						love.graphics.setColor(subLayer.r, subLayer.g, subLayer.b)
-						love.graphics.draw(self.dummyImage, drawX, drawY, 0, consts.tileWidth, consts.tileHeight)
-					end
-				else -- wall
-					self.textureShader:send("useNoise", true)
-					local drawX, drawY = x * consts.tileWidth, y * consts.tileHeight
-					self.textureShader:send("tilePosition", {drawX, drawY})
-					self.textureShader:send("noiseSize", tile.superTopping.noiseSize)
-					self.textureShader:send("contrast", tile.superTopping.contrast)
-					self.textureShader:send("brightness", tile.superTopping.brightness)
-					self.textureShader:send("fullness", 1)
-					love.graphics.setColor(subLayer.r, subLayer.g, subLayer.b)
-					love.graphics.draw(self.dummyImage, drawX, drawY, 0, consts.tileWidth, consts.tileHeight)
-				end
-			end
-		end
+	for _, mesh in ipairs(self.superToppingMeshes) do
+		love.graphics.draw(mesh)
 	end
-	love.graphics.setColor(1, 1, 1)
 	love.graphics.setShader()
 	
 	-- Draw entities at normal height
