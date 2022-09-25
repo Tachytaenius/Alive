@@ -57,7 +57,6 @@ function map:newWorld(width, height)
 			local grassHealth = self:getGrassTargetHealth(x, y, subLayerIndex)
 			newSubLayer.grassHealth = grassHealth
 			newSubLayer.grassAmount	= math.max(0, math.min(1, grassHealth + grassMaterial.targetGrassAmountAdd))
-			newSubLayer.grassAmount = 0
 			self:updateSuperToppingRendering(x, y)
 		end
 	end
