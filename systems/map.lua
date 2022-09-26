@@ -25,7 +25,9 @@ function map:newWorld(width, height)
 		local chunksColumn = {}
 		chunks[chunkX] = chunksColumn
 		for chunkY = 0, height - 1 do
-			local chunk = {}
+			local chunk = {
+				-- tickCursorX = 0, tickCursorY = 0 -- NOTE: For unused non-random ticks
+			}
 			loadedChunks:add(chunk)
 			-- Now make the tiles
 			local tiles = {}
@@ -333,6 +335,22 @@ function map:fixedUpdate(dt)
 			self:tickTile(chunk.tiles[x][y], dt)
 		end
 	end
+	-- NOTE: For unused non-random ticks
+	-- for chunk in self.loadedChunks:elements() do
+	-- 	local x, y = chunk.tickCursorX, chunk.tickCursorY
+	-- 	for i = 1, consts.tileTicksPerChunkPerTick do
+	-- 		self:tickTile(chunk.tiles[x][y], dt)
+	-- 		x = x + 1
+	-- 		if x == consts.chunkWidth then
+	-- 			x = 0
+	-- 			y = y + 1
+	-- 		end
+	-- 		if y == consts.chunkHeight then
+	-- 			y = 0
+	-- 		end
+	-- 	end
+	-- 	chunk.tickCursorX, chunk.tickCursorY = x, y
+	-- end
 end
 
 function map:validate()

@@ -40,6 +40,9 @@ If you have soil with lumps that all contain a distribution of loam and clay, it
 
 Mostly to-decide-upon.
 
+- Tiles are always ticked before their values are used (except by rendering).
+	Combining that with the fact that ticking essentially catches up on the ticks the tile was not ticked in, tiles essentially *are* the way they would be were every tile ticked every tick, but this only manifests in memory before their values are used.
+	Except rendering sees the tiles as they are in memory.
 - TODO: Should tiles be ticked before or after building on them, or both?
 - The tilemap indices start at 0 and ends at (width or height) - 1.
 - Lump constituents must only have one entry per material.
