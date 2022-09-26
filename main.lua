@@ -40,7 +40,7 @@ local settingsUiLayout = {
 local settingsTypes = boilerplate.settingsTypes
 local settingsTemplate = {
 	mouse = {
-		turnSensitivity = settingsTypes.number(0.2)
+		turnSensitivity = settingsTypes.number(0.5)
 	},
 	fixedCommands = settingsTypes.commands("fixed", {
 		moveForward = "w",
@@ -130,7 +130,7 @@ function boilerplate.load(args)
 		:give("flyingRecoveryRate", 100)
 		:give("angle", 0)
 		:give("angularVelocity")
-		:give("angularGait", math.tau * 1.5, math.tau * 16)
+		:give("angularGait", math.tau * 2, math.tau * 32)
 		:give("player")
 	
 	mainSubWorld
