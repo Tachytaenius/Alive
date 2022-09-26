@@ -305,7 +305,11 @@ function map:tickTile(tile, dt)
 	-- Update grass
 	if tile.superTopping then
 		if tile.superTopping.type == "layers" then
-			for i, subLayer in ipairs(tile.superTopping.subLayers) do
+			-- Iterate over the layers
+			local i = 1
+			while i <= #tile.superTopping.subLayers do
+				local subLayer = tile.superTopping.subLayers[i]
+				local toDelete
 				if subLayer.type == "grass" then
 					local grassMaterial = subLayer.lump.constituents[1].material
 					
@@ -332,6 +336,19 @@ function map:tickTile(tile, dt)
 						subLayer.grassAmount = math.max(targetAmount, subLayer.grassAmount - grassMaterial.decayRate * (1 - subLayer.grassHealth) * effectiveDt)
 						changedSuperToppingRendering = true
 					end
+					
+					-- Delete grass of amount 0
+					-- This only deletes grass that *reached* 0
+					-- Grass that is placed starting at 0 either stays at 0, deleted here, or increases and is not deleted by this check
+					if subLayer.grassAmount == 0 then
+						toDelete = true
+					end
+				end
+				-- TODO: Verify this all works as intended
+				if toDelete then
+					table.remove(tile.superTopping.subLayers, i)
+				else
+					i = i + 1
 				end
 			end
 		end
