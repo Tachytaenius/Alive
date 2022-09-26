@@ -158,7 +158,7 @@ function rendering:fixedUpdate(dt)
 end
 
 function rendering:draw(lerp, dt, performance)
-	player = self.players[1]
+	local player = self.players[1]
 	if not player then
 		return
 	end
