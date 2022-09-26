@@ -70,9 +70,9 @@ function map:newWorld(width, height)
 						}
 					}
 					tile.superTopping.subLayers[subLayerIndex] = newSubLayer
-					local grassHealth = self:getGrassTargetHealth(tile, subLayerIndex)
-					newSubLayer.grassHealth = grassHealth
-					newSubLayer.grassAmount	= math.max(0, math.min(1, grassHealth + grassMaterial.targetGrassAmountAdd))
+					self:updatePrecalculatedValues(tile)
+					newSubLayer.grassHealth = newSubLayer.grassTargetHealth
+					newSubLayer.grassAmount	= math.max(0, math.min(1, newSubLayer.grassHealth + grassMaterial.targetGrassAmountAdd)) and 0
 					self:updateSuperToppingRendering(tile)
 				end
 			end
@@ -80,7 +80,7 @@ function map:newWorld(width, height)
 	end
 end
 
-function map:getGrassTargetHealth(tile, subLayerIndex)
+local function getGrassTargetHealth(tile, subLayerIndex)
 	local x, y = tile.globalTileX, tile.globalTileY
 	-- TODO: not hardcoded (grass loam requirement, grass water requirement...)
 	-- grass should only be able to grow on toppings with lumpsPerLayer lumps
@@ -108,6 +108,24 @@ function map:getGrassTargetHealth(tile, subLayerIndex)
 	local loamHealthMultiplier = math.min(1, (loamAmount / consts.lumpConstituentsTotal) / loamFractionTarget)
 	local waterHealthMultiplier = math.min(1, (waterAmount / consts.lumpConstituentsTotal) / waterFractionTarget)
 	return loamHealthMultiplier * waterHealthMultiplier
+end
+
+local function updateGrassTargetHealths(tile)
+	if not tile.superTopping then
+		return
+	end
+	if not tile.superTopping.type == "layers" then
+		return
+	end
+	for i = 1, #tile.superTopping.subLayers do
+		tile.superTopping.subLayers[i].grassTargetHealth = getGrassTargetHealth(tile, i)
+	end
+end
+
+function map:updatePrecalculatedValues(tile)
+	-- Initial grass health and amount is based on a value set here, added to the tile after the call of this function
+	-- Might have to call this function twice if grass health or amount are used in this function
+	updateGrassTargetHealths(tile)
 end
 
 local function calculateConstituentDrawFields(materialAmount, tableToWriteTo, grassHealth)
@@ -271,7 +289,7 @@ function map:tickTile(tile, dt)
 					
 					-- Update health
 					local prevHealth = subLayer.grassHealth
-					local targetHealth = self:getGrassTargetHealth(tile, i)
+					local targetHealth = subLayer.grassTargetHealth
 					if targetHealth > subLayer.grassHealth then -- Add to health using healthIncreaseRate
 						subLayer.grassHealth = math.min(targetHealth, subLayer.grassHealth + grassMaterial.healthIncreaseRate * effectiveDt)
 						changedSuperToppingRendering = true

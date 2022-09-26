@@ -77,5 +77,6 @@ Tile fields:
 		For ordinary grass grass, low values should make it yellower and patchier.
 	- `grassAmount`: For grass, defines how much grass there is.
 		Goes from 0 to 1.
+	- `grassTargetHealth`: Cached value that is recalculated only when a tile is changed.
 - `lastTickTimer`: The super world's `tickTimer` value last time this tile was ticked.
 	Used with current `tickTimer` to get how much effective delta time to use.
