@@ -311,37 +311,35 @@ function map:tickTile(tile, dt)
 				local subLayer = tile.superTopping.subLayers[i]
 				local toDelete
 				if subLayer.type == "grass" then
-					local grassMaterial = subLayer.lump.constituents[1].material
-					
-					-- Update health
-					local prevHealth = subLayer.grassHealth
-					local targetHealth = subLayer.grassTargetHealth
-					if targetHealth > subLayer.grassHealth then -- Add to health using healthIncreaseRate
-						subLayer.grassHealth = math.min(targetHealth, subLayer.grassHealth + grassMaterial.healthIncreaseRate * effectiveDt)
-						changedSuperToppingRendering = true
-					elseif targetHealth < subLayer.grassHealth then -- Subtract from health using healthDecreaseRate
-						subLayer.grassHealth = math.min(targetHealth, subLayer.grassHealth - grassMaterial.healthDecreaseRate * effectiveDt)
-						changedSuperToppingRendering = true
-					end
-					
-					-- Update amount
-					-- TODO: Grass amount of grass with health x should approach x.
-					-- Speed of approach should be multiplied with 1 - health downwards and with health upwards.
-					-- Check docs/materials.md.
-					local targetAmount = math.max(0, math.min(1, subLayer.grassHealth + grassMaterial.targetGrassAmountAdd))
-					if targetAmount > subLayer.grassAmount then -- Add to amount using grassHealth and growthRate
-						subLayer.grassAmount = math.min(targetAmount, subLayer.grassAmount + grassMaterial.growthRate * subLayer.grassHealth * effectiveDt)
-						changedSuperToppingRendering = true
-					elseif targetAmount < subLayer.grassAmount then -- Subtract from amount using 1 - grassHealth and decayRate
-						subLayer.grassAmount = math.max(targetAmount, subLayer.grassAmount - grassMaterial.decayRate * (1 - subLayer.grassHealth) * effectiveDt)
-						changedSuperToppingRendering = true
-					end
-					
 					-- Delete grass of amount 0
-					-- This only deletes grass that *reached* 0
-					-- Grass that is placed starting at 0 either stays at 0, deleted here, or increases and is not deleted by this check
 					if subLayer.grassAmount == 0 then
 						toDelete = true
+					else
+						local grassMaterial = subLayer.lump.constituents[1].material
+						
+						-- Update health
+						local prevHealth = subLayer.grassHealth
+						local targetHealth = subLayer.grassTargetHealth
+						if targetHealth > subLayer.grassHealth then -- Add to health using healthIncreaseRate
+							subLayer.grassHealth = math.min(targetHealth, subLayer.grassHealth + grassMaterial.healthIncreaseRate * effectiveDt)
+							changedSuperToppingRendering = true
+						elseif targetHealth < subLayer.grassHealth then -- Subtract from health using healthDecreaseRate
+							subLayer.grassHealth = math.min(targetHealth, subLayer.grassHealth - grassMaterial.healthDecreaseRate * effectiveDt)
+							changedSuperToppingRendering = true
+						end
+						
+						-- Update amount
+						-- TODO: Grass amount of grass with health x should approach x.
+						-- Speed of approach should be multiplied with 1 - health downwards and with health upwards.
+						-- Check docs/materials.md.
+						local targetAmount = math.max(0, math.min(1, subLayer.grassHealth + grassMaterial.targetGrassAmountAdd))
+						if targetAmount > subLayer.grassAmount then -- Add to amount using grassHealth and growthRate
+							subLayer.grassAmount = math.min(targetAmount, subLayer.grassAmount + grassMaterial.growthRate * subLayer.grassHealth * effectiveDt)
+							changedSuperToppingRendering = true
+						elseif targetAmount < subLayer.grassAmount then -- Subtract from amount using 1 - grassHealth and decayRate
+							subLayer.grassAmount = math.max(targetAmount, subLayer.grassAmount - grassMaterial.decayRate * (1 - subLayer.grassHealth) * effectiveDt)
+							changedSuperToppingRendering = true
+						end
 					end
 				end
 				-- TODO: Verify this all works as intended
