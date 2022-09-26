@@ -61,6 +61,11 @@ Lump fields:
 - `grassAmount`: Amount of grass that was dug up.
 
 Tile fields:
+- `chunk`: Link to the containing chunk.
+- `localTileX`: Chunk-local x position of tile in tiles, not pixels.
+- `localTileY`: Chunk-local y position of tile in tiles.
+- `globalTileX`: Global x position of tile in tiles.
+- `globalTileY`: Global y position of tile in tiles.
 - `topping`: The topping layer's table, or `nil` for no topping.
 - `topping.type` determines the topping's type.
 	- `"solid"`: A mix of various solid (and possibly absorbed liquid) constituents in lumps.
