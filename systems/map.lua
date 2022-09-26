@@ -29,6 +29,7 @@ function map:newWorld(width, height)
 		{material = registry.materials.byName.water, abundanceMultiply = 0, abundanceAdd = 10}
 	}
 	
+	self.loadedChunks = list()
 	local chunks = {}
 	self.chunks = chunks
 	for chunkX = 0, width - 1 do
@@ -76,7 +77,7 @@ function map:newWorld(width, height)
 						tile.topping.lumps[#tile.topping.lumps + 1] = lump
 						lump.constituents = constituents
 					end
-					self:updateToppingRendering(tile)
+					self:updateToppingRendering(tile, true)
 					
 					-- Generate super topping
 					tile.superTopping = {
@@ -97,7 +98,7 @@ function map:newWorld(width, height)
 					self:updatePrecalculatedValues(tile)
 					newSubLayer.grassHealth = newSubLayer.grassTargetHealth
 					newSubLayer.grassAmount	= math.max(0, math.min(1, newSubLayer.grassHealth + grassMaterial.targetGrassAmountAdd))
-					self:updateSuperToppingRendering(tile, true) -- True to suppress add to changed tiles because updateToppingRendering already did that
+					self:updateSuperToppingRendering(tile, true)
 				end
 			end
 		end
@@ -376,30 +377,56 @@ function map:tickTile(tile, dt)
 	tile.lastTickTimer = currentTickTimer
 end
 
+function map:unloadChunk(chunk)
+	self.loadedChunks:remove(chunk)
+end
+
+function map:loadChunk(chunk)
+	local changedTiles = self:getWorld().rendering.changedTiles
+	for x = 0, consts.chunkWidth - 1 do
+		for y = 0, consts.chunkHeight - 1 do
+			changedTiles[#changedTiles + 1] = chunk.tiles[x][y]
+		end
+	end
+	self.loadedChunks:add(chunk)
+end
+
+local function chunkIsInLoadingRadius(x, y, player)
+	return circleAabbCollision(
+		player.position.value.x, player.position.value.y, consts.chunkLoadingRadius,
+		x * consts.chunkWidth * consts.tileWidth, y * consts.chunkHeight * consts.tileHeight, consts.chunkWidth * consts.tileWidth, consts.chunkHeight * consts.tileHeight
+	)
+end
+
 function map:fixedUpdate(dt)
 	local player = self.players[1]
 	if not player then
 		return
 	end
 	
-	self.loadedChunks = {}
+	for chunk in self.loadedChunks:elements() do
+		if not chunkIsInLoadingRadius(chunk.x, chunk.y, player) then
+			self:unloadChunk(chunk)
+		end
+	end
+	
 	local x1 = math.max(0, math.floor((player.position.value.x - consts.chunkLoadingRadius) / (consts.chunkWidth * consts.tileWidth)))
 	local x2 = math.min(self.width - 1, math.ceil((player.position.value.x + consts.chunkLoadingRadius) / (consts.chunkWidth * consts.tileWidth)))
 	local y1 = math.max(0, math.floor((player.position.value.y - consts.chunkLoadingRadius) / (consts.chunkHeight * consts.tileHeight)))
 	local y2 = math.min(self.height - 1, math.ceil((player.position.value.y + consts.chunkLoadingRadius) / (consts.chunkHeight * consts.tileHeight)))
 	for x = x1, x2 do
 		for y = y1, y2 do
-			if circleAabbCollision(
-				player.position.value.x, player.position.value.y, consts.chunkLoadingRadius,
-				x * consts.chunkWidth * consts.tileWidth, y * consts.chunkHeight * consts.tileHeight, consts.chunkWidth * consts.tileWidth, consts.chunkHeight * consts.tileHeight
-			) then
-				self.loadedChunks[#self.loadedChunks + 1] = self.chunks[x][y]
+			if chunkIsInLoadingRadius(x, y, player) then
+				local chunk = self.chunks[x][y]
+				if not self.loadedChunks:has(chunk) then
+					self:loadChunk(chunk)
+				end
 			end
 		end
 	end
 	
 	local rng = self:getWorld().superWorld.rng
-	for _, chunk in ipairs(self.loadedChunks) do
+	for chunk in self.loadedChunks:elements() do
 		for i = 1, consts.randomTicksPerChunkPerTick do
 			local x = rng:random(0, consts.chunkWidth - 1)
 			local y = rng:random(0, consts.chunkHeight - 1)
@@ -408,7 +435,7 @@ function map:fixedUpdate(dt)
 	end
 	
 	-- NOTE: For unused non-random ticks
-	-- for _, chunk in ipairs(self.loadedChunks) do
+	-- for chunk in self.loadedChunks:elements() do
 	-- 	local x, y = chunk.tickCursorX, chunk.tickCursorY
 	-- 	for i = 1, consts.tileTicksPerChunkPerTick do
 	-- 		self:tickTile(chunk.tiles[x][y], dt)
