@@ -28,6 +28,7 @@ function map:newWorld(width, height)
 			local chunk = {
 				-- tickCursorX = 0, tickCursorY = 0 -- NOTE: For unused non-random ticks
 			}
+			chunksColumn[chunkY] = chunk
 			loadedChunks:add(chunk)
 			-- Now make the tiles
 			local tiles = {}
