@@ -1,5 +1,7 @@
 local consts = {}
 
+consts.version = 1
+
 consts.canvasSystemWidth = 480
 consts.canvasSystemHeight = 270
 consts.preCrushCanvasWidth = 2048
