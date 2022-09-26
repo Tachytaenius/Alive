@@ -7,6 +7,8 @@ consts.preCrushCanvasHeight = 2048
 consts.crushStart = 100
 consts.crushEnd = consts.canvasSystemHeight - 35 -- TODO: Dynamically
 
+consts.turningMouseMovementMultiplier = 0.01
+
 consts.chunkLoadingRadius = 1024 -- In pixels, around the player
 consts.randomTicksPerChunkPerTick = 3
 consts.chunkWidth = 16 -- In tiles

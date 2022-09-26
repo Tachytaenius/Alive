@@ -2,6 +2,8 @@ local concord = require("lib.concord")
 local vec2 = require("lib.mathsies").vec2
 local boilerplate = require("lib.love-game-boilerplate-lib")
 
+local consts = require("consts")
+
 local wills = concord.system({wills = {"will"}, willPlayers = {"will", "player"}})
 
 function wills:fixedUpdate(dt)
@@ -32,7 +34,7 @@ function wills:fixedUpdate(dt)
 			will.targetRelativeVelocityMultiplier = vec2.normalise(will.targetRelativeVelocityMultiplier)
 		end
 		
-		will.targetAngularVelocityMultiplier = math.max(-1, math.min(1, boilerplate.fixedMouseDx * boilerplate.settings.mouse.turnSensitivity))
+		will.targetAngularVelocityMultiplier = math.max(-1, math.min(1, boilerplate.fixedMouseDx * boilerplate.settings.mouse.turnSensitivity * consts.turningMouseMovementMultiplier))
 	end
 end
 
