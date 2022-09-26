@@ -411,8 +411,8 @@ function boilerplate.init(initConfig, arg)
 			if ui.current then
 				ui.mouse(dx, dy)
 			else
-				boilerplate.fixedMouseDx = boilerplate.fixedMouseDx + dx * mouseMovedDt
-				boilerplate.fixedMouseDy = boilerplate.fixedMouseDy + dy * mouseMovedDt
+				boilerplate.fixedMouseDx = boilerplate.fixedMouseDx + dx * (mouseMovedDt or 0)
+				boilerplate.fixedMouseDy = boilerplate.fixedMouseDy + dy * (mouseMovedDt or 0)
 			end
 		end
 	end
