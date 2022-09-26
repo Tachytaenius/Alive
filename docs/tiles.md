@@ -50,6 +50,7 @@ Mostly to-decide-upon.
 - The tilemap indices start at 0 and ends at (width or height) - 1.
 - Lump constituents must only have one entry per material.
 - Grass lumps may only have one material entry.
+- Grass lumps may not be used to add to toppings.
 - Lumps may not be modified without creating a new constituents table in case the table is used by another lump.
 	Lumps probably won't be able to be modified anyway, only broken down and produced.
 
@@ -57,7 +58,8 @@ Lump fields:
 - `constituents`: An array of entries with the following fields:
 	- `material`: The material registry entry for this constituents entry.
 	- `amount`: How much of the material is in the lump.
-- `grassHealth`: Health of grass that was dug up. Should decrease over time.
+- `grassHealth`: Health of grass that was dug up.
+	Should decrease over time.
 - `grassAmount`: Amount of grass that was dug up.
 
 Tile fields:
