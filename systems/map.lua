@@ -1,4 +1,5 @@
 local concord = require("lib.concord")
+local list = require("lib.list")
 
 local registry = require("registry")
 local consts = require("consts")
@@ -16,54 +17,71 @@ function map:newWorld(width, height)
 		{material = registry.materials.byName.water, abundanceMultiply = 0, abundanceAdd = 10}
 	}
 	
-	local tiles = {}
-	self.tiles = tiles
-	for x = 0, width - 1 do
-		local column = {}
-		tiles[x] = column
-		for y = 0, height - 1 do
-			local tile = {x = x, y = y}
-			column[y] = tile
-			
-			-- Generate topping
-			tile.topping = {
-				type = "solid",
-				lumps = {}
-			}
-			local constituents = self:generateConstituents(x, y, self.soilMaterials)
-			for _=1, consts.lumpsPerLayer do
-				local lump = {}
-				tile.topping.lumps[#tile.topping.lumps + 1] = lump
-				lump.constituents = constituents
-			end
-			self:updateToppingRendering(x, y)
-			
-			-- Generate super topping
-			tile.superTopping = {
-				type = "layers",
-				subLayers = {}
-			}
-			local subLayerIndex = 1
-			local grassMaterial = registry.materials.byName.grass
-			local newSubLayer = {
-				type = "grass",
-				lump = {
-					constituents = {
-						{material = grassMaterial, amount = consts.lumpConstituentsTotal}
+	local loadedChunks = list()
+	self.loadedChunks = loadedChunks
+	local chunks = {}
+	self.chunks = chunks
+	for chunkX = 0, width - 1 do
+		local chunksColumn = {}
+		chunks[chunkX] = chunksColumn
+		for chunkY = 0, height - 1 do
+			local chunk = {}
+			loadedChunks:add(chunk)
+			-- Now make the tiles
+			local tiles = {}
+			chunk.tiles = tiles
+			for localTileX = 0, consts.chunkWidth - 1 do
+				local tilesColumn = {}
+				tiles[localTileX] = tilesColumn
+				for localTileY = 0, consts.chunkHeight - 1 do
+					local globalTileX, globalTileY = chunkX * consts.chunkWidth + localTileX, chunkY * consts.chunkHeight + localTileY
+					local tile = {
+						localTileX = localTileX, localTileY = localTileY,
+						globalTileX = globalTileX, globalTileY = globalTileY
 					}
-				}
-			}
-			tile.superTopping.subLayers[subLayerIndex] = newSubLayer
-			local grassHealth = self:getGrassTargetHealth(x, y, subLayerIndex)
-			newSubLayer.grassHealth = grassHealth
-			newSubLayer.grassAmount	= math.max(0, math.min(1, grassHealth + grassMaterial.targetGrassAmountAdd))
-			self:updateSuperToppingRendering(x, y)
+					tilesColumn[localTileY] = tile
+					
+					-- Generate topping
+					tile.topping = {
+						type = "solid",
+						lumps = {}
+					}
+					local constituents = self:generateConstituents(globalTileX, globalTileY, self.soilMaterials)
+					for _=1, consts.lumpsPerLayer do
+						local lump = {}
+						tile.topping.lumps[#tile.topping.lumps + 1] = lump
+						lump.constituents = constituents
+					end
+					self:updateToppingRendering(tile)
+					
+					-- Generate super topping
+					tile.superTopping = {
+						type = "layers",
+						subLayers = {}
+					}
+					local subLayerIndex = 1
+					local grassMaterial = registry.materials.byName.grass
+					local newSubLayer = {
+						type = "grass",
+						lump = {
+							constituents = {
+								{material = grassMaterial, amount = consts.lumpConstituentsTotal}
+							}
+						}
+					}
+					tile.superTopping.subLayers[subLayerIndex] = newSubLayer
+					local grassHealth = self:getGrassTargetHealth(tile, subLayerIndex)
+					newSubLayer.grassHealth = grassHealth
+					newSubLayer.grassAmount	= math.max(0, math.min(1, grassHealth + grassMaterial.targetGrassAmountAdd))
+					self:updateSuperToppingRendering(tile)
+				end
+			end
 		end
 	end
 end
 
-function map:getGrassTargetHealth(x, y, subLayerIndex)
-	local tile = self.tiles[x][y]
+function map:getGrassTargetHealth(tile, subLayerIndex)
+	local x, y = tile.globalTileX, tile.globalTileY
 	-- TODO: not hardcoded (grass loam requirement, grass water requirement...)
 	-- grass should only be able to grow on toppings with lumpsPerLayer lumps
 	local loamAmount, waterAmount = 0, 0
@@ -123,8 +141,8 @@ local function calculateConstituentDrawFields(materialAmount, tableToWriteTo, gr
 	tableToWriteTo.brightness = brightness / weightTotal
 end
 
-function map:updateToppingRendering(x, y)
-	local tile = self.tiles[x][y]
+function map:updateToppingRendering(tile)
+	local x, y = tile.globalTileX, tile.globalTileY
 	local tileTopping = tile.topping
 	if not tileTopping then
 		return
@@ -163,8 +181,7 @@ local function wallFullyOccludes(superTopping)
 	return true -- TODO: Alpha check
 end
 
-function map:updateSuperToppingRendering(x, y)
-	local tile = self.tiles[x][y]
+function map:updateSuperToppingRendering(tile)
 	local tileSuperTopping = tile.superTopping
 	if not tileSuperTopping then
 		return
@@ -241,10 +258,8 @@ function map:generateConstituents(x, y, materialsSet)
 	return constituents
 end
 
-function map:tickTile(x, y, dt)
-	local tile = self.tiles[x][y]
-	
-	local changedRendering
+function map:tickTile(tile, dt)
+	local changedSuperToppingRendering
 	local currentTickTimer = self:getWorld().superWorld.tickTimer
 	local effectiveDt = dt * tonumber(currentTickTimer - (tile.lastTickTimer or currentTickTimer)) -- tick timer is an FFI uint64
 	-- Update grass
@@ -256,13 +271,13 @@ function map:tickTile(x, y, dt)
 					
 					-- Update health
 					local prevHealth = subLayer.grassHealth
-					local targetHealth = self:getGrassTargetHealth(x, y, i)
+					local targetHealth = self:getGrassTargetHealth(tile, i)
 					if targetHealth > subLayer.grassHealth then -- Add to health using healthIncreaseRate
 						subLayer.grassHealth = math.min(targetHealth, subLayer.grassHealth + grassMaterial.healthIncreaseRate * effectiveDt)
-						changedRendering = true
+						changedSuperToppingRendering = true
 					elseif targetHealth < subLayer.grassHealth then -- Subtract from health using healthDecreaseRate
 						subLayer.grassHealth = math.min(targetHealth, subLayer.grassHealth - grassMaterial.healthDecreaseRate * effectiveDt)
-						changedRendering = true
+						changedSuperToppingRendering = true
 					end
 					
 					-- Update amount
@@ -272,25 +287,28 @@ function map:tickTile(x, y, dt)
 					local targetAmount = math.max(0, math.min(1, subLayer.grassHealth + grassMaterial.targetGrassAmountAdd))
 					if targetAmount > subLayer.grassAmount then -- Add to amount using grassHealth and growthRate
 						subLayer.grassAmount = math.min(targetAmount, subLayer.grassAmount + grassMaterial.growthRate * subLayer.grassHealth * effectiveDt)
-						changedRendering = true
+						changedSuperToppingRendering = true
 					elseif targetAmount < subLayer.grassAmount then -- Subtract from amount using 1 - grassHealth and decayRate
 						subLayer.grassAmount = math.max(targetAmount, subLayer.grassAmount - grassMaterial.decayRate * (1 - subLayer.grassHealth) * effectiveDt)
-						changedRendering = true
+						changedSuperToppingRendering = true
 					end
 				end
 			end
 		end
 	end
-	if changedRendering then
-		self:updateSuperToppingRendering(x, y)
+	if changedSuperToppingRendering then
+		self:updateSuperToppingRendering(tile)
 	end
 	tile.lastTickTimer = currentTickTimer
 end
 
 function map:fixedUpdate(dt)
-	for x = 0, self.width - 1 do
-		for y = 0, self.height - 1 do
-			self:tickTile(x, y, dt)
+	local rng = self:getWorld().superWorld.rng
+	for chunk in self.loadedChunks:elements() do
+		for i = 1, consts.randomTicksPerChunkPerTick do
+			local x = rng:random(0, consts.chunkWidth - 1)
+			local y = rng:random(0, consts.chunkHeight - 1)
+			self:tickTile(chunk.tiles[x][y], dt)
 		end
 	end
 end
@@ -299,8 +317,7 @@ function map:validate()
 	-- TODO: Go over every tile and check that the structure is correct, and error if not
 end
 
-function map:mine(x, y, layerName, subLayerIndex)
-	local tile = self.tiles[x][y]
+function map:mine(tile, layerName, subLayerIndex)
 	if layerName == "topping" then
 		-- TODO: mine topping
 	else -- layerName == "superTopping"

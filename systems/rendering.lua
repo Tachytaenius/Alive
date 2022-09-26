@@ -34,7 +34,7 @@ local tileMeshVertexFormat = {
 }
 
 function rendering:newWorld(width, height)
-	local tileMeshVertexCount = width * height * 6
+	local tileMeshVertexCount = width * consts.chunkWidth * height * consts.chunkHeight * 6
 	self.toppingMesh = love.graphics.newMesh(tileMeshVertexFormat, tileMeshVertexCount, "triangles", "dynamic")
 	self.superToppingMeshes = {}
 	for i = 1, consts.maxSubLayers do
@@ -82,8 +82,8 @@ end
 
 function rendering:fixedUpdate(dt)
 	for _, tile in ipairs(self.changedTiles) do
-		local x, y = tile.x, tile.y
-		local iBase = (x + y * self:getWorld().map.width) * 6 + 1
+		local x, y = tile.globalTileX, tile.globalTileY
+		local iBase = (x + y * self:getWorld().map.width * consts.chunkWidth) * 6 + 1
 		
 		-- Update topping
 		if tile.topping then
