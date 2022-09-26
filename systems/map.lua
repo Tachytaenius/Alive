@@ -8,6 +8,7 @@ local map = concord.system({})
 
 function map:newWorld(width, height)
 	self.width, self.height = width, height
+	local superWorld = self:getWorld().superWorld
 	
 	self.soilMaterials = {
 		{material = registry.materials.byName.loam, abundanceMultiply = 14, noiseWidth = 50, noiseHeight = 50},
@@ -39,6 +40,7 @@ function map:newWorld(width, height)
 				for localTileY = 0, consts.chunkHeight - 1 do
 					local globalTileX, globalTileY = chunkX * consts.chunkWidth + localTileX, chunkY * consts.chunkHeight + localTileY
 					local tile = {
+						lastTickTimer = superWorld.tickTimer,
 						localTileX = localTileX, localTileY = localTileY,
 						globalTileX = globalTileX, globalTileY = globalTileY
 					}
@@ -80,6 +82,14 @@ function map:newWorld(width, height)
 				end
 			end
 		end
+	end
+end
+
+function map:getTile(x, y)
+	local chunkX, chunkY = math.floor(x / consts.chunkWidth), math.floor(y / consts.chunkHeight)
+	local localX, localY = x % consts.chunkWidth, y % consts.chunkHeight
+	if self.chunks[chunkX] and self.chunks[chunkX][chunkY] then
+		return self.chunks[chunkX][chunkY].tiles[localX][localY]
 	end
 end
 
@@ -286,7 +296,12 @@ end
 function map:tickTile(tile, dt)
 	local changedSuperToppingRendering
 	local currentTickTimer = self:getWorld().superWorld.tickTimer
-	local effectiveDt = dt * tonumber(currentTickTimer - (tile.lastTickTimer or currentTickTimer)) -- tick timer is an FFI uint64
+	local ticksSinceLastTicked = tonumber(currentTickTimer - tile.lastTickTimer) -- tick timer is an FFI uint64
+	if ticksSinceLastTicked == 0 then
+		tile.lastTickTimer = currentTickTimer -- This is also at the end of the function
+		return
+	end
+	local effectiveDt = dt * ticksSinceLastTicked
 	-- Update grass
 	if tile.superTopping then
 		if tile.superTopping.type == "layers" then
