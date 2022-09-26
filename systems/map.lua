@@ -73,7 +73,7 @@ function map:newWorld(width, height)
 					self:updatePrecalculatedValues(tile)
 					newSubLayer.grassHealth = newSubLayer.grassTargetHealth
 					newSubLayer.grassAmount	= math.max(0, math.min(1, newSubLayer.grassHealth + grassMaterial.targetGrassAmountAdd)) and 0
-					self:updateSuperToppingRendering(tile)
+					self:updateSuperToppingRendering(tile, true) -- True to suppress add to changed tiles because updateToppingRendering already did that
 				end
 			end
 		end
@@ -159,7 +159,7 @@ local function calculateConstituentDrawFields(materialAmount, tableToWriteTo, gr
 	tableToWriteTo.brightness = brightness / weightTotal
 end
 
-function map:updateToppingRendering(tile)
+function map:updateToppingRendering(tile, suppressAddToChangedTiles)
 	local x, y = tile.globalTileX, tile.globalTileY
 	local tileTopping = tile.topping
 	if not tileTopping then
@@ -173,8 +173,10 @@ function map:updateToppingRendering(tile)
 		end
 	end
 	calculateConstituentDrawFields(materialAmount, tileTopping)
-	local changedTiles = self:getWorld().rendering.changedTiles
-	changedTiles[#changedTiles + 1] = tile
+	if not suppressAddToChangedTiles then
+		local changedTiles = self:getWorld().rendering.changedTiles
+		changedTiles[#changedTiles + 1] = tile
+	end
 end
 
 local function getGrassNoiseFullness(subLayer)
@@ -199,7 +201,7 @@ local function wallFullyOccludes(superTopping)
 	return true -- TODO: Alpha check
 end
 
-function map:updateSuperToppingRendering(tile)
+function map:updateSuperToppingRendering(tile, suppressAddToChangedTiles)
 	local tileSuperTopping = tile.superTopping
 	if not tileSuperTopping then
 		return
@@ -231,8 +233,10 @@ function map:updateSuperToppingRendering(tile)
 		calculateConstituentDrawFields(materialAmount, tileSuperTopping)
 		tileSuperTopping.occludes = wallFullyOccludes(tileSuperTopping)
 	end
-	local changedTiles = self:getWorld().rendering.changedTiles
-	changedTiles[#changedTiles + 1] = tile
+	if not suppressAddToChangedTiles then
+		local changedTiles = self:getWorld().rendering.changedTiles
+		changedTiles[#changedTiles + 1] = tile
+	end
 end
 
 function map:generateConstituents(x, y, materialsSet)
