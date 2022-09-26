@@ -131,6 +131,7 @@ function boilerplate.load(args)
 		:give("angle", 0)
 		:give("angularVelocity")
 		:give("angularGait", math.tau * 2, math.tau * 32)
+		:give("vision", 1024)
 		:give("player")
 	
 	mainSubWorld

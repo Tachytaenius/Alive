@@ -1,10 +1,21 @@
 local concord = require("lib.concord")
 local list = require("lib.list")
 
+local circleAabbCollision = require("util.collision.circleAabb")
+
 local registry = require("registry")
 local consts = require("consts")
 
-local map = concord.system({})
+local map = concord.system({players = {"player", "position"}})
+
+local tileMeshVertexFormat = {
+	{"VertexPosition", "float", 2},
+	{"VertexColour", "float", 3},
+	{"VertexNoiseSize", "float", 1},
+	{"VertexContrast", "float", 1},
+	{"VertexBrightness", "float", 1},
+	{"VertexFullness", "float", 1}
+}
 
 function map:newWorld(width, height)
 	self.width, self.height = width, height
@@ -27,11 +38,21 @@ function map:newWorld(width, height)
 		chunks[chunkX] = chunksColumn
 		for chunkY = 0, height - 1 do
 			local chunk = {
+				x = chunkX, y = chunkY,
 				-- tickCursorX = 0, tickCursorY = 0 -- NOTE: For unused non-random ticks
 			}
 			chunksColumn[chunkY] = chunk
 			loadedChunks:add(chunk)
-			-- Now make the tiles
+			
+			-- Make the meshes
+			local tileMeshVertexCount = consts.chunkWidth * consts.chunkHeight * 6
+			chunk.toppingMesh = love.graphics.newMesh(tileMeshVertexFormat, tileMeshVertexCount, "triangles", "dynamic")
+			chunk.superToppingMeshes = {}
+			for i = 1, consts.maxSubLayers do
+				chunk.superToppingMeshes[i] = love.graphics.newMesh(tileMeshVertexFormat, tileMeshVertexCount, "triangles", "dynamic")
+			end
+			
+			-- Make the tiles
 			local tiles = {}
 			chunk.tiles = tiles
 			for localTileX = 0, consts.chunkWidth - 1 do
@@ -41,6 +62,7 @@ function map:newWorld(width, height)
 					local globalTileX, globalTileY = chunkX * consts.chunkWidth + localTileX, chunkY * consts.chunkHeight + localTileY
 					local tile = {
 						lastTickTimer = superWorld.tickTimer,
+						chunk = chunk,
 						localTileX = localTileX, localTileY = localTileY,
 						globalTileX = globalTileX, globalTileY = globalTileY
 					}
@@ -358,6 +380,20 @@ function map:tickTile(tile, dt)
 end
 
 function map:fixedUpdate(dt)
+	local player = self.players[1]
+	if not player then
+		return
+	end
+	
+	for chunk in self.loadedChunks:elements() do
+		if not circleAabbCollision(
+			player.position.value.x, player.position.value.y, consts.chunkLoadingRadius,
+			chunk.x * consts.chunkWidth * consts.tileWidth, chunk.y * consts.chunkHeight * consts.tileHeight, consts.chunkWidth * consts.tileWidth, consts.chunkHeight * consts.tileHeight
+		) then
+			self.loadedChunks:remove(chunk)
+		end
+	end
+	
 	local rng = self:getWorld().superWorld.rng
 	for chunk in self.loadedChunks:elements() do
 		for i = 1, consts.randomTicksPerChunkPerTick do
@@ -366,6 +402,7 @@ function map:fixedUpdate(dt)
 			self:tickTile(chunk.tiles[x][y], dt)
 		end
 	end
+	
 	-- NOTE: For unused non-random ticks
 	-- for chunk in self.loadedChunks:elements() do
 	-- 	local x, y = chunk.tickCursorX, chunk.tickCursorY

@@ -3,7 +3,7 @@ local concord = require("lib.concord")
 
 local consts = require("consts")
 
-local rendering = concord.system({players = {"player"}, sprites = {"position", "sprite"}})
+local rendering = concord.system({players = {"player", "vision"}, sprites = {"position", "sprite"}})
 
 function rendering:sendConstantsToShaders()
 	self.crushAndClipShader:send("inputCanvasSize", {self.preCrushCanvas:getDimensions()})
@@ -24,29 +24,11 @@ function rendering:init()
 	self.changedTiles = {}
 end
 
-local tileMeshVertexFormat = {
-	{"VertexPosition", "float", 2},
-	{"VertexColour", "float", 3},
-	{"VertexNoiseSize", "float", 1},
-	{"VertexContrast", "float", 1},
-	{"VertexBrightness", "float", 1},
-	{"VertexFullness", "float", 1}
-}
-
-function rendering:newWorld(width, height)
-	local tileMeshVertexCount = width * consts.chunkWidth * height * consts.chunkHeight * 6
-	self.toppingMesh = love.graphics.newMesh(tileMeshVertexFormat, tileMeshVertexCount, "triangles", "dynamic")
-	self.superToppingMeshes = {}
-	for i = 1, consts.maxSubLayers do
-		self.superToppingMeshes[i] = love.graphics.newMesh(tileMeshVertexFormat, tileMeshVertexCount, "triangles", "dynamic")
-	end
-end
-
 function rendering:drawSprite(e)
 	love.graphics.circle("fill", e.position.lerpedValue.x, e.position.lerpedValue.y, e.sprite.radius)
 end
 
-local function setTileMeshVertices(mesh, iBase, x, y, col1, col2, col3, noiseSize, contrast, brightness, fullness)
+local function setTileMeshVertices(mesh, iBase, chunk, x, y, col1, col2, col3, noiseSize, contrast, brightness, fullness)
 	mesh:setVertex(iBase,
 		x * consts.tileWidth, y * consts.tileHeight,
 		col1, col2, col3,
@@ -82,8 +64,9 @@ end
 
 function rendering:fixedUpdate(dt)
 	for _, tile in ipairs(self.changedTiles) do
-		local x, y = tile.globalTileX, tile.globalTileY
-		local iBase = (x + y * self:getWorld().map.width * consts.chunkWidth) * 6 + 1
+		local x, y = tile.localTileX, tile.localTileY
+		local chunk = tile.chunk
+		local iBase = (x + y * consts.chunkWidth) * 6 + 1
 		
 		-- Update topping
 		if tile.topping then
@@ -94,7 +77,7 @@ function rendering:fixedUpdate(dt)
 				tile.topping.r, tile.topping.g, tile.topping.b,
 				tile.topping.noiseSize, tile.topping.contrast, tile.topping.brightness, 1
 			
-			setTileMeshVertices(self.toppingMesh, iBase, x, y,
+			setTileMeshVertices(chunk.toppingMesh, iBase, chunk, x, y,
 				col1, col2, col3,
 				noiseSize, contrast, brightness, fullness
 			)
@@ -114,7 +97,7 @@ function rendering:fixedUpdate(dt)
 					tile.superTopping.r, tile.superTopping.g, tile.superTopping.b,
 					tile.superTopping.noiseSize, tile.superTopping.contrast, tile.superTopping.brightness, tile.superTopping.fullness
 				
-				setTileMeshVertices(self.superToppingMeshes[1], iBase, x, y,
+				setTileMeshVertices(chunk.superToppingMeshes[1], iBase, chunk, x, y,
 					col1, col2, col3,
 					noiseSize, contrast, brightness, fullness
 				)
@@ -135,13 +118,13 @@ function rendering:fixedUpdate(dt)
 							subLayer.r, subLayer.g, subLayer.b,
 							subLayer.noiseSize, subLayer.contrast, subLayer.brightness, subLayer.fullness
 						
-						setTileMeshVertices(self.superToppingMeshes[j], iBase, x, y,
+						setTileMeshVertices(chunk.superToppingMeshes[j], iBase, chunk, x, y,
 							col1, col2, col3,
 							noiseSize, contrast, brightness, fullness
 						)
 					else
 						for i = 0, 5 do
-							self.superToppingMeshes[j]:setVertex(iBase + i) -- nil all
+							chunk.superToppingMeshes[j]:setVertex(iBase + i) -- nil all
 						end
 					end
 				end
@@ -149,7 +132,7 @@ function rendering:fixedUpdate(dt)
 		else
 			for j = 1, consts.maxSubLayers do
 				for i = 0, 5 do
-					self.superToppingMeshes[i]:setVertex(iBase + i) -- nil all
+					chunk.superToppingMeshes[i]:setVertex(iBase + i) -- nil all
 				end
 			end
 		end
@@ -163,9 +146,10 @@ function rendering:draw(lerp, dt, performance)
 		return
 	end
 	
+	assert(player.vision.renderDistance <= consts.chunkLoadingRadius, "Player vision is greater than chunk loading radius")
+	
 	local sensingCircleRadius = 30 -- TODO
 	local viewPadding = 4 -- TODO
-	local fullViewDistance = 1024 -- TODO
 	local fov = 7 * math.tau / 16 -- TODO
 	
 	local preCrushPlayerPosX, preCrushPlayerPosY = self.preCrushCanvas:getWidth() / 2, self.preCrushCanvas:getHeight() - (sensingCircleRadius + viewPadding)
@@ -184,7 +168,9 @@ function rendering:draw(lerp, dt, performance)
 	
 	-- Draw toppings
 	love.graphics.setShader(self.textureShader)
-	love.graphics.draw(self.toppingMesh)
+	for chunk in mapSystem.loadedChunks:elements() do
+		love.graphics.draw(chunk.toppingMesh, chunk.x * consts.chunkWidth * consts.tileWidth, chunk.y * consts.chunkHeight * consts.tileHeight)
+	end
 	love.graphics.setShader()
 	
 	-- Draw entities in ditches
@@ -194,8 +180,10 @@ function rendering:draw(lerp, dt, performance)
 	
 	-- Draw superToppings
 	love.graphics.setShader(self.textureShader)
-	for _, mesh in ipairs(self.superToppingMeshes) do
-		love.graphics.draw(mesh)
+	for chunk in mapSystem.loadedChunks:elements() do
+		for _, mesh in ipairs(chunk.superToppingMeshes) do
+			love.graphics.draw(mesh, chunk.x * consts.chunkWidth * consts.tileWidth, chunk.y * consts.chunkHeight * consts.tileHeight)
+		end
 	end
 	love.graphics.setShader()
 	
@@ -212,7 +200,7 @@ function rendering:draw(lerp, dt, performance)
 	local crushCentreX, crushCentreY = preCrushPlayerPosX, preCrushPlayerPosY
 	local crushStart = consts.crushStart
 	local crushEnd = consts.crushEnd
-	local power = math.log(fullViewDistance / crushStart) / math.log(crushEnd / crushStart)
+	local power = math.log(player.vision.renderDistance / crushStart) / math.log(crushEnd / crushStart)
 	self.crushAndClipShader:send("crushCentre", {crushCentreX, crushCentreY})
 	self.crushAndClipShader:send("crushStart", crushStart)
 	self.crushAndClipShader:send("crushEnd", crushEnd)
