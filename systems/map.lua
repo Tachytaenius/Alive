@@ -246,7 +246,7 @@ function map:tickTile(x, y, dt)
 	
 	local changedRendering
 	local currentTickTimer = self:getWorld().superWorld.tickTimer
-	local effectiveDt = dt * tonumber(currentTickTimer - (tile.lastTickTimer or currentTickTimer))
+	local effectiveDt = dt * tonumber(currentTickTimer - (tile.lastTickTimer or currentTickTimer)) -- tick timer is an FFI uint64
 	-- Update grass
 	if tile.superTopping then
 		if tile.superTopping.type == "layers" then
