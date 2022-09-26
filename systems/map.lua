@@ -378,6 +378,7 @@ function map:tickTile(tile, dt)
 end
 
 function map:unloadChunk(chunk)
+	self.chunks[chunk.x][chunk.y] = nil
 	self.loadedChunks:remove(chunk)
 end
 
@@ -388,6 +389,7 @@ function map:loadChunk(chunk)
 			changedTiles[#changedTiles + 1] = chunk.tiles[x][y]
 		end
 	end
+	self.chunks[chunk.x][chunk.y] = chunk
 	self.loadedChunks:add(chunk)
 end
 
