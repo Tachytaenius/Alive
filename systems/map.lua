@@ -72,7 +72,7 @@ function map:newWorld(width, height)
 					tile.superTopping.subLayers[subLayerIndex] = newSubLayer
 					self:updatePrecalculatedValues(tile)
 					newSubLayer.grassHealth = newSubLayer.grassTargetHealth
-					newSubLayer.grassAmount	= math.max(0, math.min(1, newSubLayer.grassHealth + grassMaterial.targetGrassAmountAdd)) and 0
+					newSubLayer.grassAmount	= math.max(0, math.min(1, newSubLayer.grassHealth + grassMaterial.targetGrassAmountAdd))
 					self:updateSuperToppingRendering(tile, true) -- True to suppress add to changed tiles because updateToppingRendering already did that
 				end
 			end
