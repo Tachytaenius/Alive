@@ -28,13 +28,13 @@ function map:newWorld(width, height)
 			-- Generate topping
 			tile.topping = {
 				type = "solid",
-				chunks = {}
+				lumps = {}
 			}
 			local constituents = self:generateConstituents(x, y, self.soilMaterials)
-			for _=1, consts.chunksPerLayer do
-				local chunk = {}
-				tile.topping.chunks[#tile.topping.chunks + 1] = chunk
-				chunk.constituents = constituents
+			for _=1, consts.lumpsPerLayer do
+				local lump = {}
+				tile.topping.lumps[#tile.topping.lumps + 1] = lump
+				lump.constituents = constituents
 			end
 			self:updateToppingRendering(x, y)
 			
@@ -47,9 +47,9 @@ function map:newWorld(width, height)
 			local grassMaterial = registry.materials.byName.grass
 			local newSubLayer = {
 				type = "grass",
-				chunk = {
+				lump = {
 					constituents = {
-						{material = grassMaterial, amount = consts.chunkConstituentsTotal}
+						{material = grassMaterial, amount = consts.lumpConstituentsTotal}
 					}
 				}
 			}
@@ -65,10 +65,10 @@ end
 function map:getGrassTargetHealth(x, y, subLayerIndex)
 	local tile = self.tiles[x][y]
 	-- TODO: not hardcoded (grass loam requirement, grass water requirement...)
-	-- grass should only be able to grow on toppings with chunksPerLayer chunks
+	-- grass should only be able to grow on toppings with lumpsPerLayer lumps
 	local loamAmount, waterAmount = 0, 0
 	if subLayerIndex == 1 and tile.topping then
-		for _, entry in ipairs(tile.topping.chunks[consts.chunksPerLayer].constituents) do
+		for _, entry in ipairs(tile.topping.lumps[consts.lumpsPerLayer].constituents) do
 			if entry.material.name == "loam" then
 				loamAmount = entry.amount
 			elseif entry.material.name == "water" then
@@ -87,8 +87,8 @@ function map:getGrassTargetHealth(x, y, subLayerIndex)
 	end
 	local loamFractionTarget = 0.3
 	local waterFractionTarget = 0.3
-	local loamHealthMultiplier = math.min(1, (loamAmount / consts.chunkConstituentsTotal) / loamFractionTarget)
-	local waterHealthMultiplier = math.min(1, (waterAmount / consts.chunkConstituentsTotal) / waterFractionTarget)
+	local loamHealthMultiplier = math.min(1, (loamAmount / consts.lumpConstituentsTotal) / loamFractionTarget)
+	local waterHealthMultiplier = math.min(1, (waterAmount / consts.lumpConstituentsTotal) / waterFractionTarget)
 	return loamHealthMultiplier * waterHealthMultiplier
 end
 
@@ -130,8 +130,8 @@ function map:updateToppingRendering(x, y)
 		return
 	end
 	local materialAmount = {}
-	for _, chunk in ipairs(tileTopping.chunks) do
-		for _, constituent in ipairs(chunk.constituents) do
+	for _, lump in ipairs(tileTopping.lumps) do
+		for _, constituent in ipairs(lump.constituents) do
 			local material = constituent.material
 			materialAmount[material] = (materialAmount[material] or 0) + constituent.amount
 		end
@@ -142,7 +142,7 @@ function map:updateToppingRendering(x, y)
 end
 
 local function getGrassNoiseFullness(subLayer)
-	local grassMaterial = subLayer.chunk.constituents[1].material
+	local grassMaterial = subLayer.lump.constituents[1].material
 	local fullness1 = grassMaterial.fullness1 or 1
 	return fullness1 == 0 and 1 or subLayer.grassAmount / fullness1 -- NOTE: Does not need to be capped at 1
 end
@@ -173,7 +173,7 @@ function map:updateSuperToppingRendering(x, y)
 		local anySubLayerFullyOccludes
 		for _, subLayer in ipairs(tileSuperTopping.subLayers) do
 			local materialAmount = {}
-			for _, constituent in ipairs(subLayer.chunk.constituents) do
+			for _, constituent in ipairs(subLayer.lump.constituents) do
 				materialAmount[constituent.material] = constituent.amount
 			end
 			calculateConstituentDrawFields(materialAmount, subLayer, subLayer.type == "grass" and subLayer.grassHealth)
@@ -187,8 +187,8 @@ function map:updateSuperToppingRendering(x, y)
 		tileSuperTopping.occludes = anySubLayerFullyOccludes
 	else -- type == "wall"
 		local materialAmount = {}
-		for _, chunk in ipairs(tileSuperTopping.chunks) do
-			for _, constituent in ipairs(chunk.constituents) do
+		for _, lump in ipairs(tileSuperTopping.lumps) do
+			for _, constituent in ipairs(lump.constituents) do
 				local material = constituent.material
 				materialAmount[material] = (materialAmount[material] or 0) + constituent.amount
 			end
@@ -201,7 +201,7 @@ function map:updateSuperToppingRendering(x, y)
 end
 
 function map:generateConstituents(x, y, materialsSet)
-	-- All constituents must add up to const.chunkConstituentsTotal
+	-- All constituents must add up to const.lumpConstituentsTotal
 	local constituents = {}
 	
 	-- Get base weights
@@ -220,13 +220,13 @@ function map:generateConstituents(x, y, materialsSet)
 	-- Get proper amounts
 	local total2 = 0
 	for i, entry in ipairs(constituents) do
-		entry.amount = math.floor(consts.chunkConstituentsTotal * entry.amount / total1)
+		entry.amount = math.floor(consts.lumpConstituentsTotal * entry.amount / total1)
 		total2 = total2 + entry.amount
 	end
 	
 	-- Spread remainder (this could be done differently)
 	local i = 1
-	for _ = 1, consts.chunkConstituentsTotal - total2 do
+	for _ = 1, consts.lumpConstituentsTotal - total2 do
 		constituents[i].amount = constituents[i].amount + 1
 		i = (i - 1 + 1) % #constituents + 1
 	end
@@ -236,7 +236,7 @@ function map:generateConstituents(x, y, materialsSet)
 	-- for i, entry in ipairs(constituents) do
 	-- 	total3 = total3 + entry.amount
 	-- end
-	-- assert(total3 == consts.chunkConstituentsTotal)
+	-- assert(total3 == consts.lumpConstituentsTotal)
 	
 	return constituents
 end
@@ -252,7 +252,7 @@ function map:tickTile(x, y, dt)
 		if tile.superTopping.type == "layers" then
 			for i, subLayer in ipairs(tile.superTopping.subLayers) do
 				if subLayer.type == "grass" then
-					local grassMaterial = subLayer.chunk.constituents[1].material
+					local grassMaterial = subLayer.lump.constituents[1].material
 					
 					-- Update health
 					local prevHealth = subLayer.grassHealth

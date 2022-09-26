@@ -24,41 +24,41 @@ Configurations of tiles that would not be able to exist:
 - A grate on top of bedrock.
 - Flowing liquid in the super toppign layer.
 
-When mining tiles, chunks of the part that you are mining will be taken off the tile and added to the game world, probably randomly selected.
-Each chunk would be its own inventory item.
-A chunk would be little more than a consituents table that maps material definitions to their counts, adding up to a constant size.
+When mining tiles, lumps of the part that you are mining will be taken off the tile and added to the game world, probably randomly selected.
+Each lump would be its own inventory item.
+A lump would be little more than a consituents table that maps material definitions to their counts, adding up to a constant size.
 All constituent counts are integers!
-When building, a chunk is taken from the builder's inventory and added to the tile.
-We want to avoid any sort of numeric drift with tile constituent ratios when mining and building, hence things being divided up into chunks.
-Chunks of different constituents can be mixed inside toppings and super topping walls.
-For multiple-chunk layers, add up all the constituent counts in all the chunks and work on those values for things like drawing.
+When building, a lump is taken from the builder's inventory and added to the tile.
+We want to avoid any sort of numeric drift with tile constituent ratios when mining and building, hence things being divided up into lumps.
+Lumps of different constituents can be mixed inside toppings and super topping walls.
+For multiple-lump layers, add up all the constituent counts in all the lumps and work on those values for things like drawing.
 
-If you have soil that has all-loam chunks and all-clay chunks, it would be non-homogenous soil.
-If you have soil with chunks that all contain a distribution of loam and clay, it would be homogenous soil.
+If you have soil that has all-loam lumps and all-clay lumps, it would be non-homogenous soil.
+If you have soil with lumps that all contain a distribution of loam and clay, it would be homogenous soil.
 
 ## Fields and Technical Details
 
 Mostly to-decide-upon.
 
 - The tilemap indices start at 0 and ends at (width or height) - 1.
-- Chunk constituents must only have one entry per material.
-- Grass chunks may only have one material entry.
-- Chunks may not be modified without creating a new constituents table in case the table is used by another chunk.
-	Chunks probably won't be able to be modified anyway, only broken down and produced.
+- Lump constituents must only have one entry per material.
+- Grass lumps may only have one material entry.
+- Lumps may not be modified without creating a new constituents table in case the table is used by another lump.
+	Lumps probably won't be able to be modified anyway, only broken down and produced.
 
-Chunk fields:
+Lump fields:
 - `constituents`: An array of entries with the following fields:
 	- `material`: The material registry entry for this constituents entry.
-	- `amount`: How much of the material is in the chunk.
+	- `amount`: How much of the material is in the lump.
 - `grassHealth`: Health of grass that was dug up. Should decrease over time.
 - `grassAmount`: Amount of grass that was dug up.
 
 Tile fields:
 - `topping`: The topping layer's table, or `nil` for no topping.
 - `topping.type` determines the topping's type.
-	- `"solid"`: A mix of various solid (and possibly absorbed liquid) constituents in chunks.
+	- `"solid"`: A mix of various solid (and possibly absorbed liquid) constituents in lumps.
 	- `"liquid"`: Purely liquid, flows to other nil topping or liquid topping tiles.
-- `topping.chunks`: For solids, an array of chunks (which are maps of constituents to constituent counts that adds up to a total value).
+- `topping.lumps`: For solids, an array of lumps (which are maps of constituents to constituent counts that adds up to a total value).
 	Length should add up to a constant value at first, being below that should count as being cracked and mined.
 	When the total descends below a threshold, it should break into its constituent parts.
 - `superTopping`: The super topping layer's table, or `nil` for no super topping.
@@ -70,7 +70,7 @@ Tile fields:
 		- `planks`: Solid, for a plank texture.
 		- `carpet`: Solid, but requires solid topping or super topping.
 		- `grate`: Solid, for a grate texture.
-	- `chunk`: A single chunk that defines the materials of the sub-layer.
+	- `lump`: A single lump that defines the materials of the sub-layer.
 	- `grassHealth`: For grass, defines how healthy the grass is.
 		Goes from 0 to 1.
 		Would be based on water amount in soil beneath.
