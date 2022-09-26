@@ -40,6 +40,7 @@ If you have soil with lumps that all contain a distribution of loam and clay, it
 
 Mostly to-decide-upon.
 
+- TODO: Should tiles be ticked before or after building on them, or both?
 - The tilemap indices start at 0 and ends at (width or height) - 1.
 - Lump constituents must only have one entry per material.
 - Grass lumps may only have one material entry.
