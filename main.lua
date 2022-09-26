@@ -1,6 +1,3 @@
-local ffi = require("ffi")
-local uint64 = ffi.typeof("uint64_t")
-
 local boilerplate = require("lib.love-game-boilerplate-lib")
 local concord = require("lib.concord")
 
@@ -103,7 +100,7 @@ function boilerplate.load(args)
 		seed = seed,
 		rng = rng,
 		unsaved = true,
-		tickTimer = uint64(0),
+		tickTimer = 0,
 		subWorlds = {}
 	}
 	

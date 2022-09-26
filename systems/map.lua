@@ -316,7 +316,7 @@ end
 function map:tickTile(tile, dt)
 	local changedSuperToppingRendering
 	local currentTickTimer = self:getWorld().superWorld.tickTimer
-	local ticksSinceLastTicked = tonumber(currentTickTimer - tile.lastTickTimer) -- tick timer is an FFI uint64
+	local ticksSinceLastTicked = currentTickTimer - tile.lastTickTimer
 	if ticksSinceLastTicked == 0 then
 		tile.lastTickTimer = currentTickTimer -- This is also at the end of the function
 		return
