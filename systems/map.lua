@@ -241,50 +241,56 @@ function map:generateConstituents(x, y, materialsSet)
 	return constituents
 end
 
-function map:fixedUpdate(dt)
-	for x = 0, self.width - 1 do
-		local column = self.tiles[x]
-		for y = 0, self.height - 1 do
-			local tile = column[y]
-			
-			-- Update grass
-			local changedRendering
-			if tile.superTopping then
-				if tile.superTopping.type == "layers" then
-					for i, subLayer in ipairs(tile.superTopping.subLayers) do
-						if subLayer.type == "grass" then
-							local grassMaterial = subLayer.chunk.constituents[1].material
-							
-							-- Update health
-							local prevHealth = subLayer.grassHealth
-							local targetHealth = self:getGrassTargetHealth(x, y, i)
-							if targetHealth > subLayer.grassHealth then -- Add to health using healthIncreaseRate
-								subLayer.grassHealth = math.min(targetHealth, subLayer.grassHealth + grassMaterial.healthIncreaseRate * dt)
-								changedRendering = true
-							elseif targetHealth < subLayer.grassHealth then -- Subtract from health using healthDecreaseRate
-								subLayer.grassHealth = math.min(targetHealth, subLayer.grassHealth - grassMaterial.healthDecreaseRate * dt)
-								changedRendering = true
-							end
-							
-							-- Update amount
-							-- TODO: Grass amount of grass with health x should approach x.
-							-- Speed of approach should be multiplied with 1 - health downwards and with health upwards.
-							-- Check docs/materials.md.
-							local targetAmount = math.max(0, math.min(1, subLayer.grassHealth + grassMaterial.targetGrassAmountAdd))
-							if targetAmount > subLayer.grassAmount then -- Add to amount using grassHealth and growthRate
-								subLayer.grassAmount = math.min(targetAmount, subLayer.grassAmount + grassMaterial.growthRate * subLayer.grassHealth * dt)
-								changedRendering = true
-							elseif targetAmount < subLayer.grassAmount then -- Subtract from amount using 1 - grassHealth and decayRate
-								subLayer.grassAmount = math.max(targetAmount, subLayer.grassAmount - grassMaterial.decayRate * (1 - subLayer.grassHealth) * dt)
-								changedRendering = true
-							end
-						end
+function map:tickTile(x, y, dt)
+	local tile = self.tiles[x][y]
+	
+	local changedRendering
+	local currentTickTimer = self:getWorld().superWorld.tickTimer
+	local effectiveDt = dt * tonumber(currentTickTimer - (tile.lastTickTimer or currentTickTimer))
+	-- Update grass
+	if tile.superTopping then
+		if tile.superTopping.type == "layers" then
+			for i, subLayer in ipairs(tile.superTopping.subLayers) do
+				if subLayer.type == "grass" then
+					local grassMaterial = subLayer.chunk.constituents[1].material
+					
+					-- Update health
+					local prevHealth = subLayer.grassHealth
+					local targetHealth = self:getGrassTargetHealth(x, y, i)
+					if targetHealth > subLayer.grassHealth then -- Add to health using healthIncreaseRate
+						subLayer.grassHealth = math.min(targetHealth, subLayer.grassHealth + grassMaterial.healthIncreaseRate * effectiveDt)
+						changedRendering = true
+					elseif targetHealth < subLayer.grassHealth then -- Subtract from health using healthDecreaseRate
+						subLayer.grassHealth = math.min(targetHealth, subLayer.grassHealth - grassMaterial.healthDecreaseRate * effectiveDt)
+						changedRendering = true
+					end
+					
+					-- Update amount
+					-- TODO: Grass amount of grass with health x should approach x.
+					-- Speed of approach should be multiplied with 1 - health downwards and with health upwards.
+					-- Check docs/materials.md.
+					local targetAmount = math.max(0, math.min(1, subLayer.grassHealth + grassMaterial.targetGrassAmountAdd))
+					if targetAmount > subLayer.grassAmount then -- Add to amount using grassHealth and growthRate
+						subLayer.grassAmount = math.min(targetAmount, subLayer.grassAmount + grassMaterial.growthRate * subLayer.grassHealth * effectiveDt)
+						changedRendering = true
+					elseif targetAmount < subLayer.grassAmount then -- Subtract from amount using 1 - grassHealth and decayRate
+						subLayer.grassAmount = math.max(targetAmount, subLayer.grassAmount - grassMaterial.decayRate * (1 - subLayer.grassHealth) * effectiveDt)
+						changedRendering = true
 					end
 				end
 			end
-			if changedRendering then
-				self:updateSuperToppingRendering(x, y)
-			end
+		end
+	end
+	if changedRendering then
+		self:updateSuperToppingRendering(x, y)
+	end
+	tile.lastTickTimer = currentTickTimer
+end
+
+function map:fixedUpdate(dt)
+	for x = 0, self.width - 1 do
+		for y = 0, self.height - 1 do
+			self:tickTile(x, y, dt)
 		end
 	end
 end

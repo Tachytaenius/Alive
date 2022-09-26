@@ -103,6 +103,7 @@ function boilerplate.load(args)
 		seed = seed,
 		rng = rng,
 		unsaved = true,
+		tickTimer = uint64(0),
 		subWorlds = {}
 	}
 	
@@ -147,6 +148,7 @@ function boilerplate.update(dt, performance)
 end
 
 function boilerplate.fixedUpdate(dt)
+	superWorld.tickTimer = superWorld.tickTimer + 1
 	for _, subWorld in ipairs(superWorld.subWorlds) do
 		subWorld:emit("fixedUpdate", dt)
 	end
