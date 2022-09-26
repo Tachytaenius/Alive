@@ -29,8 +29,6 @@ function map:newWorld(width, height)
 		{material = registry.materials.byName.water, abundanceMultiply = 0, abundanceAdd = 10}
 	}
 	
-	local loadedChunks = list()
-	self.loadedChunks = loadedChunks
 	local chunks = {}
 	self.chunks = chunks
 	for chunkX = 0, width - 1 do
@@ -42,7 +40,6 @@ function map:newWorld(width, height)
 				-- tickCursorX = 0, tickCursorY = 0 -- NOTE: For unused non-random ticks
 			}
 			chunksColumn[chunkY] = chunk
-			loadedChunks:add(chunk)
 			
 			-- Make the meshes
 			local tileMeshVertexCount = consts.chunkWidth * consts.chunkHeight * 6
@@ -385,17 +382,24 @@ function map:fixedUpdate(dt)
 		return
 	end
 	
-	for chunk in self.loadedChunks:elements() do
-		if not circleAabbCollision(
-			player.position.value.x, player.position.value.y, consts.chunkLoadingRadius,
-			chunk.x * consts.chunkWidth * consts.tileWidth, chunk.y * consts.chunkHeight * consts.tileHeight, consts.chunkWidth * consts.tileWidth, consts.chunkHeight * consts.tileHeight
-		) then
-			self.loadedChunks:remove(chunk)
+	self.loadedChunks = {}
+	local x1 = math.max(0, math.floor((player.position.value.x - consts.chunkLoadingRadius) / (consts.chunkWidth * consts.tileWidth)))
+	local x2 = math.min(self.width - 1, math.ceil((player.position.value.x + consts.chunkLoadingRadius) / (consts.chunkWidth * consts.tileWidth)))
+	local y1 = math.max(0, math.floor((player.position.value.y - consts.chunkLoadingRadius) / (consts.chunkHeight * consts.tileHeight)))
+	local y2 = math.min(self.height - 1, math.ceil((player.position.value.y + consts.chunkLoadingRadius) / (consts.chunkHeight * consts.tileHeight)))
+	for x = x1, x2 do
+		for y = y1, y2 do
+			if circleAabbCollision(
+				player.position.value.x, player.position.value.y, consts.chunkLoadingRadius,
+				x * consts.chunkWidth * consts.tileWidth, y * consts.chunkHeight * consts.tileHeight, consts.chunkWidth * consts.tileWidth, consts.chunkHeight * consts.tileHeight
+			) then
+				self.loadedChunks[#self.loadedChunks + 1] = self.chunks[x][y]
+			end
 		end
 	end
 	
 	local rng = self:getWorld().superWorld.rng
-	for chunk in self.loadedChunks:elements() do
+	for _, chunk in ipairs(self.loadedChunks) do
 		for i = 1, consts.randomTicksPerChunkPerTick do
 			local x = rng:random(0, consts.chunkWidth - 1)
 			local y = rng:random(0, consts.chunkHeight - 1)
@@ -404,7 +408,7 @@ function map:fixedUpdate(dt)
 	end
 	
 	-- NOTE: For unused non-random ticks
-	-- for chunk in self.loadedChunks:elements() do
+	-- for _, chunk in ipairs(self.loadedChunks) do
 	-- 	local x, y = chunk.tickCursorX, chunk.tickCursorY
 	-- 	for i = 1, consts.tileTicksPerChunkPerTick do
 	-- 		self:tickTile(chunk.tiles[x][y], dt)

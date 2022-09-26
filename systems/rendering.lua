@@ -146,7 +146,7 @@ function rendering:draw(lerp, dt, performance)
 		return
 	end
 	
-	assert(player.vision.renderDistance <= consts.chunkLoadingRadius, "Player vision is greater than chunk loading radius")
+	-- assert(player.vision.renderDistance <= consts.chunkLoadingRadius, "Player vision is greater than chunk loading radius")
 	
 	local sensingCircleRadius = 30 -- TODO
 	local viewPadding = 4 -- TODO
@@ -168,7 +168,7 @@ function rendering:draw(lerp, dt, performance)
 	
 	-- Draw toppings
 	love.graphics.setShader(self.textureShader)
-	for chunk in mapSystem.loadedChunks:elements() do
+	for _, chunk in ipairs(mapSystem.loadedChunks) do
 		love.graphics.draw(chunk.toppingMesh, chunk.x * consts.chunkWidth * consts.tileWidth, chunk.y * consts.chunkHeight * consts.tileHeight)
 	end
 	love.graphics.setShader()
@@ -180,7 +180,7 @@ function rendering:draw(lerp, dt, performance)
 	
 	-- Draw superToppings
 	love.graphics.setShader(self.textureShader)
-	for chunk in mapSystem.loadedChunks:elements() do
+	for _, chunk in ipairs(mapSystem.loadedChunks) do
 		for _, mesh in ipairs(chunk.superToppingMeshes) do
 			love.graphics.draw(mesh, chunk.x * consts.chunkWidth * consts.tileWidth, chunk.y * consts.chunkHeight * consts.tileHeight)
 		end
