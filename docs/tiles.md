@@ -43,6 +43,9 @@ Mostly to-decide-upon.
 - Tiles are always ticked before their values are used (except by rendering).
 	Combining that with the fact that ticking essentially catches up on the ticks the tile was not ticked in, tiles essentially *are* the way they would be were every tile ticked every tick, but this only manifests in memory before their values are used.
 	Except rendering sees the tiles as they are in memory.
+	In cases where the player needs to know what the state of a tile is before acting on it, the tile could indeed be ticked every tick.
+	Perhaps tiles closest to the player should be ticked every tick.
+	(TEMP, if this is implemented, please replace the sentence before.)
 - TODO: Should tiles be ticked before or after building on them, or both?
 - The tilemap indices start at 0 and ends at (width or height) - 1.
 - Lump constituents must only have one entry per material.
