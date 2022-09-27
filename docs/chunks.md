@@ -1,5 +1,7 @@
 # Chunks
 
+Chunks are loaded from file or generated when they are inside the smaller loading radius, only ticked when within that radius, and unloaded when they reach the larger unloading radius.
+
 ## Fields
 
 - `x`: Chunk x position in chunks, not tiles or pixels.
