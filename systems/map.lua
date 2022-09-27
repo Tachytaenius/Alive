@@ -42,14 +42,6 @@ function map:newWorld(width, height)
 			}
 			chunksColumn[chunkY] = chunk
 			
-			-- Make the meshes
-			local tileMeshVertexCount = consts.chunkWidth * consts.chunkHeight * 6
-			chunk.toppingMesh = love.graphics.newMesh(tileMeshVertexFormat, tileMeshVertexCount, "triangles", "dynamic")
-			chunk.superToppingMeshes = {}
-			for i = 1, consts.maxSubLayers do
-				chunk.superToppingMeshes[i] = love.graphics.newMesh(tileMeshVertexFormat, tileMeshVertexCount, "triangles", "dynamic")
-			end
-			
 			-- Make the tiles
 			local tiles = {}
 			chunk.tiles = tiles
@@ -77,7 +69,6 @@ function map:newWorld(width, height)
 						tile.topping.lumps[#tile.topping.lumps + 1] = lump
 						lump.constituents = constituents
 					end
-					self:updateToppingRendering(tile, true)
 					
 					-- Generate super topping
 					tile.superTopping = {
@@ -98,10 +89,20 @@ function map:newWorld(width, height)
 					self:updatePrecalculatedValues(tile)
 					newSubLayer.grassHealth = newSubLayer.grassTargetHealth
 					newSubLayer.grassAmount	= math.max(0, math.min(1, newSubLayer.grassHealth + grassMaterial.targetGrassAmountAdd))
-					self:updateSuperToppingRendering(tile, true)
 				end
 			end
+			
+			chunksColumn[chunkY] = require("serialisation").deserialiseChunk(require("serialisation").serialiseChunk(chunk), chunkX, chunkY)
 		end
+	end
+end
+
+function map:makeChunkMeshes(chunk)
+	local tileMeshVertexCount = consts.chunkWidth * consts.chunkHeight * 6
+	chunk.toppingMesh = love.graphics.newMesh(tileMeshVertexFormat, tileMeshVertexCount, "triangles", "dynamic")
+	chunk.superToppingMeshes = {}
+	for i = 1, consts.maxSubLayers do
+		chunk.superToppingMeshes[i] = love.graphics.newMesh(tileMeshVertexFormat, tileMeshVertexCount, "triangles", "dynamic")
 	end
 end
 
@@ -383,10 +384,13 @@ function map:unloadChunk(chunk)
 end
 
 function map:loadChunk(chunk)
-	local changedTiles = self:getWorld().rendering.changedTiles
+	self:makeChunkMeshes(chunk)
 	for x = 0, consts.chunkWidth - 1 do
 		for y = 0, consts.chunkHeight - 1 do
-			changedTiles[#changedTiles + 1] = chunk.tiles[x][y]
+			local tile = chunk.tiles[x][y]
+			self:updatePrecalculatedValues(tile)
+			self:updateToppingRendering(tile)
+			self:updateSuperToppingRendering(tile, true)
 		end
 	end
 	self.chunks[chunk.x][chunk.y] = chunk

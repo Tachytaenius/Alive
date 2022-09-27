@@ -135,7 +135,7 @@ function boilerplate.load(args)
 		:addEntity(player)
 	
 	for _, subWorld in ipairs(superWorld.subWorlds) do
-		subWorld:emit("newWorld", 32, 32)
+		subWorld:emit("newWorld", 8, 8)
 	end
 end
 
