@@ -11,10 +11,11 @@ consts.crushEnd = consts.canvasSystemHeight - 35 -- TODO: Dynamically
 
 consts.turningMouseMovementMultiplier = 0.01
 
-consts.chunkLoadingRadius = 1024 -- In pixels, around the player
 consts.randomTicksPerChunkPerTick = 3
 consts.chunkWidth = 16 -- In tiles
 consts.chunkHeight = 16 -- In tiles
+consts.chunkLoadingRadius = 4 * 16*16 -- In pixels, around the player
+consts.chunkUnloadingRadius = 5 * 16*16 -- In pixels
 consts.tileWidth = 16 -- In pixels
 consts.tileHeight = 16 -- In pixels
 consts.lumpConstituentsTotal = 256 -- How much the constituents counts of a lump should add up to

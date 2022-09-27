@@ -12,17 +12,17 @@ function core:init()
 	self.loadedChunks = list()
 end
 
-local function getChunkLoadingStartEnd(player)
-	local x1 = math.floor((player.position.value.x - consts.chunkLoadingRadius) / (consts.chunkWidth * consts.tileWidth))
-	local x2 = math.ceil((player.position.value.x + consts.chunkLoadingRadius) / (consts.chunkWidth * consts.tileWidth))
-	local y1 = math.floor((player.position.value.y - consts.chunkLoadingRadius) / (consts.chunkHeight * consts.tileHeight))
-	local y2 = math.ceil((player.position.value.y + consts.chunkLoadingRadius) / (consts.chunkHeight * consts.tileHeight))
+local function getChunkLoadingStartEnd(player, radius)
+	local x1 = math.floor((player.position.value.x - radius) / (consts.chunkWidth * consts.tileWidth))
+	local x2 = math.ceil((player.position.value.x + radius) / (consts.chunkWidth * consts.tileWidth))
+	local y1 = math.floor((player.position.value.y - radius) / (consts.chunkHeight * consts.tileHeight))
+	local y2 = math.ceil((player.position.value.y + radius) / (consts.chunkHeight * consts.tileHeight))
 	return x1, x2, y1, y2
 end
 
-local function chunkPositionIsInLoadingRadius(x, y, player)
+local function chunkPositionIsInLoadingRadius(x, y, player, radius)
 	return circleAabbCollision(
-		player.position.value.x, player.position.value.y, consts.chunkLoadingRadius,
+		player.position.value.x, player.position.value.y, radius,
 		x * consts.chunkWidth * consts.tileWidth, y * consts.chunkHeight * consts.tileHeight, consts.chunkWidth * consts.tileWidth, consts.chunkHeight * consts.tileHeight
 	)
 end
@@ -40,10 +40,10 @@ function core:newWorld()
 	local player = self.players[1]
 	if player then
 		-- Make initial chunks
-		local x1, x2, y1, y2 = getChunkLoadingStartEnd(player)
+		local x1, x2, y1, y2 = getChunkLoadingStartEnd(player, consts.chunkLoadingRadius)
 		for x = x1, x2 do
 			for y = y1, y2 do
-				if chunkPositionIsInLoadingRadius(x, y, player) then
+				if chunkPositionIsInLoadingRadius(x, y, player, consts.chunkLoadingRadius) then
 					self:loadOrGenerateChunk(x, y)
 				end
 			end
@@ -58,15 +58,15 @@ function core:fixedUpdate(dt)
 	end
 	
 	for chunk in self.loadedChunks:elements() do
-		if not chunkPositionIsInLoadingRadius(chunk.x, chunk.y, player) then
+		if not chunkPositionIsInLoadingRadius(chunk.x, chunk.y, player, consts.chunkUnloadingRadius) then
 			self:unloadChunk(chunk)
 		end
 	end
 	
-	local x1, x2, y1, y2 = getChunkLoadingStartEnd(player)
+	local x1, x2, y1, y2 = getChunkLoadingStartEnd(player, consts.chunkLoadingRadius)
 	for x = x1, x2 do
 		for y = y1, y2 do
-			if chunkPositionIsInLoadingRadius(x, y, player) then
+			if chunkPositionIsInLoadingRadius(x, y, player, consts.chunkLoadingRadius) then
 				if not self:getChunk(x, y) then
 					self:loadOrGenerateChunk(x, y)
 				end
