@@ -57,6 +57,8 @@ function core:fixedUpdate(dt)
 		return
 	end
 	
+	assert(consts.chunkLoadingRadius <= consts.chunkUnloadingRadius, "Chunk unloading radius is less than loading radius")
+	
 	for chunk in self.loadedChunks:elements() do
 		if not chunkPositionIsInLoadingRadius(chunk.x, chunk.y, player, consts.chunkUnloadingRadius) then
 			self:unloadChunk(chunk)
@@ -76,10 +78,12 @@ function core:fixedUpdate(dt)
 	
 	local rng = self:getWorld().superWorld.rng
 	for chunk in self.loadedChunks:elements() do
-		for i = 1, consts.randomTicksPerChunkPerTick do
-			local x = rng:random(0, consts.chunkWidth - 1)
-			local y = rng:random(0, consts.chunkHeight - 1)
-			self:tickTile(chunk.tiles[x][y], dt)
+		if chunkPositionIsInLoadingRadius(chunk.x, chunk.y, player, consts.chunkLoadingRadius) then
+			for i = 1, consts.randomTicksPerChunkPerTick do
+				local x = rng:random(0, consts.chunkWidth - 1)
+				local y = rng:random(0, consts.chunkHeight - 1)
+				self:tickTile(chunk.tiles[x][y], dt)
+			end
 		end
 	end
 	
