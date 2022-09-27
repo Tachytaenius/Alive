@@ -16,11 +16,12 @@ function tiles:generateConstituents(x, y, materialsSet)
 	
 	-- Get base weights
 	local total1 = 0
+	local superWorldSeed = self:getWorld().superWorld.seed
 	for i, materialsSetEntry in pairs(materialsSet) do
 		local noise = love.math.noise(
 			x / (materialsSetEntry.noiseWidth or 1),
 			y / (materialsSetEntry.noiseHeight or 1),
-			materialsSetEntry.material.id
+			materialsSetEntry.material.id + superWorldSeed
 		)
 		local amount = noise * materialsSetEntry.abundanceMultiply + (materialsSetEntry.abundanceAdd or 0)
 		constituents[i] = {material = materialsSetEntry.material, amount = amount}
