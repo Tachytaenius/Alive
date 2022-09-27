@@ -11,7 +11,7 @@ Which should be able to have holes in it (that may fill up with water!).
 
 Tiles consist of:
 - A topping layer, which can have things like soil, liquid, or be empty.
-- A super topping layer, which can be either a series of flat sub-layers (or just one) (with a maximum nubmer of allowed sub-layers) or a wall, or be empty.
+- A super topping layer, which can be either a series of flat sub-layers (or just one) (with a maximum number of allowed sub-layers) or a wall, or be empty.
 
 Configurations of tiles and entities that should be able to exist:
 - Covered booby trap (super topping) hole into spiked (entities) ditch (no topping) (ouch!).
@@ -22,11 +22,11 @@ Configurations of tiles and entities that should be able to exist:
 
 Configurations of tiles that would not be able to exist:
 - A grate on top of bedrock.
-- Flowing liquid in the super toppign layer.
+- Flowing liquid in the super topping layer.
 
 When mining tiles, lumps of the part that you are mining will be taken off the tile and added to the game world, probably randomly selected.
 Each lump would be its own inventory item.
-A lump would be little more than a consituents table that maps material definitions to their counts, adding up to a constant size.
+A lump would be little more than a constituents table that maps material definitions to their counts, adding up to a constant size.
 All constituent counts are integers!
 When building, a lump is taken from the builder's inventory and added to the tile.
 We want to avoid any sort of numeric drift with tile constituent ratios when mining and building, hence things being divided up into lumps.
