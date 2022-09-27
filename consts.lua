@@ -23,6 +23,14 @@ consts.maxSubLayers = 4 -- TODO: Definitely put this in map:validate()
 
 consts.textureNoiseSizeIrresolution = 0.25 -- Higher numbers mean fewer steps, with greater distance between
 consts.minimumTextureNoiseSize = 0.2
+consts.tileMeshVertexFormat = {
+	{"VertexPosition", "float", 2},
+	{"VertexColour", "float", 3},
+	{"VertexNoiseSize", "float", 1},
+	{"VertexContrast", "float", 1},
+	{"VertexBrightness", "float", 1},
+	{"VertexFullness", "float", 1}
+}
 
 consts.defaultFlyingRecoveryRate = 100
 
