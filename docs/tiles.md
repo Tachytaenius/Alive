@@ -56,42 +56,42 @@ Mostly to-decide-upon.
 	Lumps probably won't be able to be modified anyway, only broken down and produced.
 
 Lump fields:
-- `constituents`: An array of entries with the following fields:
-	- `material`: The material registry entry for this constituents entry.
-	- `amount`: How much of the material is in the lump.
-- `grassHealth`: Health of grass.
+- `constituents`: (Saved, altered) An array of entries with the following fields:
+	- `material`: (Saved, altered) The material registry entry for this constituents entry.
+	- `amount`: (Saved) How much of the material is in the lump.
+- `grassHealth`: (Saved) Health of grass.
 	Should decrease over time if in a dug-up lump.
 	Goes from 0 to 1.
 	Would be based on water amount in soil beneath.
 	For ordinary grass grass, low values should make it yellower and have a lesser amount.
-- `grassAmount`: Amount of grass.
+- `grassAmount`: (Saved) Amount of grass.
 	Should decrease over time according to grass rules if in a dug-up lump.
 	Goes from 0 to 1.
 	Smaller amounts make it patchier.
 
 Tile fields:
-- `chunk`: Link to the containing chunk.
-- `localTileX`: Chunk-local x position of tile in tiles, not pixels.
-- `localTileY`: Chunk-local y position of tile in tiles.
-- `globalTileX`: Global x position of tile in tiles.
-- `globalTileY`: Global y position of tile in tiles.
-- `topping`: The topping layer's table, or `nil` for no topping.
-- `topping.type` determines the topping's type.
+- `chunk`: (Not saved) Link to the containing chunk.
+- `localTileX`: (Not saved) Chunk-local x position of tile in tiles, not pixels.
+- `localTileY`: (Not saved) Chunk-local y position of tile in tiles.
+- `globalTileX`: (Not saved) Global x position of tile in tiles.
+- `globalTileY`: (Not saved) Global y position of tile in tiles.
+- `topping`: (Saved, altered) The topping layer's table, or `nil` for no topping.
+- `topping.type`: (Saved) Determines the topping's type.
 	- `"solid"`: A mix of various solid (and possibly absorbed liquid) constituents in lumps.
 	- `"liquid"`: Purely liquid, flows to other nil topping or liquid topping tiles.
-- `topping.lumps`: For solids, an array of lumps (which are maps of constituents to constituent counts that adds up to a total value).
+- `topping.lumps`: (Saved, altered) For solids, an array of lumps (which are maps of constituents to constituent counts that adds up to a total value).
 	Length should add up to a constant value at first, being below that should count as being cracked and mined.
 	When the total descends below a threshold, it should break into its constituent parts.
-- `superTopping`: The super topping layer's table, or `nil` for no super topping.
-- `superTopping.type` can be either `"layers"` or `"wall"`.
-- `superTopping.subLayers`, for layers-type super toppings, an array of super topping sub-layers.
+- `superTopping`: (Saved) The super topping layer's table, or `nil` for no super topping.
+- `superTopping.type`: (Saved) Can be either `"layers"` or `"wall"`.
+- `superTopping.subLayers`: (Saved) For layers-type super toppings, an array of super topping sub-layers.
 	Fields for entries:
-	- `type`: One of:
+	- `type`: (Saved) One of:
 		- `grass`: For living matter coating the topping.
 		- `planks`: Solid, for a plank texture.
 		- `carpet`: Solid, but requires solid topping or super topping.
 		- `grate`: Solid, for a grate texture.
-	- `lump`: A single lump that defines the materials of the sub-layer.
-	- `grassTargetHealth`: Cached value that is recalculated only when a tile is changed.
-- `lastTickTimer`: The super world's `tickTimer` value last time this tile was ticked.
+	- `lump`: (Saved, altered) A single lump that defines the materials of the sub-layer.
+	- `grassTargetHealth`: (Not saved) Cached value that is recalculated only when a tile is changed.
+- `lastTickTimer`: (Saved) The super world's `tickTimer` value last time this tile was ticked.
 	Used with current `tickTimer` to get how much effective delta time to use.
