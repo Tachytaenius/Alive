@@ -4,6 +4,8 @@
 **Subject to change, too.**
 **This document is becoming a mess, please rewrite it according to the actual codebase once the features are all fully implemented.**
 
+TODO: Roofs.
+
 ## Gameplay Details and Goals
 
 The tilemap layer sits over a layer of bedrock.
