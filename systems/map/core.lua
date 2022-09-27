@@ -20,7 +20,7 @@ local function getChunkLoadingStartEnd(player, radius)
 	return x1, x2, y1, y2
 end
 
-local function chunkPositionIsInLoadingRadius(x, y, player, radius)
+local function chunkPositionIsInRadius(x, y, player, radius)
 	return circleAabbCollision(
 		player.position.value.x, player.position.value.y, radius,
 		x * consts.chunkWidth * consts.tileWidth, y * consts.chunkHeight * consts.tileHeight, consts.chunkWidth * consts.tileWidth, consts.chunkHeight * consts.tileHeight
@@ -43,7 +43,7 @@ function core:newWorld()
 		local x1, x2, y1, y2 = getChunkLoadingStartEnd(player, consts.chunkLoadingRadius)
 		for x = x1, x2 do
 			for y = y1, y2 do
-				if chunkPositionIsInLoadingRadius(x, y, player, consts.chunkLoadingRadius) then
+				if chunkPositionIsInRadius(x, y, player, consts.chunkLoadingRadius) then
 					self:loadOrGenerateChunk(x, y)
 				end
 			end
@@ -60,7 +60,7 @@ function core:fixedUpdate(dt)
 	assert(consts.chunkLoadingRadius <= consts.chunkUnloadingRadius, "Chunk unloading radius is less than loading radius")
 	
 	for chunk in self.loadedChunks:elements() do
-		if not chunkPositionIsInLoadingRadius(chunk.x, chunk.y, player, consts.chunkUnloadingRadius) then
+		if not chunkPositionIsInRadius(chunk.x, chunk.y, player, consts.chunkUnloadingRadius) then
 			self:unloadChunk(chunk)
 		end
 	end
@@ -68,7 +68,7 @@ function core:fixedUpdate(dt)
 	local x1, x2, y1, y2 = getChunkLoadingStartEnd(player, consts.chunkLoadingRadius)
 	for x = x1, x2 do
 		for y = y1, y2 do
-			if chunkPositionIsInLoadingRadius(x, y, player, consts.chunkLoadingRadius) then
+			if chunkPositionIsInRadius(x, y, player, consts.chunkLoadingRadius) then
 				if not self:getChunk(x, y) then
 					self:loadOrGenerateChunk(x, y)
 				end
@@ -78,7 +78,7 @@ function core:fixedUpdate(dt)
 	
 	local rng = self:getWorld().superWorld.rng
 	for chunk in self.loadedChunks:elements() do
-		if chunkPositionIsInLoadingRadius(chunk.x, chunk.y, player, consts.chunkLoadingRadius) then
+		if chunkPositionIsInRadius(chunk.x, chunk.y, player, consts.chunkLoadingRadius) then
 			for i = 1, consts.randomTicksPerChunkPerTick do
 				local x = rng:random(0, consts.chunkWidth - 1)
 				local y = rng:random(0, consts.chunkHeight - 1)
