@@ -13,6 +13,7 @@ local function traverse(registryTable, path, createFromJson)
 				local entryName = itemName:sub(1, -6) -- remove .json
 				local entry = createFromJson(jsonData, entryName, path)
 				entry.name = entryName
+				assert(not registryTable.byName[entryName], path .. " cannot be loaded as there is already a registry entry by the name " .. entryName)
 				registryTable.byName[entryName] = entry
 				entry.id = registryTable.nextId
 				registryTable.byId[registryTable.nextId] = entry
