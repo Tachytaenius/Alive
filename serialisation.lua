@@ -11,7 +11,7 @@ function serialisation.serialiseSuperWorldInfo(superWorld)
 	local toDump = {}
 	toDump.seed = superWorld.seed
 	toDump.rngSeedLow, toDump.rngSeedHigh = superWorld.rng:getSeed()
-	toDump.tickTimer = superWorld.tickTimer
+	toDump.time = superWorld.time
 	return bitser.dumps(toDump)
 end
 
@@ -85,7 +85,7 @@ function serialisation.serialiseChunk(chunk)
 					end
 				end
 			end
-			tileToDump.lastTickTimer = tile.lastTickTimer
+			tileToDump.lastTimeTicked = tile.lastTimeTicked
 		end
 	end
 	return bitser.dumps(toDump)

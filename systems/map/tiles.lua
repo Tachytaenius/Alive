@@ -105,13 +105,12 @@ end
 
 function tiles:tickTile(tile, dt)
 	local changedSuperToppingRendering
-	local currentTickTimer = self:getWorld().superWorld.tickTimer
-	local ticksSinceLastTicked = currentTickTimer - tile.lastTickTimer
-	if ticksSinceLastTicked == 0 then
-		tile.lastTickTimer = currentTickTimer -- This is also at the end of the function
+	local currentTime = self:getWorld().superWorld.time
+	local effectiveDt = currentTime - tile.lastTimeTicked
+	if effectiveDt == 0 then
+		tile.lastTimeTicked = currentTime -- This is also at the end of the function
 		return
 	end
-	local effectiveDt = dt * ticksSinceLastTicked
 	-- Update grass
 	if tile.superTopping then
 		if tile.superTopping.type == "layers" then
@@ -164,7 +163,7 @@ function tiles:tickTile(tile, dt)
 	if changedSuperToppingRendering then
 		self:updateTileRendering(tile)
 	end
-	tile.lastTickTimer = currentTickTimer
+	tile.lastTimeTicked = currentTime
 end
 
 return tiles

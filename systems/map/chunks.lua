@@ -48,7 +48,7 @@ function chunks:generateChunk(chunkX, chunkY)
 		for localTileY = 0, consts.chunkHeight - 1 do
 			local globalTileX, globalTileY = chunkX * consts.chunkWidth + localTileX, chunkY * consts.chunkHeight + localTileY
 			local tile = {
-				lastTickTimer = superWorld.tickTimer,
+				lastTimeTicked = superWorld.time,
 				chunk = chunk,
 				localTileX = localTileX, localTileY = localTileY,
 				globalTileX = globalTileX, globalTileY = globalTileY
