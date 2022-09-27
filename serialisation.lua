@@ -72,6 +72,8 @@ function serialisation.serialiseChunk(chunk)
 						tileToDump.superTopping.subLayers[i] = subLayerToDump
 						subLayerToDump.type = subLayer.type
 						local lumpToDump = {}
+						lumpToDump.grassHealth = subLayer.lump.grassHealth
+						lumpToDump.grassAmount = subLayer.lump.grassAmount
 						lumpToDump.constituents = {}
 						for j, entry in ipairs(subLayer.lump.constituents) do
 							lumpToDump.constituents[j] = {
@@ -80,8 +82,6 @@ function serialisation.serialiseChunk(chunk)
 							}
 						end
 						subLayerToDump.lump = lumpToDump
-						subLayerToDump.grassHealth = subLayer.grassHealth
-						subLayerToDump.grassAmount = subLayer.grassAmount
 					end
 				end
 			end

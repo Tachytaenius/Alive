@@ -84,8 +84,8 @@ function chunks:generateChunk(chunkX, chunkY)
 			}
 			tile.superTopping.subLayers[subLayerIndex] = newSubLayer
 			self:updateLumpDependentTickValues(tile)
-			newSubLayer.grassHealth = newSubLayer.grassTargetHealth
-			newSubLayer.grassAmount	= math.max(0, math.min(1, newSubLayer.grassHealth + grassMaterial.targetGrassAmountAdd))
+			newSubLayer.lump.grassHealth = newSubLayer.grassTargetHealth
+			newSubLayer.lump.grassAmount = math.max(0, math.min(1, newSubLayer.lump.grassHealth + grassMaterial.targetGrassAmountAdd))
 			
 			self:updateTileRendering(tile)
 		end

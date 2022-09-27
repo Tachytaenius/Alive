@@ -121,19 +121,19 @@ function tiles:tickTile(tile, dt)
 				local toDelete
 				if subLayer.type == "grass" then
 					-- Delete grass of amount 0
-					if subLayer.grassAmount == 0 then
+					if subLayer.lump.grassAmount == 0 then
 						toDelete = true
 					else
 						local grassMaterial = subLayer.lump.constituents[1].material
 						
 						-- Update health
-						local prevHealth = subLayer.grassHealth
+						local prevHealth = subLayer.lump.grassHealth
 						local targetHealth = subLayer.grassTargetHealth
-						if targetHealth > subLayer.grassHealth then -- Add to health using healthIncreaseRate
-							subLayer.grassHealth = math.min(targetHealth, subLayer.grassHealth + grassMaterial.healthIncreaseRate * effectiveDt)
+						if targetHealth > subLayer.lump.grassHealth then -- Add to health using healthIncreaseRate
+							subLayer.lump.grassHealth = math.min(targetHealth, subLayer.lump.grassHealth + grassMaterial.healthIncreaseRate * effectiveDt)
 							changedSuperToppingRendering = true
-						elseif targetHealth < subLayer.grassHealth then -- Subtract from health using healthDecreaseRate
-							subLayer.grassHealth = math.min(targetHealth, subLayer.grassHealth - grassMaterial.healthDecreaseRate * effectiveDt)
+						elseif targetHealth < subLayer.lump.grassHealth then -- Subtract from health using healthDecreaseRate
+							subLayer.lump.grassHealth = math.min(targetHealth, subLayer.lump.grassHealth - grassMaterial.healthDecreaseRate * effectiveDt)
 							changedSuperToppingRendering = true
 						end
 						
@@ -141,12 +141,12 @@ function tiles:tickTile(tile, dt)
 						-- TODO: Grass amount of grass with health x should approach x.
 						-- Speed of approach should be multiplied with 1 - health downwards and with health upwards.
 						-- Check docs/materials.md.
-						local targetAmount = math.max(0, math.min(1, subLayer.grassHealth + grassMaterial.targetGrassAmountAdd))
-						if targetAmount > subLayer.grassAmount then -- Add to amount using grassHealth and growthRate
-							subLayer.grassAmount = math.min(targetAmount, subLayer.grassAmount + grassMaterial.growthRate * subLayer.grassHealth * effectiveDt)
+						local targetAmount = math.max(0, math.min(1, subLayer.lump.grassHealth + grassMaterial.targetGrassAmountAdd))
+						if targetAmount > subLayer.lump.grassAmount then -- Add to amount using grassHealth and growthRate
+							subLayer.lump.grassAmount = math.min(targetAmount, subLayer.lump.grassAmount + grassMaterial.growthRate * subLayer.lump.grassHealth * effectiveDt)
 							changedSuperToppingRendering = true
-						elseif targetAmount < subLayer.grassAmount then -- Subtract from amount using 1 - grassHealth and decayRate
-							subLayer.grassAmount = math.max(targetAmount, subLayer.grassAmount - grassMaterial.decayRate * (1 - subLayer.grassHealth) * effectiveDt)
+						elseif targetAmount < subLayer.lump.grassAmount then -- Subtract from amount using 1 - grassHealth and decayRate
+							subLayer.lump.grassAmount = math.max(targetAmount, subLayer.lump.grassAmount - grassMaterial.decayRate * (1 - subLayer.lump.grassHealth) * effectiveDt)
 							changedSuperToppingRendering = true
 						end
 					end
@@ -161,7 +161,7 @@ function tiles:tickTile(tile, dt)
 		end
 	end
 	if changedSuperToppingRendering then
-		self:updateSuperToppingRendering(tile)
+		self:updateTileRendering(tile)
 	end
 	tile.lastTickTimer = currentTickTimer
 end

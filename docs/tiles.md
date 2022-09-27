@@ -29,6 +29,7 @@ Each lump would be its own inventory item.
 A lump would be little more than a constituents table that maps material definitions to their counts, adding up to a constant size.
 All constituent counts are integers!
 When building, a lump is taken from the builder's inventory and added to the tile.
+Grass lumps cannot be used to build toppings and walls.
 We want to avoid any sort of numeric drift with tile constituent ratios when mining and building, hence things being divided up into lumps.
 Lumps of different constituents can be mixed inside toppings and super topping walls.
 For multiple-lump layers, add up all the constituent counts in all the lumps and work on those values for things like drawing.
@@ -58,9 +59,15 @@ Lump fields:
 - `constituents`: An array of entries with the following fields:
 	- `material`: The material registry entry for this constituents entry.
 	- `amount`: How much of the material is in the lump.
-- `grassHealth`: Health of grass that was dug up.
-	Should decrease over time.
-- `grassAmount`: Amount of grass that was dug up.
+- `grassHealth`: Health of grass.
+	Should decrease over time if in a dug-up lump.
+	Goes from 0 to 1.
+	Would be based on water amount in soil beneath.
+	For ordinary grass grass, low values should make it yellower and have a lesser amount.
+- `grassAmount`: Amount of grass.
+	Should decrease over time according to grass rules if in a dug-up lump.
+	Goes from 0 to 1.
+	Smaller amounts make it patchier.
 
 Tile fields:
 - `chunk`: Link to the containing chunk.
@@ -85,12 +92,6 @@ Tile fields:
 		- `carpet`: Solid, but requires solid topping or super topping.
 		- `grate`: Solid, for a grate texture.
 	- `lump`: A single lump that defines the materials of the sub-layer.
-	- `grassHealth`: For grass, defines how healthy the grass is.
-		Goes from 0 to 1.
-		Would be based on water amount in soil beneath.
-		For ordinary grass grass, low values should make it yellower and patchier.
-	- `grassAmount`: For grass, defines how much grass there is.
-		Goes from 0 to 1.
 	- `grassTargetHealth`: Cached value that is recalculated only when a tile is changed.
 - `lastTickTimer`: The super world's `tickTimer` value last time this tile was ticked.
 	Used with current `tickTimer` to get how much effective delta time to use.

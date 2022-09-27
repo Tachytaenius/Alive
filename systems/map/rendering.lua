@@ -14,7 +14,7 @@ end
 local function getGrassNoiseFullness(subLayer)
 	local grassMaterial = subLayer.lump.constituents[1].material
 	local fullness1 = grassMaterial.fullness1 or 1
-	return fullness1 == 0 and 1 or subLayer.grassAmount / fullness1 -- NOTE: Does not need to be capped at 1
+	return fullness1 == 0 and 1 or subLayer.lump.grassAmount / fullness1 -- NOTE: Does not need to be capped at 1
 end
 
 local function calculateConstituentDrawFields(materialAmount, tableToWriteTo, grassHealth)
@@ -71,7 +71,7 @@ function rendering:updateTileRendering(tile)
 				for _, constituent in ipairs(subLayer.lump.constituents) do
 					materialAmount[constituent.material] = constituent.amount
 				end
-				calculateConstituentDrawFields(materialAmount, subLayer, subLayer.type == "grass" and subLayer.grassHealth)
+				calculateConstituentDrawFields(materialAmount, subLayer, subLayer.type == "grass" and subLayer.lump.grassHealth)
 				subLayer.fullness = getGrassNoiseFullness(subLayer)
 			end
 		else -- type == "wall"
