@@ -163,8 +163,6 @@ function rendering:draw(lerp, dt, performance)
 	local normalHeightSprites = self.sprites -- TODO
 	
 	local mapSystem = self:getWorld().map
-	local tilesX1, tilesX2 = 0, mapSystem.width - 1 -- TODO
-	local tilesY1, tilesY2 = 0, mapSystem.height - 1
 	
 	-- Draw toppings
 	love.graphics.setShader(self.textureShader)
