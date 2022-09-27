@@ -146,7 +146,7 @@ function rendering:draw(lerp, dt, performance)
 		return
 	end
 	
-	-- assert(player.vision.renderDistance <= consts.chunkLoadingRadius, "Player vision is greater than chunk loading radius")
+	assert(player.vision.renderDistance <= consts.chunkLoadingRadius, "Player vision is greater than chunk loading radius")
 	
 	local sensingCircleRadius = 30 -- TODO
 	local viewPadding = 4 -- TODO
