@@ -168,4 +168,17 @@ function tiles:tickTile(tile, dt)
 	tile.lastTimeTicked = currentTime
 end
 
+function tiles:decompressLumps(lumps)
+	assert(lumps.compressedToOne, "Can't decompress uncompressed lumps table")
+	lumps.compressedToOne = nil
+	lumps[1] = lumps.compressionLump
+	for i = 2, consts.lumpsPerLayer do
+		lumps[i] = {}
+		for k, v in pairs(lumps.compressionLump) do
+			lumps[i][k] = v
+		end
+	end
+	lumps.compressionLump = nil
+end
+
 return tiles
