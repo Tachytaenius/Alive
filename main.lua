@@ -92,8 +92,7 @@ local superWorld -- The whole game instance
 function boilerplate.load(args)
 	registry.load()
 	
-	local max32 = math.ldexp(1, 32)-1
-	local seed = love.math.random(0, max32)
+	local seed = love.math.random(0, consts.maxWorldSeed)
 	local rng = love.math.newRandomGenerator(seed)
 	
 	superWorld = {
