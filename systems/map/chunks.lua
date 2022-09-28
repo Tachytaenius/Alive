@@ -109,7 +109,9 @@ function chunks:loadOrGenerateChunk(x, y)
 		error(path .. " is a directory")
 	end
 	
-	local chunk = serialisation.deserialiseChunk(love.filesystem.read(path), x, y)
+	local serialisedData, errorMessage = love.filesystem.read(path)
+	assert(serialisedData, "Could not read file for chunk at " .. x .. ", " .. y .. ": " .. errorMessage)
+	local chunk = serialisation.deserialiseChunk(serialisedData, x, y)
 	for x = 0, consts.chunkWidth - 1 do
 		for y = 0, consts.chunkHeight - 1 do
 			local tile = chunk.tiles[x][y]
