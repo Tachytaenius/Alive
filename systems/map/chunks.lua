@@ -67,6 +67,7 @@ function chunks:generateChunk(chunkX, chunkY)
 			tile.topping.lumps.compressionLump = {
 				constituents = constituents
 			}
+			tile.topping.lumps.compressionLumpCount = consts.lumpsPerLayer
 			
 			-- Generate super topping
 			tile.superTopping = {

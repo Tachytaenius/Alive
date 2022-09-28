@@ -57,7 +57,7 @@ function rendering:updateTileRendering(tile)
 		if tile.topping.lumps.compressedToOne then
 			for _, constituent in ipairs(tile.topping.lumps.compressionLump.constituents) do
 				local material = constituent.material
-				materialAmount[material] = (materialAmount[material] or 0) + constituent.amount * consts.lumpsPerLayer
+				materialAmount[material] = (materialAmount[material] or 0) + constituent.amount * tile.topping.lumps.compressionLumpCount
 			end
 		else
 			for _, lump in ipairs(tile.topping.lumps) do
@@ -86,7 +86,7 @@ function rendering:updateTileRendering(tile)
 			if tile.superTopping.lumps.compressedToOne then
 				for _, constituent in ipairs(tile.superTopping.compressionLump.constituents) do
 					local material = constituent.material
-					materialAmount[material] = (materialAmount[material] or 0) + constituent.amount * consts.lumpsPerLayer
+					materialAmount[material] = (materialAmount[material] or 0) + constituent.amount * tile.superTopping.lumps.compressionLumpCount
 				end
 			else
 				for _, lump in ipairs(tile.superTopping.lumps) do

@@ -63,6 +63,7 @@ local function getGrassTargetHealth(tile, subLayerIndex)
 	local loamAmount, waterAmount = 0, 0
 	if subLayerIndex == 1 and tile.topping then
 		local lumps = tile.topping.lumps
+		assert(lumps.compressedToOne and lumps.compressionLumpCount == consts.lumpsPerLayer or #lumps == consts.lumpsPerLayer, "There must be " .. consts.lumpsPerLayer .. " lumps for grass to exist on a tile")
 		local topLump = lumps.compressedToOne and lumps.compressionLump or lumps[consts.lumpsPerLayer]
 		for _, entry in ipairs(topLump.constituents) do
 			if entry.material.name == "loam" then
@@ -170,15 +171,16 @@ end
 
 function tiles:decompressLumps(lumps)
 	assert(lumps.compressedToOne, "Can't decompress uncompressed lumps table")
-	lumps.compressedToOne = nil
 	lumps[1] = lumps.compressionLump
-	for i = 2, consts.lumpsPerLayer do
+	for i = 2, lumps.compressionLumpCount do
 		lumps[i] = {}
 		for k, v in pairs(lumps.compressionLump) do
 			lumps[i][k] = v
 		end
 	end
+	lumps.compressedToOne = nil
 	lumps.compressionLump = nil
+	lumps.compressionLumpCount = nil
 end
 
 return tiles

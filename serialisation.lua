@@ -41,6 +41,7 @@ function serialisation.serialiseChunk(chunk)
 				tileToDump.topping.lumps = {}
 				tileToDump.topping.lumps.compressedToOne = tile.topping.lumps.compressedToOne
 				tileToDump.topping.lumps.compressionLump = tile.topping.lumps.compressionLump
+				tileToDump.topping.lumps.compressionLumpCount = tile.topping.lumps.compressionLumpCount
 				for i, lump in ipairs(tile.topping.lumps) do
 					local lumpToDump = {}
 					tileToDump.topping.lumps[i] = lumpToDump
@@ -60,6 +61,7 @@ function serialisation.serialiseChunk(chunk)
 					tileToDump.superTopping.lumps = {}
 					tileToDump.superTopping.lumps.compressedToOne = tile.superTopping.lumps.compressedToOne
 					tileToDump.superTopping.lumps.compressionLump = tile.superTopping.lumps.compressionLump
+					tileToDump.superTopping.lumps.compressionLumpCount = tile.superTopping.lumps.compressionLumpCount
 					for i, lump in ipairs(tile.superTopping.lumps) do
 						local lumpToDump = {}
 						tileToDump.superTopping.lumps[i] = lumpToDump
