@@ -68,6 +68,7 @@ local initConfig = {
 	fixedUpdateTickLength = consts.fixedUpdateTickLength,
 	canvasSystemWidth = consts.canvasSystemWidth,
 	canvasSystemHeight = consts.canvasSystemHeight,
+	windowTitle = consts.windowTitle,
 	frameCommands = frameCommands,
 	fixedCommands = fixedCommands,
 	settingsUiLayout = settingsUiLayout,
