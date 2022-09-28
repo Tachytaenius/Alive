@@ -33,6 +33,12 @@ function boilerplate.remakeWindow()
 		borderless = settings.graphics.fullscreen and settings.graphics.borderlessFullscreen,
 		display = settings.graphics.display
 	})
+	if config.windowTitle then
+		love.window.setTitle(config.windowTitle)
+	end
+	if config.windowIconImageData then
+		love.window.setIcon(config.windowIconImageData)
+	end
 end
 
 local function paused()
@@ -175,6 +181,8 @@ function boilerplate.init(initConfig, arg)
 	config.uiPad = initConfig.uiPad or 4
 	config.uiButtonPad = initConfig.uiButtonPad or 2
 	config.pauseInputType = initConfig.pauseInputType or "released"
+	config.windowTitle = initConfig.windowTitle
+	config.windowIconImageData = initConfig.windowIconImageData
 	
 	local pausePressed, pauseReleased
 	
