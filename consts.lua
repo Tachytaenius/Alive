@@ -4,6 +4,9 @@ consts.version = 1
 consts.fixedUpdateTickLength = 1 / 24
 consts.seedBytes = 2 -- TEMP: When love 12 comes out, we can use 4. This is for love.math.noise reasons
 consts.maxWorldSeed = math.ldexp(1, consts.seedBytes * 8)-1
+consts.windowTitle = "Alive"
+consts.loveVersion = "11.4"
+consts.loveIdentity = "alive"
 
 consts.canvasSystemWidth = 480
 consts.canvasSystemHeight = 270
