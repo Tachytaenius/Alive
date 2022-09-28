@@ -65,7 +65,7 @@ local assets = {
 }
 
 local initConfig = {
-	fixedUpdateTickLength = 1 / 24,
+	fixedUpdateTickLength = consts.fixedUpdateTickLength,
 	canvasSystemWidth = consts.canvasSystemWidth,
 	canvasSystemHeight = consts.canvasSystemHeight,
 	frameCommands = frameCommands,

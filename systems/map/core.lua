@@ -10,6 +10,7 @@ local core = {}
 function core:init()
 	self.chunks = {}
 	self.loadedChunks = list()
+	self.randomTickTime = 0
 end
 
 local function getChunkLoadingStartEnd(player, radius)
@@ -57,6 +58,8 @@ function core:fixedUpdate(dt)
 		return
 	end
 	
+	self.randomTickTime = self.randomTickTime + dt
+	
 	assert(consts.chunkLoadingRadius <= consts.chunkUnloadingRadius, "Chunk unloading radius is less than loading radius")
 	
 	for chunk in self.loadedChunks:elements() do
@@ -76,16 +79,20 @@ function core:fixedUpdate(dt)
 		end
 	end
 	
-	local rng = self:getWorld().superWorld.rng
+	local superWorld = self:getWorld().superWorld
+	local rng = superWorld.rng
 	for chunk in self.loadedChunks:elements() do
 		if chunkPositionIsInRadius(chunk.x, chunk.y, player, consts.chunkLoadingRadius) then
-			for i = 1, consts.randomTicksPerChunkPerTick do
+			local randomTickTime = self.randomTickTime
+			while randomTickTime >= consts.randomTickInterval do
 				local x = rng:random(0, consts.chunkWidth - 1)
 				local y = rng:random(0, consts.chunkHeight - 1)
 				self:tickTile(chunk.tiles[x][y], dt)
+				randomTickTime = randomTickTime - consts.randomTickInterval -- Don't save use of random tick time on this chunk
 			end
 		end
 	end
+	self.randomTickTime = self.randomTickTime % consts.randomTickInterval -- Now save use of random tick time for all chunks
 	
 	-- NOTE: For unused non-random ticks
 	-- for chunk in self.loadedChunks:elements() do

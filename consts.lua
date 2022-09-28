@@ -1,6 +1,7 @@
 local consts = {}
 
 consts.version = 1
+consts.fixedUpdateTickLength = 1 / 24
 
 consts.canvasSystemWidth = 480
 consts.canvasSystemHeight = 270
@@ -11,7 +12,7 @@ consts.crushEnd = consts.canvasSystemHeight - 35 -- TODO: Dynamically
 
 consts.turningMouseMovementMultiplier = 0.01
 
-consts.randomTicksPerChunkPerTick = 3
+consts.randomTickInterval = consts.fixedUpdateTickLength / 4
 consts.chunkWidth = 16 -- In tiles
 consts.chunkHeight = 16 -- In tiles
 consts.chunkLoadingRadius = 4 * 16*16 -- In pixels, around the player
@@ -34,5 +35,7 @@ consts.tileMeshVertexFormat = {
 }
 
 consts.defaultFlyingRecoveryRate = 100
+
+assert(consts.randomTickInterval > 0, "Random tick interval cannot be 0")
 
 return consts
