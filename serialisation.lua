@@ -27,6 +27,7 @@ end
 function serialisation.serialiseChunk(chunk)
 	local toDump = {}
 	toDump.randomTickTime = chunk.randomTickTime
+	toDump.time = chunk.time
 	toDump.tiles = {}
 	for x = 0, consts.chunkWidth - 1 do
 		toDump.tiles[x] = {}

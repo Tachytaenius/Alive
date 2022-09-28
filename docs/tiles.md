@@ -95,5 +95,6 @@ Tile fields:
 		- `grate`: Solid, for a grate texture.
 	- `lump`: (Saved, altered) A single lump that defines the materials of the sub-layer.
 	- `grassTargetHealth`: (Not saved) Cached value that is recalculated only when a tile is changed.
-- `lastTimeTicked`: (Saved) The super world's `timer` value last time this tile was ticked.
-	Used with current `timer` to get how much effective delta time to use.
+- `lastTimeTicked`: (Saved) The chunk's `time` value last time this tile was ticked.
+	Used with current `time` to get how much effective delta time to use.
+	Tiles do not catch up on any time in which their chunk was unloaded.

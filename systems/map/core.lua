@@ -83,6 +83,7 @@ function core:fixedUpdate(dt)
 	local rng = superWorld.rng
 	for chunk in self.loadedChunks:elements() do
 		if chunkPositionIsInRadius(chunk.x, chunk.y, player, consts.chunkLoadingRadius) then
+			chunk.time = chunk.time + dt -- TODO: Figure out why toppings don't render when this line is not present.
 			chunk.randomTickTime = chunk.randomTickTime + dt
 			while chunk.randomTickTime >= consts.randomTickInterval do
 				local x = rng:random(0, consts.chunkWidth - 1)

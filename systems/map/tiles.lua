@@ -105,7 +105,7 @@ end
 
 function tiles:tickTile(tile, dt)
 	local changedSuperToppingRendering
-	local currentTime = self:getWorld().superWorld.time
+	local currentTime = tile.chunk.time
 	local effectiveDt = currentTime - tile.lastTimeTicked
 	if effectiveDt == 0 then
 		tile.lastTimeTicked = currentTime -- This is also at the end of the function

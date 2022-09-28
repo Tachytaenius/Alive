@@ -36,6 +36,7 @@ function chunks:generateChunk(chunkX, chunkY)
 	
 	local chunk = {
 		x = chunkX, y = chunkY,
+		time = 0,
 		randomTickTime = 0,
 		-- tickCursorX = 0, tickCursorY = 0 -- NOTE: For unused non-random ticks
 	}
@@ -49,7 +50,7 @@ function chunks:generateChunk(chunkX, chunkY)
 		for localTileY = 0, consts.chunkHeight - 1 do
 			local globalTileX, globalTileY = chunkX * consts.chunkWidth + localTileX, chunkY * consts.chunkHeight + localTileY
 			local tile = {
-				lastTimeTicked = superWorld.time,
+				lastTimeTicked = chunk.time,
 				chunk = chunk,
 				localTileX = localTileX, localTileY = localTileY,
 				globalTileX = globalTileX, globalTileY = globalTileY
