@@ -59,7 +59,6 @@ end
 local function getGrassTargetHealth(tile, subLayerIndex)
 	local x, y = tile.globalTileX, tile.globalTileY
 	-- TODO: not hardcoded (grass loam requirement, grass water requirement...)
-	-- grass should only be able to grow on toppings with lumpsPerLayer lumps
 	local loamAmount, waterAmount = 0, 0
 	if subLayerIndex == 1 and tile.topping then
 		local lumps = tile.topping.lumps

@@ -36,6 +36,7 @@ Grass lumps cannot be used to build toppings and walls.
 We want to avoid any sort of numeric drift with tile constituent ratios when mining and building, hence things being divided up into lumps.
 Lumps of different constituents can be mixed inside toppings and super topping walls.
 For multiple-lump layers, add up all the constituent counts in all the lumps and work on those values for things like drawing.
+Grass should only be able to grow on toppings with the maximum number of lumps per layer.
 
 If you have soil that has all-loam lumps and all-clay lumps, it would be non-homogenous soil.
 If you have soil with lumps that all contain a distribution of loam and clay, it would be homogenous soil.
