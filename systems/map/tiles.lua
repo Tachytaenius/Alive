@@ -1,3 +1,4 @@
+local registry = require("registry")
 local consts = require("consts")
 
 local tiles = {}
@@ -52,8 +53,51 @@ function tiles:generateConstituents(x, y, materialsSet)
 	return constituents
 end
 
-function tiles:generateTile(chunk, x, y)
-	-- TODO
+function tiles:generateTile(chunk, localTileX, localTileY)
+	local globalTileX, globalTileY = chunk.x * consts.chunkWidth + localTileX, chunk.y * consts.chunkHeight + localTileY
+	local tile = {
+		lastTimeTicked = chunk.time,
+		chunk = chunk,
+		localTileX = localTileX, localTileY = localTileY,
+		globalTileX = globalTileX, globalTileY = globalTileY
+	}
+	chunk.tiles[localTileX][localTileY] = tile
+	
+	-- Generate topping
+	tile.topping = {
+		type = "solid",
+		lumps = {}
+	}
+	local constituents = self:generateConstituents(globalTileX, globalTileY, self.soilMaterials)
+	tile.topping.lumps.compressedToOne = true
+	tile.topping.lumps.compressionLump = {
+		constituents = constituents
+	}
+	tile.topping.lumps.compressionLumpCount = consts.lumpsPerLayer
+	
+	-- Generate super topping
+	tile.superTopping = {
+		type = "layers",
+		subLayers = {}
+	}
+	local subLayerIndex = 1
+	local grassMaterial = registry.materials.byName.grass
+	local newSubLayer = {
+		type = "grass",
+		lump = {
+			constituents = {
+				{material = grassMaterial, amount = consts.lumpConstituentsTotal}
+			}
+		}
+	}
+	tile.superTopping.subLayers[subLayerIndex] = newSubLayer
+	self:updateLumpDependentTickValues(tile)
+	newSubLayer.lump.grassHealth = newSubLayer.grassTargetHealth
+	newSubLayer.lump.grassAmount = math.max(0, math.min(1, newSubLayer.lump.grassHealth + grassMaterial.targetGrassAmountAdd))
+	
+	self:updateTileRendering(tile)
+	
+	return tile
 end
 
 local function getGrassTargetHealth(tile, subLayerIndex)
