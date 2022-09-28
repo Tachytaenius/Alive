@@ -28,37 +28,37 @@ function rendering:drawSprite(e)
 	love.graphics.circle("fill", e.position.lerpedValue.x, e.position.lerpedValue.y, e.sprite.radius)
 end
 
-local function setTileMeshVertices(mesh, iBase, x, y, col1, col2, col3, noiseSize, contrast, brightness, fullness)
+local function setTileMeshVertices(mesh, iBase, x, y, col1, col2, col3, noiseSize, noiseContrast, noiseBrightness, fullness)
 	mesh:setVertex(iBase,
 		x * consts.tileWidth, y * consts.tileHeight,
 		col1, col2, col3,
-		noiseSize, contrast, brightness, fullness
+		noiseSize, noiseContrast, noiseBrightness, fullness
 	)
 	mesh:setVertex(iBase + 1,
 		(x + 1) * consts.tileWidth, y * consts.tileHeight,
 		col1, col2, col3,
-		noiseSize, contrast, brightness, fullness
+		noiseSize, noiseContrast, noiseBrightness, fullness
 	)
 	mesh:setVertex(iBase + 2,
 		x * consts.tileWidth, (y + 1) * consts.tileHeight,
 		col1, col2, col3,
-		noiseSize, contrast, brightness, fullness
+		noiseSize, noiseContrast, noiseBrightness, fullness
 	)
 	
 	mesh:setVertex(iBase + 3,
 		x * consts.tileWidth, (y + 1) * consts.tileHeight,
 		col1, col2, col3,
-		noiseSize, contrast, brightness, fullness
+		noiseSize, noiseContrast, noiseBrightness, fullness
 	)
 	mesh:setVertex(iBase + 4,
 		(x + 1) * consts.tileWidth, y * consts.tileHeight,
 		col1, col2, col3,
-		noiseSize, contrast, brightness, fullness
+		noiseSize, noiseContrast, noiseBrightness, fullness
 	)
 	mesh:setVertex(iBase + 5,
 		(x + 1) * consts.tileWidth, (y + 1) * consts.tileHeight,
 		col1, col2, col3,
-		noiseSize, contrast, brightness, fullness
+		noiseSize, noiseContrast, noiseBrightness, fullness
 	)
 end
 
@@ -73,14 +73,14 @@ function rendering:fixedUpdate(dt)
 		if tile.topping then
 			local
 				col1, col2, col3,
-				noiseSize, contrast, brightness, fullness
+				noiseSize, noiseContrast, noiseBrightness, fullness
 			=
 				tile.topping.r, tile.topping.g, tile.topping.b,
-				tile.topping.noiseSize, tile.topping.contrast, tile.topping.brightness, 1
+				tile.topping.noiseSize, tile.topping.noiseContrast, tile.topping.noiseBrightness, 1
 			
 			setTileMeshVertices(chunk.toppingMesh, iBase, globalTileX, globalTileY,
 				col1, col2, col3,
-				noiseSize, contrast, brightness, fullness
+				noiseSize, noiseContrast, noiseBrightness, fullness
 			)
 		else
 			for i = 0, 5 do
@@ -93,14 +93,14 @@ function rendering:fixedUpdate(dt)
 			if tile.superTopping.type == "wall" then
 				local
 					col1, col2, col3,
-					noiseSize, contrast, brightness, fullness
+					noiseSize, noiseContrast, noiseBrightness, fullness
 				=
 					tile.superTopping.r, tile.superTopping.g, tile.superTopping.b,
-					tile.superTopping.noiseSize, tile.superTopping.contrast, tile.superTopping.brightness, tile.superTopping.fullness
+					tile.superTopping.noiseSize, tile.superTopping.noiseContrast, tile.superTopping.noiseBrightness, tile.superTopping.fullness
 				
 				setTileMeshVertices(chunk.superToppingMeshes[1], iBase, globalTileX, globalTileY,
 					col1, col2, col3,
-					noiseSize, contrast, brightness, fullness
+					noiseSize, noiseContrast, noiseBrightness, fullness
 				)
 				
 				for j = 2, consts.maxSubLayers do
@@ -114,14 +114,14 @@ function rendering:fixedUpdate(dt)
 					if subLayer then
 						local
 							col1, col2, col3,
-							noiseSize, contrast, brightness, fullness
+							noiseSize, noiseContrast, noiseBrightness, fullness
 						=
 							subLayer.r, subLayer.g, subLayer.b,
-							subLayer.noiseSize, subLayer.contrast, subLayer.brightness, subLayer.fullness
+							subLayer.noiseSize, subLayer.noiseContrast, subLayer.noiseBrightness, subLayer.fullness
 						
 						setTileMeshVertices(chunk.superToppingMeshes[j], iBase, globalTileX, globalTileY,
 							col1, col2, col3,
-							noiseSize, contrast, brightness, fullness
+							noiseSize, noiseContrast, noiseBrightness, fullness
 						)
 					else
 						for i = 0, 5 do

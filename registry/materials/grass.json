@@ -1,13 +1,13 @@
 {
 	"colour": [0.3, 0.8, 0.3],
-	"deadColour": [0.8, 0.6, 0.3],
+	"grassDeadColour": [0.8, 0.6, 0.3],
 	"noiseSize": 0.5,
-	"contrast": 0.25,
-	"brightness": 0,
-	"healthIncreaseRate": 0.005,
-	"healthDecreaseRate": 0.005,
-	"growthRate": 0.01,
-	"decayRate": 0.01,
-	"targetGrassAmountAdd": 0.25,
-	"fullness1": 1
+	"noiseContrast": 0.25,
+	"noiseBrightness": 0,
+	"grassHealthIncreaseRate": 0.005,
+	"grassHealthDecreaseRate": 0.005,
+	"grassGrowthRate": 0.01,
+	"grassDecayRate": 0.01,
+	"grassTargetAmountAdd": 0.25,
+	"grassNoiseFullness1": 1
 }

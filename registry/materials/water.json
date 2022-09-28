@@ -1,7 +1,7 @@
 {
 	"colour": [0.4, 0.4, 0.8],
 	"noiseSize": 5,
-	"contrast": 0.5,
-	"brightness": 0.2,
+	"noiseContrast": 0.5,
+	"noiseBrightness": 0.2,
 	"visualWeight": 0.01
 }

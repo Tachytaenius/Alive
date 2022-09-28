@@ -93,7 +93,7 @@ function tiles:generateTile(chunk, localTileX, localTileY)
 	tile.superTopping.subLayers[subLayerIndex] = newSubLayer
 	self:updateLumpDependentTickValues(tile)
 	newSubLayer.lump.grassHealth = newSubLayer.grassTargetHealth
-	newSubLayer.lump.grassAmount = math.max(0, math.min(1, newSubLayer.lump.grassHealth + grassMaterial.targetGrassAmountAdd))
+	newSubLayer.lump.grassAmount = math.max(0, math.min(1, newSubLayer.lump.grassHealth + grassMaterial.grassTargetAmountAdd))
 	
 	self:updateTileRendering(tile)
 	
@@ -175,11 +175,11 @@ function tiles:tickTile(tile, dt)
 						-- Update health
 						local prevHealth = subLayer.lump.grassHealth
 						local targetHealth = subLayer.grassTargetHealth
-						if targetHealth > subLayer.lump.grassHealth then -- Add to health using healthIncreaseRate
-							subLayer.lump.grassHealth = math.min(targetHealth, subLayer.lump.grassHealth + grassMaterial.healthIncreaseRate * effectiveDt)
+						if targetHealth > subLayer.lump.grassHealth then -- Add to health using grassHealthIncreaseRate
+							subLayer.lump.grassHealth = math.min(targetHealth, subLayer.lump.grassHealth + grassMaterial.grassHealthIncreaseRate * effectiveDt)
 							changedSuperToppingRendering = true
-						elseif targetHealth < subLayer.lump.grassHealth then -- Subtract from health using healthDecreaseRate
-							subLayer.lump.grassHealth = math.min(targetHealth, subLayer.lump.grassHealth - grassMaterial.healthDecreaseRate * effectiveDt)
+						elseif targetHealth < subLayer.lump.grassHealth then -- Subtract from health using grassHealthDecreaseRate
+							subLayer.lump.grassHealth = math.min(targetHealth, subLayer.lump.grassHealth - grassMaterial.grassHealthDecreaseRate * effectiveDt)
 							changedSuperToppingRendering = true
 						end
 						
@@ -187,12 +187,12 @@ function tiles:tickTile(tile, dt)
 						-- TODO: Grass amount of grass with health x should approach x.
 						-- Speed of approach should be multiplied with 1 - health downwards and with health upwards.
 						-- Check docs/materials.md.
-						local targetAmount = math.max(0, math.min(1, subLayer.lump.grassHealth + grassMaterial.targetGrassAmountAdd))
-						if targetAmount > subLayer.lump.grassAmount then -- Add to amount using grassHealth and growthRate
-							subLayer.lump.grassAmount = math.min(targetAmount, subLayer.lump.grassAmount + grassMaterial.growthRate * subLayer.lump.grassHealth * effectiveDt)
+						local targetAmount = math.max(0, math.min(1, subLayer.lump.grassHealth + grassMaterial.grassTargetAmountAdd))
+						if targetAmount > subLayer.lump.grassAmount then -- Add to amount using grassHealth and grassGrowthRate
+							subLayer.lump.grassAmount = math.min(targetAmount, subLayer.lump.grassAmount + grassMaterial.grassGrowthRate * subLayer.lump.grassHealth * effectiveDt)
 							changedSuperToppingRendering = true
-						elseif targetAmount < subLayer.lump.grassAmount then -- Subtract from amount using 1 - grassHealth and decayRate
-							subLayer.lump.grassAmount = math.max(targetAmount, subLayer.lump.grassAmount - grassMaterial.decayRate * (1 - subLayer.lump.grassHealth) * effectiveDt)
+						elseif targetAmount < subLayer.lump.grassAmount then -- Subtract from amount using 1 - grassHealth and grassDecayRate
+							subLayer.lump.grassAmount = math.max(targetAmount, subLayer.lump.grassAmount - grassMaterial.grassDecayRate * (1 - subLayer.lump.grassHealth) * effectiveDt)
 							changedSuperToppingRendering = true
 						end
 					end
