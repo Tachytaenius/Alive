@@ -9,3 +9,5 @@ Chunks are loaded from file or generated when they are inside the smaller loadin
 - `toppingMesh`: (Not saved) The mesh used for the tile toppings.
 - `superToppingMeshes`: (Not saved) An array of meshes used for tile super toppings.
 - `tiles`: (Saved, altered) The 2D array of tiles.
+- `randomTickTime` (Saved) The allotted time for random ticks to operate in.
+	Saves excess for cases where dt (`consts.fixedUpdateTickLength`) is not a multiple of `consts.randomTickInterval`.

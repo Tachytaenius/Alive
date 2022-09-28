@@ -83,16 +83,15 @@ function core:fixedUpdate(dt)
 	local rng = superWorld.rng
 	for chunk in self.loadedChunks:elements() do
 		if chunkPositionIsInRadius(chunk.x, chunk.y, player, consts.chunkLoadingRadius) then
-			local randomTickTime = self.randomTickTime
-			while randomTickTime >= consts.randomTickInterval do
+			chunk.randomTickTime = chunk.randomTickTime + dt
+			while chunk.randomTickTime >= consts.randomTickInterval do
 				local x = rng:random(0, consts.chunkWidth - 1)
 				local y = rng:random(0, consts.chunkHeight - 1)
 				self:tickTile(chunk.tiles[x][y], dt)
-				randomTickTime = randomTickTime - consts.randomTickInterval -- Don't save use of random tick time on this chunk
+				chunk.randomTickTime = chunk.randomTickTime - consts.randomTickInterval
 			end
 		end
 	end
-	self.randomTickTime = self.randomTickTime % consts.randomTickInterval -- Now save use of random tick time for all chunks
 	
 	-- NOTE: For unused non-random ticks
 	-- for chunk in self.loadedChunks:elements() do

@@ -36,6 +36,7 @@ function chunks:generateChunk(chunkX, chunkY)
 	
 	local chunk = {
 		x = chunkX, y = chunkY,
+		randomTickTime = 0,
 		-- tickCursorX = 0, tickCursorY = 0 -- NOTE: For unused non-random ticks
 	}
 	
