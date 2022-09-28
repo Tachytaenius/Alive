@@ -28,7 +28,7 @@ function rendering:drawSprite(e)
 	love.graphics.circle("fill", e.position.lerpedValue.x, e.position.lerpedValue.y, e.sprite.radius)
 end
 
-local function setTileMeshVertices(mesh, iBase, chunk, x, y, col1, col2, col3, noiseSize, contrast, brightness, fullness)
+local function setTileMeshVertices(mesh, iBase, x, y, col1, col2, col3, noiseSize, contrast, brightness, fullness)
 	mesh:setVertex(iBase,
 		x * consts.tileWidth, y * consts.tileHeight,
 		col1, col2, col3,
@@ -64,9 +64,10 @@ end
 
 function rendering:fixedUpdate(dt)
 	for _, tile in ipairs(self.changedTiles) do
-		local x, y = tile.localTileX, tile.localTileY
+		local localTileX, localTileY = tile.localTileX, tile.localTileY
+		local globalTileX, globalTileY = tile.globalTileX, tile.globalTileY
 		local chunk = tile.chunk
-		local iBase = (x + y * consts.chunkWidth) * 6 + 1
+		local iBase = (localTileX + localTileY * consts.chunkWidth) * 6 + 1
 		
 		-- Update topping
 		if tile.topping then
@@ -77,7 +78,7 @@ function rendering:fixedUpdate(dt)
 				tile.topping.r, tile.topping.g, tile.topping.b,
 				tile.topping.noiseSize, tile.topping.contrast, tile.topping.brightness, 1
 			
-			setTileMeshVertices(chunk.toppingMesh, iBase, chunk, x, y,
+			setTileMeshVertices(chunk.toppingMesh, iBase, globalTileX, globalTileY,
 				col1, col2, col3,
 				noiseSize, contrast, brightness, fullness
 			)
@@ -97,7 +98,7 @@ function rendering:fixedUpdate(dt)
 					tile.superTopping.r, tile.superTopping.g, tile.superTopping.b,
 					tile.superTopping.noiseSize, tile.superTopping.contrast, tile.superTopping.brightness, tile.superTopping.fullness
 				
-				setTileMeshVertices(chunk.superToppingMeshes[1], iBase, chunk, x, y,
+				setTileMeshVertices(chunk.superToppingMeshes[1], iBase, globalTileX, globalTileY,
 					col1, col2, col3,
 					noiseSize, contrast, brightness, fullness
 				)
@@ -118,7 +119,7 @@ function rendering:fixedUpdate(dt)
 							subLayer.r, subLayer.g, subLayer.b,
 							subLayer.noiseSize, subLayer.contrast, subLayer.brightness, subLayer.fullness
 						
-						setTileMeshVertices(chunk.superToppingMeshes[j], iBase, chunk, x, y,
+						setTileMeshVertices(chunk.superToppingMeshes[j], iBase, globalTileX, globalTileY,
 							col1, col2, col3,
 							noiseSize, contrast, brightness, fullness
 						)
@@ -167,7 +168,7 @@ function rendering:draw(lerp, dt, performance)
 	-- Draw toppings
 	love.graphics.setShader(self.textureShader)
 	for chunk in mapSystem.loadedChunks:elements() do
-		love.graphics.draw(chunk.toppingMesh, chunk.x * consts.chunkWidth * consts.tileWidth, chunk.y * consts.chunkHeight * consts.tileHeight)
+		love.graphics.draw(chunk.toppingMesh)
 	end
 	love.graphics.setShader()
 	
@@ -180,7 +181,7 @@ function rendering:draw(lerp, dt, performance)
 	love.graphics.setShader(self.textureShader)
 	for chunk in mapSystem.loadedChunks:elements() do
 		for _, mesh in ipairs(chunk.superToppingMeshes) do
-			love.graphics.draw(mesh, chunk.x * consts.chunkWidth * consts.tileWidth, chunk.y * consts.chunkHeight * consts.tileHeight)
+			love.graphics.draw(mesh)
 		end
 	end
 	love.graphics.setShader()
