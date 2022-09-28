@@ -62,7 +62,9 @@ local function getGrassTargetHealth(tile, subLayerIndex)
 	-- grass should only be able to grow on toppings with lumpsPerLayer lumps
 	local loamAmount, waterAmount = 0, 0
 	if subLayerIndex == 1 and tile.topping then
-		for _, entry in ipairs(tile.topping.lumps[consts.lumpsPerLayer].constituents) do
+		local lumps = tile.topping.lumps
+		local topLump = lumps.compressedToOne and lumps.compressionLump or lumps[consts.lumpsPerLayer]
+		for _, entry in ipairs(topLump.constituents) do
 			if entry.material.name == "loam" then
 				loamAmount = entry.amount
 			elseif entry.material.name == "water" then

@@ -63,11 +63,10 @@ function chunks:generateChunk(chunkX, chunkY)
 				lumps = {}
 			}
 			local constituents = self:generateConstituents(globalTileX, globalTileY, self.soilMaterials)
-			for _=1, consts.lumpsPerLayer do
-				local lump = {}
-				tile.topping.lumps[#tile.topping.lumps + 1] = lump
-				lump.constituents = constituents
-			end
+			tile.topping.lumps.compressedToOne = true
+			tile.topping.lumps.compressionLump = {
+				constituents = constituents
+			}
 			
 			-- Generate super topping
 			tile.superTopping = {

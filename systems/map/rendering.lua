@@ -54,10 +54,17 @@ function rendering:updateTileRendering(tile)
 	-- Update topping
 	if tile.topping then
 		local materialAmount = {}
-		for _, lump in ipairs(tile.topping.lumps) do
-			for _, constituent in ipairs(lump.constituents) do
+		if tile.topping.lumps.compressedToOne then
+			for _, constituent in ipairs(tile.topping.lumps.compressionLump.constituents) do
 				local material = constituent.material
-				materialAmount[material] = (materialAmount[material] or 0) + constituent.amount
+				materialAmount[material] = (materialAmount[material] or 0) + constituent.amount * consts.lumpsPerLayer
+			end
+		else
+			for _, lump in ipairs(tile.topping.lumps) do
+				for _, constituent in ipairs(lump.constituents) do
+					local material = constituent.material
+					materialAmount[material] = (materialAmount[material] or 0) + constituent.amount
+				end
 			end
 		end
 		calculateConstituentDrawFields(materialAmount, tile.topping)
@@ -76,10 +83,17 @@ function rendering:updateTileRendering(tile)
 			end
 		else -- type == "wall"
 			local materialAmount = {}
-			for _, lump in ipairs(tile.superTopping.lumps) do
-				for _, constituent in ipairs(lump.constituents) do
+			if tile.superTopping.lumps.compressedToOne then
+				for _, constituent in ipairs(tile.superTopping.compressionLump.constituents) do
 					local material = constituent.material
-					materialAmount[material] = (materialAmount[material] or 0) + constituent.amount
+					materialAmount[material] = (materialAmount[material] or 0) + constituent.amount * consts.lumpsPerLayer
+				end
+			else
+				for _, lump in ipairs(tile.superTopping.lumps) do
+					for _, constituent in ipairs(lump.constituents) do
+						local material = constituent.material
+						materialAmount[material] = (materialAmount[material] or 0) + constituent.amount
+					end
 				end
 			end
 			calculateConstituentDrawFields(materialAmount, tile.superTopping)

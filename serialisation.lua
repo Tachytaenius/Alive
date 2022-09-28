@@ -39,6 +39,8 @@ function serialisation.serialiseChunk(chunk)
 				tileToDump.topping = {}
 				tileToDump.topping.type = tile.topping.type
 				tileToDump.topping.lumps = {}
+				tileToDump.topping.lumps.compressedToOne = tile.topping.lumps.compressedToOne
+				tileToDump.topping.lumps.compressionLump = tile.topping.lumps.compressionLump
 				for i, lump in ipairs(tile.topping.lumps) do
 					local lumpToDump = {}
 					tileToDump.topping.lumps[i] = lumpToDump
@@ -56,6 +58,8 @@ function serialisation.serialiseChunk(chunk)
 				tileToDump.superTopping.type = tile.superTopping.type
 				if tile.superTopping.type == "wall" then
 					tileToDump.superTopping.lumps = {}
+					tileToDump.superTopping.lumps.compressedToOne = tile.superTopping.lumps.compressedToOne
+					tileToDump.superTopping.lumps.compressionLump = tile.superTopping.lumps.compressionLump
 					for i, lump in ipairs(tile.superTopping.lumps) do
 						local lumpToDump = {}
 						tileToDump.superTopping.lumps[i] = lumpToDump

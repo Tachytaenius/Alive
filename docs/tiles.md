@@ -5,6 +5,7 @@
 **This document is becoming a mess, please rewrite it according to the actual codebase once the features are all fully implemented.**
 
 TODO: Roofs.
+TODO: When mining, do not forget to COPY the lumps from compressedToOne layers.
 
 ## Gameplay Details and Goals
 
@@ -84,6 +85,7 @@ Tile fields:
 - `topping.lumps`: (Saved, altered) For solids, an array of lumps (which are maps of constituents to constituent counts that adds up to a total value).
 	Length should add up to a constant value at first, being below that should count as being cracked and mined.
 	When the total descends below a threshold, it should break into its constituent parts.
+	If `compressedToOne` is true in the table then interpret the lumps as all being `compressionLump` (and the array should be empty).
 - `superTopping`: (Saved) The super topping layer's table, or `nil` for no super topping.
 - `superTopping.type`: (Saved) Can be either `"layers"` or `"wall"`.
 - `superTopping.subLayers`: (Saved) For layers-type super toppings, an array of super topping sub-layers.
@@ -95,6 +97,7 @@ Tile fields:
 		- `grate`: Solid, for a grate texture.
 	- `lump`: (Saved, altered) A single lump that defines the materials of the sub-layer.
 	- `grassTargetHealth`: (Not saved) Cached value that is recalculated only when a tile is changed.
+- `superTopping.lumps` (Saved) For walls-type super toppings, an array of lumps that works the same as `topping.lumps`.
 - `lastTimeTicked`: (Saved) The chunk's `time` value last time this tile was ticked.
 	Used with current `time` to get how much effective delta time to use.
 	Tiles do not catch up on any time in which their chunk was unloaded.
