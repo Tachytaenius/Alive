@@ -9,6 +9,7 @@ consts.maxWorldSeed = math.ldexp(1, consts.seedBytes * 8)-1
 consts.windowTitle = "Alive"
 consts.loveVersion = "11.4"
 consts.loveIdentity = "alive"
+consts.firstSubWorldId = 1 -- Not 0 because 0 isn't counted as part of an array and subWorlds are processed as a sorted array
 
 consts.quitChannelName = "quit"
 consts.chunkInfoChannelName = "chunkInfo" -- Pass the materials registry and other things

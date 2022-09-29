@@ -101,13 +101,15 @@ function boilerplate.load(args)
 		rng = rng,
 		unsaved = true,
 		time = 0,
+		nextSubWorldId = consts.firstSubWorldId,
 		subWorlds = {}
 	}
 	
 	local mainSubWorld = concord.world()
-	mainSubWorld.id = #superWorld.subWorlds + 1
-	superWorld.subWorlds[#superWorld.subWorlds + 1] = mainSubWorld
+	mainSubWorld.id = superWorld.nextSubWorldId
+	superWorld.subWorlds[superWorld.nextSubWorldId] = mainSubWorld
 	mainSubWorld.superWorld = superWorld
+	superWorld.nextSubWorldId = superWorld.nextSubWorldId + 1
 	mainSubWorld
 		:addSystem(systems.quantities) -- Should be first
 		:addSystem(systems.map)
@@ -140,22 +142,34 @@ function boilerplate.load(args)
 	end
 end
 
+local function getSubWorldsAsArray()
+	-- For determinism reasons
+	local array = {}
+	for _, subWorld in pairs(superWorld.subWorlds) do
+		array[#array + 1] = subWorld
+	end
+	table.sort(array, function(a, b)
+		return a.id < b.id
+	end)
+	return array
+end
+
 function boilerplate.update(dt, performance)
-	for _, subWorld in ipairs(superWorld.subWorlds) do
+	for _, subWorld in ipairs(getSubWorldsAsArray()) do
 		subWorld:emit("update", dt)
 	end
 end
 
 function boilerplate.fixedUpdate(dt)
 	superWorld.time = superWorld.time + dt
-	for _, subWorld in ipairs(superWorld.subWorlds) do
+	for _, subWorld in ipairs(getSubWorldsAsArray()) do
 		subWorld:emit("fixedUpdate", dt)
 	end
 	superWorld.unsaved = true
 end
 
 function boilerplate.draw(lerp, dt, performance)
-	for _, subWorld in ipairs(superWorld.subWorlds) do -- TEMP
+	for _, subWorld in ipairs(getSubWorldsAsArray()) do -- TEMP
 		subWorld:emit("draw", lerp, dt, performance)
 	end
 end
