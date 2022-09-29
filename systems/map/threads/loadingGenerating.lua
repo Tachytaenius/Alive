@@ -26,8 +26,8 @@ local function generateConstituents(x, y, materialsSet)
 		local material = registry.materials.byName[materialsSetEntry.materialName]
 		
 		local noise = love.math.noise(
-			x / (material.noiseWidth or 1),
-			y / (material.noiseHeight or 1),
+			x / (materialsSetEntry.noiseWidth or 1),
+			y / (materialsSetEntry.noiseHeight or 1),
 			material.id + superWorldSeed
 		)
 		
