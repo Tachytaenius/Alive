@@ -3,7 +3,7 @@ local serialisation = require("serialisation")
 
 local chunks = {}
 
-function chunks:removeChunkFromGrid(chunk)
+function chunks:removeChunkFromLoadedChunksGrid(chunk)
 	assert(self.loadedChunksGrid[chunk.x][chunk.y], "No chunk to remove from grid at " .. chunk.x .. ", " .. chunk.y)
 	self.loadedChunksGrid[chunk.x][chunk.y] = nil
 	local hasValue = false
@@ -16,7 +16,7 @@ function chunks:removeChunkFromGrid(chunk)
 	end
 end
 
-function chunks:addChunkToGrid(chunk)
+function chunks:addChunkToLoadedChunksGrid(chunk)
 	self.loadedChunksGrid[chunk.x] = self.loadedChunksGrid[chunk.x] or {}
 	assert(not self.loadedChunksGrid[chunk.x][chunk.y], "Can't add to grid, chunk already exists at " .. chunk.x .. ", " .. chunk.y)
 	self.loadedChunksGrid[chunk.x][chunk.y] = chunk
@@ -70,13 +70,13 @@ function chunks:receiveChunk(chunk)
 		end
 	end
 	self:unregisterChunkRequest(chunk.x, chunk.y)
-	self:addChunkToGrid(chunk)
+	self:addChunkToLoadedChunksGrid(chunk)
 	self:makeChunkMeshes(chunk)
 	self.loadedChunksList:add(chunk)
 end
 
 function chunks:unloadChunk(chunk)
-	self:removeChunkFromGrid(chunk)
+	self:removeChunkFromLoadedChunksGrid(chunk)
 	self.loadedChunksList:remove(chunk)
 	local info = love.filesystem.getInfo("chunks/")
 	if not info then
