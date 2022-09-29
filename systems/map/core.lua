@@ -154,15 +154,20 @@ function core:fixedUpdate(dt)
 	-- Tick chunks within processing range
 	local superWorld = self:getWorld().superWorld
 	local rng = superWorld.rng
-	for chunk in self.loadedChunks:elements() do
-		if chunkPositionIsInRadius(chunk.x, chunk.y, player, consts.chunkProcessingRadius) then
-			chunk.time = chunk.time + dt
-			chunk.randomTickTime = chunk.randomTickTime + dt
-			while chunk.randomTickTime >= consts.randomTickInterval do
-				local x = rng:random(0, consts.chunkWidth - 1)
-				local y = rng:random(0, consts.chunkHeight - 1)
-				self:tickTile(chunk.tiles[x][y], dt)
-				chunk.randomTickTime = chunk.randomTickTime - consts.randomTickInterval
+	local x1, x2, y1, y2 = getChunkIterationStartEnd(player, consts.chunkProcessingRadius)
+	for x = x1, x2 do
+		for y = y1, y2 do
+			if chunkPositionIsInRadius(x, y, player, consts.chunkProcessingRadius) then
+				local chunk = self:getChunk(x, y)
+				assert(chunk, "Missing chunk in processing chunks radius at " .. x .. ", " .. y)
+				chunk.time = chunk.time + dt
+				chunk.randomTickTime = chunk.randomTickTime + dt
+				while chunk.randomTickTime >= consts.randomTickInterval do
+					local x = rng:random(0, consts.chunkWidth - 1)
+					local y = rng:random(0, consts.chunkHeight - 1)
+					self:tickTile(chunk.tiles[x][y], dt)
+					chunk.randomTickTime = chunk.randomTickTime - consts.randomTickInterval
+				end
 			end
 		end
 	end
