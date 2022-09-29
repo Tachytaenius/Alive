@@ -29,7 +29,7 @@ function chunks:getChunk(x, y)
 end
 
 function chunks:generateChunk(chunkX, chunkY)
-	assert(not (self.chunks[chunkX] and self.chunks[chunkX][chunkY]), "Can't generatee chunk, chunk already exists at " .. chunkX .. ", " .. chunkY)
+	assert(not (self.chunks[chunkX] and self.chunks[chunkX][chunkY]), "Can't generate chunk, chunk already exists at " .. chunkX .. ", " .. chunkY)
 	
 	local superWorld = self:getWorld().superWorld
 	
