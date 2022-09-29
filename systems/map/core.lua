@@ -132,7 +132,6 @@ function core:fixedUpdate(dt)
 		-- TODO: Maybe log forcing loading all chunks?
 		while self.activeChunkRequests > 0 do
 			self:receiveChunk(self.resultChannel:demand())
-			print(self.activeChunkRequests)
 		end
 	end
 	
