@@ -12,6 +12,7 @@ function core:init()
 	self.loadedChunksList = list()
 	self.randomTickTime = 0
 	
+	self.activeChunkRequests = 0
 	self.chunkRequests = {}
 	self.chunkLoadingThread = love.thread.newThread("systems/map/threads/loadingGenerating.lua")
 	
@@ -129,18 +130,9 @@ function core:fixedUpdate(dt)
 	end
 	if forceLoadAll then
 		-- TODO: Maybe log forcing loading all chunks?
-		local chunkRequestsHasValue = true
-		while chunkRequestsHasValue do
-			chunkRequestsHasValue = false
-			for _ in pairs(self.chunkRequests) do
-				-- Rely on unregisterChunkRequest table cleanup to determine whether chunkRequests grid is empty
-				-- TODO: Maintain a request count and reference that
-				chunkRequestsHasValue = true
-				break
-			end
-			if chunkRequestsHasValue then
-				self:receiveChunk(self.resultChannel:demand())
-			end
+		while self.activeChunkRequests > 0 do
+			self:receiveChunk(self.resultChannel:demand())
+			print(self.activeChunkRequests)
 		end
 	end
 	

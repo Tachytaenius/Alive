@@ -57,6 +57,7 @@ function chunks:requestChunk(x, y)
 	assert(not (self.loadedChunksGrid[x] and self.loadedChunksGrid[x][y]), "Can't request chunk, chunk already exists at " .. x .. ", " .. y)
 	self:registerChunkRequest(x, y)
 	self.requestChannel:push({x = x, y = y})
+	self.activeChunkRequests = self.activeChunkRequests + 1
 end
 
 function chunks:receiveChunk(chunk)
@@ -73,6 +74,8 @@ function chunks:receiveChunk(chunk)
 	self:addChunkToLoadedChunksGrid(chunk)
 	self:makeChunkMeshes(chunk)
 	self.loadedChunksList:add(chunk)
+	self.activeChunkRequests = self.activeChunkRequests - 1
+	assert(self.activeChunkRequests >= 0, "Remaining chunk requests is negative")
 end
 
 function chunks:unloadChunk(chunk)
