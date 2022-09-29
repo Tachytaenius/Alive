@@ -90,7 +90,7 @@ function core:fixedUpdate(dt)
 	for x = x1, x2 do
 		for y = y1, y2 do
 			if chunkPositionIsInRadius(x, y, player, consts.chunkLoadingRadius) then
-				if not self:getChunk(x, y) and not self:getChunkRequest(x, y) then
+				if not self:getLoadedChunk(x, y) and not self:getChunkRequest(x, y) then
 					self:requestChunk(x, y)
 				end
 			end
@@ -147,7 +147,7 @@ function core:fixedUpdate(dt)
 	for x = x1, x2 do
 		for y = y1, y2 do
 			if chunkPositionIsInRadius(x, y, player, consts.chunkLoadingRadius) then
-				assert(self:getChunkRequest(x, y) or self:getChunk(x, y))
+				assert(self:getChunkRequest(x, y) or self:getLoadedChunk(x, y))
 			end
 		end
 	end
@@ -159,7 +159,7 @@ function core:fixedUpdate(dt)
 	for x = x1, x2 do
 		for y = y1, y2 do
 			if chunkPositionIsInRadius(x, y, player, consts.chunkProcessingRadius) then
-				local chunk = self:getChunk(x, y)
+				local chunk = self:getLoadedChunk(x, y)
 				assert(chunk, "Missing chunk in processing chunks radius at " .. x .. ", " .. y)
 				chunk.time = chunk.time + dt
 				chunk.randomTickTime = chunk.randomTickTime + dt

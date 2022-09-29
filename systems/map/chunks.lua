@@ -22,7 +22,7 @@ function chunks:addChunkToGrid(chunk)
 	self.loadedChunksGrid[chunk.x][chunk.y] = chunk
 end
 
-function chunks:getChunk(x, y)
+function chunks:getLoadedChunk(x, y)
 	if self.loadedChunksGrid[x] then
 		return self.loadedChunksGrid[x][y]
 	end
