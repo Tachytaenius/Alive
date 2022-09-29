@@ -55,6 +55,7 @@ end
 function core:fixedUpdate(dt)
 	local player = self.players[1]
 	if not player then
+		self.loadedChunks:clear()
 		return
 	end
 	
