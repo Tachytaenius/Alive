@@ -13,7 +13,7 @@ function core:init()
 	self.randomTickTime = 0
 end
 
-local function getChunkLoadingStartEnd(player, radius)
+local function getChunkIterationStartEnd(player, radius)
 	local x1 = math.floor((player.position.value.x - radius) / (consts.chunkWidth * consts.tileWidth))
 	local x2 = math.ceil((player.position.value.x + radius) / (consts.chunkWidth * consts.tileWidth))
 	local y1 = math.floor((player.position.value.y - radius) / (consts.chunkHeight * consts.tileHeight))
@@ -41,7 +41,7 @@ function core:newWorld()
 	local player = self.players[1]
 	if player then
 		-- Make initial chunks
-		local x1, x2, y1, y2 = getChunkLoadingStartEnd(player, consts.chunkLoadingRadius)
+		local x1, x2, y1, y2 = getChunkIterationStartEnd(player, consts.chunkLoadingRadius)
 		for x = x1, x2 do
 			for y = y1, y2 do
 				if chunkPositionIsInRadius(x, y, player, consts.chunkLoadingRadius) then
@@ -68,7 +68,7 @@ function core:fixedUpdate(dt)
 		end
 	end
 	
-	local x1, x2, y1, y2 = getChunkLoadingStartEnd(player, consts.chunkLoadingRadius)
+	local x1, x2, y1, y2 = getChunkIterationStartEnd(player, consts.chunkLoadingRadius)
 	for x = x1, x2 do
 		for y = y1, y2 do
 			if chunkPositionIsInRadius(x, y, player, consts.chunkLoadingRadius) then
