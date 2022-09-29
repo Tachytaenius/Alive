@@ -184,7 +184,11 @@ end
 
 function boilerplate.killThreads()
 	love.thread.getChannel(consts.quitChannelName):push("quit")
-	-- TODO: Verify threads are all stopped
+	for _, subWorld in pairs(superWorld.subWorldsById) do
+		while subWorld.map.chunkLoadingThread:isRunning() do
+			-- pass
+		end
+	end
 end
 
 boilerplate.init(initConfig, arg)
