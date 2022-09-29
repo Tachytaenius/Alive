@@ -1,3 +1,5 @@
+-- WARNING: This module cannot have state expected to be universal as it is used by different threads
+
 local bitser = require("lib.bitser")
 
 local registry = require("registry")
@@ -48,7 +50,7 @@ function serialisation.serialiseChunk(chunk)
 					lumpToDump.constituents = {}
 					for j, entry in ipairs(lump.constituents) do
 						lumpToDump.constituents[j] = {
-							material = entry.material.name,
+							materialName = entry.materialName,
 							amount = entry.amount
 						}
 					end
@@ -68,7 +70,7 @@ function serialisation.serialiseChunk(chunk)
 						lumpToDump.constituents = {}
 						for j, entry in ipairs(lump.constituents) do
 							lumpToDump.constituents[j] = {
-								material = entry.material.name,
+								materialName = entry.materialName,
 								amount = entry.amount
 							}
 						end
@@ -85,7 +87,7 @@ function serialisation.serialiseChunk(chunk)
 						lumpToDump.constituents = {}
 						for j, entry in ipairs(subLayer.lump.constituents) do
 							lumpToDump.constituents[j] = {
-								material = entry.material.name,
+								materialName = entry.materialName,
 								amount = entry.amount
 							}
 						end
@@ -107,29 +109,7 @@ function serialisation.deserialiseChunk(serialisedChunk, x, y)
 			local tile = chunk.tiles[tileX][tileY]
 			tile.localTileX, tile.localTileY = tileX, tileY
 			tile.globalTileX, tile.globalTileY = tileX + x * consts.chunkWidth, tileY + y * consts.chunkHeight
-			tile.chunk = chunk
-			if tile.topping then
-				for _, lump in ipairs(tile.topping.lumps) do
-					for _, entry in ipairs(lump.constituents) do
-						entry.material = registry.materials.byName[entry.material]
-					end
-				end
-			end
-			if tile.superTopping then
-				if tile.superTopping.type == "wall" then
-					for _, lump in ipairs(tile.superTopping.lumps) do
-						for _, entry in ipairs(lump.constituents) do
-							entry.material = registry.materials.byName[entry.material]
-						end
-					end
-				else -- "layers"
-					for _, subLayer in ipairs(tile.superTopping.subLayers) do
-						for _, entry in ipairs(subLayer.lump.constituents) do
-							entry.material = registry.materials.byName[entry.material]
-						end
-					end
-				end
-			end
+			-- tile.chunk = chunk -- This is done later to avoid a passing a cyclical table between threads
 		end
 	end
 	return chunk

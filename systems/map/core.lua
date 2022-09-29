@@ -11,6 +11,18 @@ function core:init()
 	self.chunks = {}
 	self.loadedChunks = list()
 	self.randomTickTime = 0
+	
+	self.chunkRequests = {}
+	self.chunkLoadingThread = love.thread.newThread("systems/map/threads/loadingGenerating.lua")
+	
+	local infoChannelName = consts.chunkInfoChannelName .. self:getWorld().id
+	self.infoChannel = love.thread.getChannel(infoChannelName)
+	local requestChannelName = consts.chunkLoadingRequestChannelName .. self:getWorld().id
+	self.requestChannel = love.thread.getChannel(requestChannelName)
+	local resultChannelName = consts.chunkLoadingResultChannelName .. self:getWorld().id
+	self.resultChannel = love.thread.getChannel(resultChannelName)
+	
+	self.chunkLoadingThread:start(consts.quitChannelName, infoChannelName, requestChannelName, resultChannelName)
 end
 
 local function getChunkIterationStartEnd(player, radius)
@@ -31,25 +43,22 @@ end
 function core:newWorld()
 	-- Set theme
 	self.soilMaterials = {
-		{material = registry.materials.byName.loam, abundanceMultiply = 14, noiseWidth = 50, noiseHeight = 50},
-		{material = registry.materials.byName.clay, abundanceMultiply = 13, noiseWidth = 50, noiseHeight = 50},
-		{material = registry.materials.byName.sand, abundanceMultiply = 5, noiseWidth = 50, noiseHeight = 50},
-		{material = registry.materials.byName.silt, abundanceMultiply = 7, noiseWidth = 50, noiseHeight = 50},
-		{material = registry.materials.byName.water, abundanceMultiply = 0, abundanceAdd = 10}
+		{materialName = "loam", abundanceMultiply = 14, noiseWidth = 50, noiseHeight = 50},
+		{materialName = "clay", abundanceMultiply = 13, noiseWidth = 50, noiseHeight = 50},
+		{materialName = "sand", abundanceMultiply = 5, noiseWidth = 50, noiseHeight = 50},
+		{materialName = "silt", abundanceMultiply = 7, noiseWidth = 50, noiseHeight = 50},
+		{materialName = "water", abundanceMultiply = 0, abundanceAdd = 10}
 	}
 	
-	local player = self.players[1]
-	if player then
-		-- Make initial chunks
-		local x1, x2, y1, y2 = getChunkIterationStartEnd(player, consts.chunkLoadingRadius)
-		for x = x1, x2 do
-			for y = y1, y2 do
-				if chunkPositionIsInRadius(x, y, player, consts.chunkLoadingRadius) then
-					self:loadOrGenerateChunk(x, y)
-				end
-			end
-		end
-	end
+	local infoTable = {
+		registry = registry,
+		soilMaterials = self.soilMaterials,
+		superWorldSeed = self:getWorld().superWorld.seed
+	}
+	local registryLoad
+	registryLoad, registry.load = registry.load, nil -- Remove function temporarily
+	self.infoChannel:push(infoTable)
+	registry.load = registryLoad
 end
 
 function core:fixedUpdate(dt)
@@ -61,6 +70,8 @@ function core:fixedUpdate(dt)
 	
 	self.randomTickTime = self.randomTickTime + dt
 	
+	-- TODO: Move below code to chunks.lua?
+	
 	assert(consts.chunkProcessingRadius <= consts.chunkLoadingRadius, "Chunk loading radius is less than chunk processing radius")
 	assert(consts.chunkLoadingRadius <= consts.chunkUnloadingRadius, "Chunk unloading radius is less than loading radius")
 	
@@ -70,17 +81,74 @@ function core:fixedUpdate(dt)
 		end
 	end
 	
+	-- Request loading of all unloaded chunks within loading radius
 	local x1, x2, y1, y2 = getChunkIterationStartEnd(player, consts.chunkLoadingRadius)
 	for x = x1, x2 do
 		for y = y1, y2 do
 			if chunkPositionIsInRadius(x, y, player, consts.chunkLoadingRadius) then
-				if not self:getChunk(x, y) then
-					self:loadOrGenerateChunk(x, y)
+				if not self:getChunk(x, y) and not self:getChunkRequest(x, y) then
+					self:requestChunk(x, y)
 				end
 			end
 		end
 	end
 	
+	-- Receive chunks already loaded (don't wait for not-yet-loaded chunks)
+	while true do
+		local chunk = self.resultChannel:pop()
+		if not chunk then
+			break
+		end
+		self:receiveChunk(chunk)
+	end
+	
+	-- Force wait for all chunks to load if any chunk in processing range is unloaded
+	-- TODO: Reorganise into non-spaghetti code
+	-- TODO: Only force waiting for chunks in processing range
+	local forceLoadAll = false
+	local x1, x2, y1, y2 = getChunkIterationStartEnd(player, consts.chunkProcessingRadius)
+	for x = x1, x2 do
+		local breakFromX = false
+		for y = y1, y2 do
+			if chunkPositionIsInRadius(x, y, player, consts.chunkProcessingRadius) then
+				if self:getChunkRequest(x, y) then
+					breakFromX = true
+					forceLoadAll = true
+					break
+				end
+			end
+		end
+		if breakFromX then
+			break
+		end
+	end
+	if forceLoadAll then
+		-- TODO: Maybe log forcing loading all chunks?
+		local chunkRequestsHasValue = true
+		while chunkRequestsHasValue do
+			chunkRequestsHasValue = false
+			for _ in pairs(self.chunkRequests) do
+				-- Rely on unregisterChunkRequest table cleanup to determine whether chunkRequests grid is empty
+				-- TODO: Maintain a request count and reference that
+				chunkRequestsHasValue = true
+				break
+			end
+			if chunkRequestsHasValue then
+				self:receiveChunk(self.resultChannel:demand())
+			end
+		end
+	end
+	
+	local x1, x2, y1, y2 = getChunkIterationStartEnd(player, consts.chunkLoadingRadius)
+	for x = x1, x2 do
+		for y = y1, y2 do
+			if chunkPositionIsInRadius(x, y, player, consts.chunkLoadingRadius) then
+				assert(self:getChunkRequest(x, y) or self:getChunk(x, y))
+			end
+		end
+	end
+	
+	-- Tick chunks within processing range
 	local superWorld = self:getWorld().superWorld
 	local rng = superWorld.rng
 	for chunk in self.loadedChunks:elements() do
@@ -95,23 +163,6 @@ function core:fixedUpdate(dt)
 			end
 		end
 	end
-	
-	-- NOTE: For unused non-random ticks
-	-- for chunk in self.loadedChunks:elements() do
-	-- 	local x, y = chunk.tickCursorX, chunk.tickCursorY
-	-- 	for i = 1, consts.tileTicksPerChunkPerTick do
-	-- 		self:tickTile(chunk.tiles[x][y], dt)
-	-- 		x = x + 1
-	-- 		if x == consts.chunkWidth then
-	-- 			x = 0
-	-- 			y = y + 1
-	-- 		end
-	-- 		if y == consts.chunkHeight then
-	-- 			y = 0
-	-- 		end
-	-- 	end
-	-- 	chunk.tickCursorX, chunk.tickCursorY = x, y
-	-- end
 end
 
 function core:validate()

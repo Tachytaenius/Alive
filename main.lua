@@ -105,6 +105,7 @@ function boilerplate.load(args)
 	}
 	
 	local mainSubWorld = concord.world()
+	mainSubWorld.id = #superWorld.subWorlds + 1
 	superWorld.subWorlds[#superWorld.subWorlds + 1] = mainSubWorld
 	mainSubWorld.superWorld = superWorld
 	mainSubWorld
@@ -167,4 +168,13 @@ function boilerplate.save()
 	superWorld.unsaved = false
 end
 
+function boilerplate.killThreads()
+	love.thread.getChannel(consts.quitChannelName):push("quit")
+	-- TODO: Verify threads are all stopped
+end
+
 boilerplate.init(initConfig, arg)
+
+function love.threaderror(thread, errorString)
+	error("Thread error!\n" .. errorString)
+end

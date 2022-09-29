@@ -7,7 +7,7 @@ function chunks:removeChunkFromGrid(chunk)
 	assert(self.chunks[chunk.x][chunk.y], "No chunk to remove from grid at " .. chunk.x .. ", " .. chunk.y)
 	self.chunks[chunk.x][chunk.y] = nil
 	local hasValue = false
-	for k in pairs(self.chunks[chunk.x]) do
+	for _ in pairs(self.chunks[chunk.x]) do
 		hasValue = true
 		break
 	end
@@ -28,59 +28,51 @@ function chunks:getChunk(x, y)
 	end
 end
 
-function chunks:generateChunk(chunkX, chunkY)
-	assert(not (self.chunks[chunkX] and self.chunks[chunkX][chunkY]), "Can't generate chunk, chunk already exists at " .. chunkX .. ", " .. chunkY)
-	
-	local superWorld = self:getWorld().superWorld
-	
-	local chunk = {
-		x = chunkX, y = chunkY,
-		time = 0,
-		randomTickTime = 0,
-		-- tickCursorX = 0, tickCursorY = 0 -- NOTE: For unused non-random ticks
-	}
-	
-	-- Make the tiles
-	local tiles = {}
-	chunk.tiles = tiles
-	for localTileX = 0, consts.chunkWidth - 1 do
-		tiles[localTileX] = {}
-		for localTileY = 0, consts.chunkHeight - 1 do
-			self:generateTile(chunk, localTileX, localTileY)
-		end
+function chunks:unregisterChunkRequest(x, y)
+	assert(self.chunkRequests[x][y], "No chunk request to remove from chunk request grid at " .. x .. ", " .. y)
+	self.chunkRequests[x][y] = nil
+	local hasValue = false
+	for _ in pairs(self.chunkRequests[x]) do
+		hasValue = true
+		break
 	end
-	
-	self:addChunkToGrid(chunk)
-	self:makeChunkMeshes(chunk)
-	self.loadedChunks:add(chunk)
-	
-	return chunk
+	if not hasValue then
+		self.chunkRequests[x] = nil
+	end
 end
 
-function chunks:loadOrGenerateChunk(x, y)
-	local path = "chunks/" .. x .. "," .. y .. ".bin"
-	local info = love.filesystem.getInfo(path)
-	if not info then
-		return self:generateChunk(x, y)
-	elseif info.type == "directory" then
-		error(path .. " is a directory")
+function chunks:registerChunkRequest(x, y)
+	self.chunkRequests[x] = self.chunkRequests[x] or {}
+	assert(not self.chunkRequests[x][y], "Can't add to chunk request grid, chunk request already exists at " .. x .. ", " .. y)
+	self.chunkRequests[x][y] = true
+end
+
+function chunks:getChunkRequest(x, y)
+	if self.chunkRequests[x] then
+		return self.chunkRequests[x][y]
 	end
-	
-	local serialisedData, errorMessage = love.filesystem.read(path)
-	assert(serialisedData, "Could not read file for chunk at " .. x .. ", " .. y .. ": " .. errorMessage)
-	local chunk = serialisation.deserialiseChunk(serialisedData, x, y)
+end
+
+function chunks:requestChunk(x, y)
+	assert(not (self.chunks[x] and self.chunks[x][y]), "Can't request chunk, chunk already exists at " .. x .. ", " .. y)
+	self:registerChunkRequest(x, y)
+	self.requestChannel:push({x = x, y = y})
+end
+
+function chunks:receiveChunk(chunk)
+	local changedTiles = self:getWorld().rendering.changedTiles
 	for x = 0, consts.chunkWidth - 1 do
 		for y = 0, consts.chunkHeight - 1 do
 			local tile = chunk.tiles[x][y]
-			self:updateLumpDependentTickValues(tile)
+			changedTiles[#changedTiles + 1] = tile
+			tile.chunk = chunk
 			self:updateTileRendering(tile)
 		end
 	end
+	self:unregisterChunkRequest(chunk.x, chunk.y)
 	self:addChunkToGrid(chunk)
 	self:makeChunkMeshes(chunk)
 	self.loadedChunks:add(chunk)
-	
-	return chunk
 end
 
 function chunks:unloadChunk(chunk)

@@ -1,3 +1,4 @@
+local registry = require("registry")
 local consts = require("consts")
 
 local rendering = {}
@@ -12,7 +13,7 @@ function rendering:makeChunkMeshes(chunk)
 end
 
 local function getGrassNoiseFullness(subLayer)
-	local grassMaterial = subLayer.lump.constituents[1].material
+	local grassMaterial = registry.materials.byName[subLayer.lump.constituents[1].materialName]
 	local grassNoiseFullness1 = grassMaterial.grassNoiseFullness1 or 1
 	return grassNoiseFullness1 == 0 and 1 or subLayer.lump.grassAmount / grassNoiseFullness1 -- NOTE: Does not need to be capped at 1
 end
@@ -56,13 +57,13 @@ function rendering:updateTileRendering(tile)
 		local materialAmount = {}
 		if tile.topping.lumps.compressedToOne then
 			for _, constituent in ipairs(tile.topping.lumps.compressionLump.constituents) do
-				local material = constituent.material
+				local material = registry.materials.byName[constituent.materialName]
 				materialAmount[material] = (materialAmount[material] or 0) + constituent.amount * tile.topping.lumps.compressionLumpCount
 			end
 		else
 			for _, lump in ipairs(tile.topping.lumps) do
 				for _, constituent in ipairs(lump.constituents) do
-					local material = constituent.material
+					local material = registry.materials.byName[constituent.materialName]
 					materialAmount[material] = (materialAmount[material] or 0) + constituent.amount
 				end
 			end
@@ -76,7 +77,7 @@ function rendering:updateTileRendering(tile)
 			for _, subLayer in ipairs(tile.superTopping.subLayers) do
 				local materialAmount = {}
 				for _, constituent in ipairs(subLayer.lump.constituents) do
-					materialAmount[constituent.material] = constituent.amount
+					materialAmount[registry.materials.byName[constituent.materialName]] = constituent.amount
 				end
 				calculateConstituentDrawFields(materialAmount, subLayer, subLayer.type == "grass" and subLayer.lump.grassHealth)
 				subLayer.fullness = getGrassNoiseFullness(subLayer)
@@ -85,13 +86,13 @@ function rendering:updateTileRendering(tile)
 			local materialAmount = {}
 			if tile.superTopping.lumps.compressedToOne then
 				for _, constituent in ipairs(tile.superTopping.compressionLump.constituents) do
-					local material = constituent.material
+					local material = registry.materials.byName[constituent.materialName]
 					materialAmount[material] = (materialAmount[material] or 0) + constituent.amount * tile.superTopping.lumps.compressionLumpCount
 				end
 			else
 				for _, lump in ipairs(tile.superTopping.lumps) do
 					for _, constituent in ipairs(lump.constituents) do
-						local material = constituent.material
+						local material = registry.materials.byName[constituent.materialName]
 						materialAmount[material] = (materialAmount[material] or 0) + constituent.amount
 					end
 				end

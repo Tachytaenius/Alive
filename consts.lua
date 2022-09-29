@@ -1,3 +1,5 @@
+-- WARNING: Used by threads, don't expect changes to propagate through (not that any of these values are supposed to be changed)
+
 local consts = {}
 
 consts.version = 1
@@ -7,6 +9,11 @@ consts.maxWorldSeed = math.ldexp(1, consts.seedBytes * 8)-1
 consts.windowTitle = "Alive"
 consts.loveVersion = "11.4"
 consts.loveIdentity = "alive"
+
+consts.quitChannelName = "quit"
+consts.chunkInfoChannelName = "chunkInfo" -- Pass the materials registry and other things
+consts.chunkLoadingRequestChannelName = "chunkRequest"
+consts.chunkLoadingResultChannelName = "chunkResult"
 
 consts.canvasSystemWidth = 480
 consts.canvasSystemHeight = 270

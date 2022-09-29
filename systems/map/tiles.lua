@@ -1,3 +1,5 @@
+-- WARNING: This table is used in one or more extra threads!
+
 local registry = require("registry")
 local consts = require("consts")
 
@@ -11,96 +13,8 @@ function tiles:getTile(x, y)
 	end
 end
 
-function tiles:generateConstituents(x, y, materialsSet)
-	-- All constituents must add up to const.lumpConstituentsTotal
-	local constituents = {}
-	
-	-- Get base weights
-	local total1 = 0
-	local superWorldSeed = self:getWorld().superWorld.seed
-	for i, materialsSetEntry in pairs(materialsSet) do
-		local noise = love.math.noise(
-			x / (materialsSetEntry.noiseWidth or 1),
-			y / (materialsSetEntry.noiseHeight or 1),
-			materialsSetEntry.material.id + superWorldSeed
-		)
-		local amount = noise * materialsSetEntry.abundanceMultiply + (materialsSetEntry.abundanceAdd or 0)
-		constituents[i] = {material = materialsSetEntry.material, amount = amount}
-		total1 = total1 + amount
-	end
-	
-	-- Get proper amounts
-	local total2 = 0
-	for i, entry in ipairs(constituents) do
-		entry.amount = math.floor(consts.lumpConstituentsTotal * entry.amount / total1)
-		total2 = total2 + entry.amount
-	end
-	
-	-- Spread remainder (this could be done differently)
-	local i = 1
-	for _ = 1, consts.lumpConstituentsTotal - total2 do
-		constituents[i].amount = constituents[i].amount + 1
-		i = (i - 1 + 1) % #constituents + 1
-	end
-	
-	-- Debug test
-	-- local total3 = 0
-	-- for i, entry in ipairs(constituents) do
-	-- 	total3 = total3 + entry.amount
-	-- end
-	-- assert(total3 == consts.lumpConstituentsTotal)
-	
-	return constituents
-end
-
-function tiles:generateTile(chunk, localTileX, localTileY)
-	local globalTileX, globalTileY = chunk.x * consts.chunkWidth + localTileX, chunk.y * consts.chunkHeight + localTileY
-	local tile = {
-		lastTimeTicked = chunk.time,
-		chunk = chunk,
-		localTileX = localTileX, localTileY = localTileY,
-		globalTileX = globalTileX, globalTileY = globalTileY
-	}
-	chunk.tiles[localTileX][localTileY] = tile
-	
-	-- Generate topping
-	tile.topping = {
-		type = "solid",
-		lumps = {}
-	}
-	local constituents = self:generateConstituents(globalTileX, globalTileY, self.soilMaterials)
-	tile.topping.lumps.compressedToOne = true
-	tile.topping.lumps.compressionLump = {
-		constituents = constituents
-	}
-	tile.topping.lumps.compressionLumpCount = consts.lumpsPerLayer
-	
-	-- Generate super topping
-	tile.superTopping = {
-		type = "layers",
-		subLayers = {}
-	}
-	local subLayerIndex = 1
-	local grassMaterial = registry.materials.byName.grass
-	local newSubLayer = {
-		type = "grass",
-		lump = {
-			constituents = {
-				{material = grassMaterial, amount = consts.lumpConstituentsTotal}
-			}
-		}
-	}
-	tile.superTopping.subLayers[subLayerIndex] = newSubLayer
-	self:updateLumpDependentTickValues(tile)
-	newSubLayer.lump.grassHealth = newSubLayer.grassTargetHealth
-	newSubLayer.lump.grassAmount = math.max(0, math.min(1, newSubLayer.lump.grassHealth + grassMaterial.grassTargetAmountAdd))
-	
-	self:updateTileRendering(tile)
-	
-	return tile
-end
-
 local function getGrassTargetHealth(tile, subLayerIndex)
+	-- WARNING: Used in a different copy to the map system's copy of the tiles table by one or more extra threads!
 	local x, y = tile.globalTileX, tile.globalTileY
 	-- TODO: not hardcoded (grass loam requirement, grass water requirement...)
 	local loamAmount, waterAmount = 0, 0
@@ -109,18 +23,18 @@ local function getGrassTargetHealth(tile, subLayerIndex)
 		assert(lumps.compressedToOne and lumps.compressionLumpCount == consts.lumpsPerLayer or #lumps == consts.lumpsPerLayer, "There must be " .. consts.lumpsPerLayer .. " lumps for grass to exist on a tile")
 		local topLump = lumps.compressedToOne and lumps.compressionLump or lumps[consts.lumpsPerLayer]
 		for _, entry in ipairs(topLump.constituents) do
-			if entry.material.name == "loam" then
+			if entry.materialName == "loam" then
 				loamAmount = entry.amount
-			elseif entry.material.name == "water" then
+			elseif entry.materialName == "water" then
 				waterAmount = entry.amount
 			end
 		end
 	else
 		-- NOTE: Could have even more complex code where grass passes through grates and the like
 		for _, entry in ipairs(tile.superTopping.subLayers[subLayerIndex - 1]) do
-			if entry.material.name == "loam" then
+			if entry.materialName == "loam" then
 				loamAmount = entry.amount
-			elseif entry.material.name == "water" then
+			elseif entry.materialName == "water" then
 				waterAmount = entry.amount
 			end
 		end
@@ -133,6 +47,7 @@ local function getGrassTargetHealth(tile, subLayerIndex)
 end
 
 local function updateGrassTargetHealths(tile)
+	-- WARNING: Used in a different copy to the map system's copy of the tiles table by one or more extra threads!
 	if not tile.superTopping then
 		return
 	end
@@ -145,12 +60,13 @@ local function updateGrassTargetHealths(tile)
 end
 
 function tiles:updateLumpDependentTickValues(tile)
+	-- WARNING: Used in a different copy to the map system's copy of the tiles table by one or more extra threads!
 	-- Only values relevant to fixed update, and only values dependent on the tile's lumps
 	updateGrassTargetHealths(tile)
 end
 
 function tiles:tickTile(tile, dt)
-	local changedSuperToppingRendering
+	local changedRendering
 	local currentTime = tile.chunk.time
 	local effectiveDt = currentTime - tile.lastTimeTicked
 	if effectiveDt == 0 then
@@ -170,17 +86,17 @@ function tiles:tickTile(tile, dt)
 					if subLayer.lump.grassAmount == 0 then
 						toDelete = true
 					else
-						local grassMaterial = subLayer.lump.constituents[1].material
+						local grassMaterial = registry.materials.byName[subLayer.lump.constituents[1].materialName]
 						
 						-- Update health
 						local prevHealth = subLayer.lump.grassHealth
 						local targetHealth = subLayer.grassTargetHealth
 						if targetHealth > subLayer.lump.grassHealth then -- Add to health using grassHealthIncreaseRate
 							subLayer.lump.grassHealth = math.min(targetHealth, subLayer.lump.grassHealth + grassMaterial.grassHealthIncreaseRate * effectiveDt)
-							changedSuperToppingRendering = true
+							changedRendering = true
 						elseif targetHealth < subLayer.lump.grassHealth then -- Subtract from health using grassHealthDecreaseRate
 							subLayer.lump.grassHealth = math.min(targetHealth, subLayer.lump.grassHealth - grassMaterial.grassHealthDecreaseRate * effectiveDt)
-							changedSuperToppingRendering = true
+							changedRendering = true
 						end
 						
 						-- Update amount
@@ -190,10 +106,10 @@ function tiles:tickTile(tile, dt)
 						local targetAmount = math.max(0, math.min(1, subLayer.lump.grassHealth + grassMaterial.grassTargetAmountAdd))
 						if targetAmount > subLayer.lump.grassAmount then -- Add to amount using grassHealth and grassGrowthRate
 							subLayer.lump.grassAmount = math.min(targetAmount, subLayer.lump.grassAmount + grassMaterial.grassGrowthRate * subLayer.lump.grassHealth * effectiveDt)
-							changedSuperToppingRendering = true
+							changedRendering = true
 						elseif targetAmount < subLayer.lump.grassAmount then -- Subtract from amount using 1 - grassHealth and grassDecayRate
 							subLayer.lump.grassAmount = math.max(targetAmount, subLayer.lump.grassAmount - grassMaterial.grassDecayRate * (1 - subLayer.lump.grassHealth) * effectiveDt)
-							changedSuperToppingRendering = true
+							changedRendering = true
 						end
 					end
 				end
@@ -206,7 +122,7 @@ function tiles:tickTile(tile, dt)
 			end
 		end
 	end
-	if changedSuperToppingRendering then
+	if changedRendering then
 		self:updateTileRendering(tile)
 	end
 	tile.lastTimeTicked = currentTime

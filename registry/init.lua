@@ -1,5 +1,7 @@
 local json = require("lib.json")
 
+-- WARNING: Registry is sent (without registry.load) through to a thread and would need to be re-sent if changed.
+
 local function traverse(registryTable, path, createFromJson)
 	local directoryItems = love.filesystem.getDirectoryItems(path)
 	table.sort(directoryItems) -- For deterministic ids
@@ -24,10 +26,10 @@ local function traverse(registryTable, path, createFromJson)
 end
 
 local registry = {
+	loaded = false,
 	materials = {byName = {}, byId = {}, nextId = 0}
 }
 
-local nextMaterialid = 1
 local function createMaterial(jsonData, entryName, path)
 	local entry = jsonData
 	return entry
@@ -40,6 +42,7 @@ end
 
 function registry.load()
 	traverse(registry.materials, "registry/materials/", createMaterial)
+	registry.loaded = true
 end
 
 return registry
