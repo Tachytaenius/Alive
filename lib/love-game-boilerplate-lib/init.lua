@@ -401,16 +401,14 @@ function boilerplate.init(initConfig, arg)
 	end
 	
 	function love.quit()
-		if not (boilerplate.quit and boilerplate.quit()) then
-			if boilerplate.getUnsaved and boilerplate.getUnsaved() then
-				if ui.current and ui.current.type == "quitConfirmation" then
-					if config.suppressQuitWithDoubleQuitEvent and not boilerplate.forceQuit then
-						return true
-					end
-				else
-					ui.construct("quitConfirmation")
+		if boilerplate.getUnsaved and boilerplate.getUnsaved() then
+			if ui.current and ui.current.type == "quitConfirmation" then
+				if config.suppressQuitWithDoubleQuitEvent and not boilerplate.forceQuit then
 					return true
 				end
+			else
+				ui.construct("quitConfirmation")
+				return true
 			end
 		end
 		-- It is in this code path here that we actually quit
