@@ -60,6 +60,7 @@ function core:fixedUpdate(dt)
 	
 	self.randomTickTime = self.randomTickTime + dt
 	
+	assert(consts.chunkProcessingRadius <= consts.chunkLoadingRadius, "Chunk loading radius is less than chunk processing radius")
 	assert(consts.chunkLoadingRadius <= consts.chunkUnloadingRadius, "Chunk unloading radius is less than loading radius")
 	
 	for chunk in self.loadedChunks:elements() do
@@ -82,7 +83,7 @@ function core:fixedUpdate(dt)
 	local superWorld = self:getWorld().superWorld
 	local rng = superWorld.rng
 	for chunk in self.loadedChunks:elements() do
-		if chunkPositionIsInRadius(chunk.x, chunk.y, player, consts.chunkLoadingRadius) then
+		if chunkPositionIsInRadius(chunk.x, chunk.y, player, consts.chunkProcessingRadius) then
 			chunk.time = chunk.time + dt
 			chunk.randomTickTime = chunk.randomTickTime + dt
 			while chunk.randomTickTime >= consts.randomTickInterval do
