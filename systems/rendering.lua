@@ -147,11 +147,12 @@ function rendering:draw(lerp, dt, performance)
 		return
 	end
 	
-	assert(player.vision.renderDistance <= consts.chunkProcessingRadius, "Player vision is greater than chunk processing radius")
-	
+	local renderDistance = player.vision.maxViewDistance
 	local sensingCircleRadius = 30 -- TODO
 	local viewPadding = 4 -- TODO
 	local fov = 7 * math.tau / 16 -- TODO
+	
+	assert(renderDistance <= consts.chunkProcessingRadius, "Player vision is greater than chunk processing radius")
 	
 	local preCrushPlayerPosX, preCrushPlayerPosY = self.preCrushCanvas:getWidth() / 2, self.preCrushCanvas:getHeight() - (sensingCircleRadius + viewPadding)
 	
@@ -167,10 +168,10 @@ function rendering:draw(lerp, dt, performance)
 	
 	-- Draw toppings
 	love.graphics.setShader(self.textureShader)
-	local x1, x2, y1, y2 = mapSystem:getChunkIterationStartEnd(player, player.vision.renderDistance)
+	local x1, x2, y1, y2 = mapSystem:getChunkIterationStartEnd(player, renderDistance)
 	for x = x1, x2 do
 		for y = y1, y2 do
-			if mapSystem:chunkPositionIsInRadius(x, y, player, player.vision.renderDistance) then
+			if mapSystem:chunkPositionIsInRadius(x, y, player, renderDistance) then
 				local chunk = mapSystem:getLoadedChunk(x, y)
 				assert(chunk, "Missing chunk in draw radius at " .. x .. ", " .. y)
 				love.graphics.draw(chunk.toppingMesh)
@@ -186,10 +187,10 @@ function rendering:draw(lerp, dt, performance)
 	
 	-- Draw superToppings
 	love.graphics.setShader(self.textureShader)
-	local x1, x2, y1, y2 = mapSystem:getChunkIterationStartEnd(player, player.vision.renderDistance)
+	local x1, x2, y1, y2 = mapSystem:getChunkIterationStartEnd(player, renderDistance)
 	for x = x1, x2 do
 		for y = y1, y2 do
-			if mapSystem:chunkPositionIsInRadius(x, y, player, player.vision.renderDistance) then
+			if mapSystem:chunkPositionIsInRadius(x, y, player, renderDistance) then
 				local chunk = mapSystem:getLoadedChunk(x, y)
 				assert(chunk, "Missing chunk in draw radius at " .. x .. ", " .. y)
 				for _, mesh in ipairs(chunk.superToppingMeshes) do
@@ -213,7 +214,7 @@ function rendering:draw(lerp, dt, performance)
 	local crushCentreX, crushCentreY = preCrushPlayerPosX, preCrushPlayerPosY
 	local crushStart = consts.crushStart
 	local crushEnd = consts.crushEnd
-	local power = math.log(player.vision.renderDistance / crushStart) / math.log(crushEnd / crushStart)
+	local power = math.log(renderDistance / crushStart) / math.log(crushEnd / crushStart)
 	self.crushAndClipShader:send("crushCentre", {crushCentreX, crushCentreY})
 	self.crushAndClipShader:send("crushStart", crushStart)
 	self.crushAndClipShader:send("crushEnd", crushEnd)
