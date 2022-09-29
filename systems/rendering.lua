@@ -167,7 +167,7 @@ function rendering:draw(lerp, dt, performance)
 	
 	-- Draw toppings
 	love.graphics.setShader(self.textureShader)
-	for chunk in mapSystem.loadedChunks:elements() do
+	for chunk in mapSystem.loadedChunksList:elements() do
 		love.graphics.draw(chunk.toppingMesh)
 	end
 	love.graphics.setShader()
@@ -179,7 +179,7 @@ function rendering:draw(lerp, dt, performance)
 	
 	-- Draw superToppings
 	love.graphics.setShader(self.textureShader)
-	for chunk in mapSystem.loadedChunks:elements() do
+	for chunk in mapSystem.loadedChunksList:elements() do
 		for _, mesh in ipairs(chunk.superToppingMeshes) do
 			love.graphics.draw(mesh)
 		end

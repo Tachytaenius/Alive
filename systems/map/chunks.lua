@@ -72,12 +72,12 @@ function chunks:receiveChunk(chunk)
 	self:unregisterChunkRequest(chunk.x, chunk.y)
 	self:addChunkToGrid(chunk)
 	self:makeChunkMeshes(chunk)
-	self.loadedChunks:add(chunk)
+	self.loadedChunksList:add(chunk)
 end
 
 function chunks:unloadChunk(chunk)
 	self:removeChunkFromGrid(chunk)
-	self.loadedChunks:remove(chunk)
+	self.loadedChunksList:remove(chunk)
 	local info = love.filesystem.getInfo("chunks/")
 	if not info then
 		love.filesystem.createDirectory("chunks/")

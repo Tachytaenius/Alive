@@ -9,7 +9,7 @@ local core = {}
 
 function core:init()
 	self.chunks = {}
-	self.loadedChunks = list()
+	self.loadedChunksList = list()
 	self.randomTickTime = 0
 	
 	self.chunkRequests = {}
@@ -64,7 +64,7 @@ end
 function core:fixedUpdate(dt)
 	local player = self.players[1]
 	if not player then
-		self.loadedChunks:clear()
+		self.loadedChunksList:clear()
 		for x in pairs(self.chunks) do
 			self.chunks[x] = nil
 		end
@@ -79,7 +79,7 @@ function core:fixedUpdate(dt)
 	assert(consts.chunkLoadingRadius <= consts.chunkUnloadingRadius, "Chunk unloading radius is less than loading radius")
 	
 	-- Unload chunks outside of chunk unloading radius
-	for chunk in self.loadedChunks:elements() do
+	for chunk in self.loadedChunksList:elements() do
 		if not chunkPositionIsInRadius(chunk.x, chunk.y, player, consts.chunkUnloadingRadius) then
 			self:unloadChunk(chunk)
 		end
