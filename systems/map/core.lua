@@ -65,6 +65,9 @@ function core:fixedUpdate(dt)
 	local player = self.players[1]
 	if not player then
 		self.loadedChunks:clear()
+		for x in pairs(self.chunks) do
+			self.chunks[x] = nil
+		end
 		return
 	end
 	
