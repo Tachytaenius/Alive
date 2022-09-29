@@ -167,8 +167,4 @@ function boilerplate.save()
 	superWorld.unsaved = false
 end
 
-function boilerplate.quit()
-	
-end
-
 boilerplate.init(initConfig, arg)
