@@ -80,7 +80,7 @@ function tiles:tickTile(tile, dt)
 			local i = 1
 			while i <= #tile.superTopping.subLayers do
 				local subLayer = tile.superTopping.subLayers[i]
-				local toDelete
+				local toDelete = false
 				if subLayer.type == "grass" then
 					-- Delete grass of amount 0
 					if subLayer.lump.grassAmount == 0 then
