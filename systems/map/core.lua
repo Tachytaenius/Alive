@@ -3,8 +3,6 @@ local list = require("lib.list")
 local registry = require("registry")
 local consts = require("consts")
 
-local circleAabbCollision = require("util.collision.circleAabb")
-
 local core = {}
 
 function core:init()
@@ -25,21 +23,6 @@ function core:init()
 	self.resultChannel = love.thread.getChannel(resultChannelName)
 	
 	self.chunkLoadingThread:start(subWorldId)
-end
-
-local function getChunkIterationStartEnd(player, radius)
-	local x1 = math.floor((player.position.value.x - radius) / (consts.chunkWidth * consts.tileWidth))
-	local x2 = math.ceil((player.position.value.x + radius) / (consts.chunkWidth * consts.tileWidth))
-	local y1 = math.floor((player.position.value.y - radius) / (consts.chunkHeight * consts.tileHeight))
-	local y2 = math.ceil((player.position.value.y + radius) / (consts.chunkHeight * consts.tileHeight))
-	return x1, x2, y1, y2
-end
-
-local function chunkPositionIsInRadius(x, y, player, radius)
-	return circleAabbCollision(
-		player.position.value.x, player.position.value.y, radius,
-		x * consts.chunkWidth * consts.tileWidth, y * consts.chunkHeight * consts.tileHeight, consts.chunkWidth * consts.tileWidth, consts.chunkHeight * consts.tileHeight
-	)
 end
 
 function core:newWorld()
@@ -82,16 +65,16 @@ function core:fixedUpdate(dt)
 	
 	-- Unload chunks outside of chunk unloading radius
 	for chunk in self.loadedChunksList:elements() do
-		if not chunkPositionIsInRadius(chunk.x, chunk.y, player, consts.chunkUnloadingRadius) then
+		if not self:chunkPositionIsInRadius(chunk.x, chunk.y, player, consts.chunkUnloadingRadius) then
 			self:unloadChunk(chunk)
 		end
 	end
 	
 	-- Request loading of all unloaded chunks within loading radius
-	local x1, x2, y1, y2 = getChunkIterationStartEnd(player, consts.chunkLoadingRadius)
+	local x1, x2, y1, y2 = self:getChunkIterationStartEnd(player, consts.chunkLoadingRadius)
 	for x = x1, x2 do
 		for y = y1, y2 do
-			if chunkPositionIsInRadius(x, y, player, consts.chunkLoadingRadius) then
+			if self:chunkPositionIsInRadius(x, y, player, consts.chunkLoadingRadius) then
 				if not self:getLoadedChunk(x, y) and not self:getChunkRequest(x, y) then
 					self:requestChunk(x, y)
 				end
@@ -112,11 +95,11 @@ function core:fixedUpdate(dt)
 	-- TODO: Reorganise into non-spaghetti code
 	-- TODO: Only force waiting for chunks in processing range
 	local forceLoadAll = false
-	local x1, x2, y1, y2 = getChunkIterationStartEnd(player, consts.chunkProcessingRadius)
+	local x1, x2, y1, y2 = self:getChunkIterationStartEnd(player, consts.chunkProcessingRadius)
 	for x = x1, x2 do
 		local breakFromX = false
 		for y = y1, y2 do
-			if chunkPositionIsInRadius(x, y, player, consts.chunkProcessingRadius) then
+			if self:chunkPositionIsInRadius(x, y, player, consts.chunkProcessingRadius) then
 				if self:getChunkRequest(x, y) then
 					breakFromX = true
 					forceLoadAll = true
@@ -135,10 +118,10 @@ function core:fixedUpdate(dt)
 		end
 	end
 	
-	local x1, x2, y1, y2 = getChunkIterationStartEnd(player, consts.chunkLoadingRadius)
+	local x1, x2, y1, y2 = self:getChunkIterationStartEnd(player, consts.chunkLoadingRadius)
 	for x = x1, x2 do
 		for y = y1, y2 do
-			if chunkPositionIsInRadius(x, y, player, consts.chunkLoadingRadius) then
+			if self:chunkPositionIsInRadius(x, y, player, consts.chunkLoadingRadius) then
 				assert(self:getChunkRequest(x, y) or self:getLoadedChunk(x, y))
 			end
 		end
@@ -147,10 +130,10 @@ function core:fixedUpdate(dt)
 	-- Tick chunks within processing range
 	local superWorld = self:getWorld().superWorld
 	local rng = superWorld.rng
-	local x1, x2, y1, y2 = getChunkIterationStartEnd(player, consts.chunkProcessingRadius)
+	local x1, x2, y1, y2 = self:getChunkIterationStartEnd(player, consts.chunkProcessingRadius)
 	for x = x1, x2 do
 		for y = y1, y2 do
-			if chunkPositionIsInRadius(x, y, player, consts.chunkProcessingRadius) then
+			if self:chunkPositionIsInRadius(x, y, player, consts.chunkProcessingRadius) then
 				local chunk = self:getLoadedChunk(x, y)
 				assert(chunk, "Missing chunk in processing chunks radius at " .. x .. ", " .. y)
 				chunk.time = chunk.time + dt

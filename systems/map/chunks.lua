@@ -1,7 +1,24 @@
 local consts = require("consts")
 local serialisation = require("serialisation")
 
+local circleAabbCollision = require("util.collision.circleAabb")
+
 local chunks = {}
+
+function chunks:getChunkIterationStartEnd(player, radius)
+	local x1 = math.floor((player.position.value.x - radius) / (consts.chunkWidth * consts.tileWidth))
+	local x2 = math.ceil((player.position.value.x + radius) / (consts.chunkWidth * consts.tileWidth))
+	local y1 = math.floor((player.position.value.y - radius) / (consts.chunkHeight * consts.tileHeight))
+	local y2 = math.ceil((player.position.value.y + radius) / (consts.chunkHeight * consts.tileHeight))
+	return x1, x2, y1, y2
+end
+
+function chunks:chunkPositionIsInRadius(x, y, player, radius)
+	return circleAabbCollision(
+		player.position.value.x, player.position.value.y, radius,
+		x * consts.chunkWidth * consts.tileWidth, y * consts.chunkHeight * consts.tileHeight, consts.chunkWidth * consts.tileWidth, consts.chunkHeight * consts.tileHeight
+	)
+end
 
 function chunks:removeChunkFromLoadedChunksGrid(chunk)
 	assert(self.loadedChunksGrid[chunk.x][chunk.y], "No chunk to remove from grid at " .. chunk.x .. ", " .. chunk.y)
