@@ -8,8 +8,8 @@ local tiles = {}
 function tiles:getTile(x, y)
 	local chunkX, chunkY = math.floor(x / consts.chunkWidth), math.floor(y / consts.chunkHeight)
 	local localX, localY = x % consts.chunkWidth, y % consts.chunkHeight
-	if self.chunks[chunkX] and self.chunks[chunkX][chunkY] then
-		return self.chunks[chunkX][chunkY].tiles[localX][localY]
+	if self.loadedChunksGrid[chunkX] and self.loadedChunksGrid[chunkX][chunkY] then
+		return self.loadedChunksGrid[chunkX][chunkY].tiles[localX][localY]
 	end
 end
 

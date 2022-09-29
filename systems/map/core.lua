@@ -8,7 +8,7 @@ local circleAabbCollision = require("util.collision.circleAabb")
 local core = {}
 
 function core:init()
-	self.chunks = {}
+	self.loadedChunksGrid = {}
 	self.loadedChunksList = list()
 	self.randomTickTime = 0
 	
@@ -65,8 +65,8 @@ function core:fixedUpdate(dt)
 	local player = self.players[1]
 	if not player then
 		self.loadedChunksList:clear()
-		for x in pairs(self.chunks) do
-			self.chunks[x] = nil
+		for x in pairs(self.loadedChunksGrid) do
+			self.loadedChunksGrid[x] = nil
 		end
 		return
 	end
