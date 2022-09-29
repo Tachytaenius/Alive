@@ -78,6 +78,7 @@ function core:fixedUpdate(dt)
 	assert(consts.chunkProcessingRadius <= consts.chunkLoadingRadius, "Chunk loading radius is less than chunk processing radius")
 	assert(consts.chunkLoadingRadius <= consts.chunkUnloadingRadius, "Chunk unloading radius is less than loading radius")
 	
+	-- Unload chunks outside of chunk unloading radius
 	for chunk in self.loadedChunks:elements() do
 		if not chunkPositionIsInRadius(chunk.x, chunk.y, player, consts.chunkUnloadingRadius) then
 			self:unloadChunk(chunk)
