@@ -102,12 +102,12 @@ function boilerplate.load(args)
 		unsaved = true,
 		time = 0,
 		nextSubWorldId = consts.firstSubWorldId,
-		subWorlds = {}
+		subWorldsById = {}
 	}
 	
 	local mainSubWorld = concord.world()
 	mainSubWorld.id = superWorld.nextSubWorldId
-	superWorld.subWorlds[superWorld.nextSubWorldId] = mainSubWorld
+	superWorld.subWorldsById[superWorld.nextSubWorldId] = mainSubWorld
 	mainSubWorld.superWorld = superWorld
 	superWorld.nextSubWorldId = superWorld.nextSubWorldId + 1
 	mainSubWorld
@@ -137,7 +137,7 @@ function boilerplate.load(args)
 	mainSubWorld
 		:addEntity(player)
 	
-	for _, subWorld in ipairs(superWorld.subWorlds) do
+	for _, subWorld in ipairs(superWorld.subWorldsById) do
 		subWorld:emit("newWorld")
 	end
 end
@@ -145,7 +145,7 @@ end
 local function getSubWorldsAsArray()
 	-- For determinism reasons
 	local array = {}
-	for _, subWorld in pairs(superWorld.subWorlds) do
+	for _, subWorld in pairs(superWorld.subWorldsById) do
 		array[#array + 1] = subWorld
 	end
 	table.sort(array, function(a, b)
