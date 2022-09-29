@@ -15,14 +15,15 @@ function core:init()
 	self.chunkRequests = {}
 	self.chunkLoadingThread = love.thread.newThread("systems/map/threads/loadingGenerating.lua")
 	
-	local infoChannelName = consts.chunkInfoChannelName .. self:getWorld().id
+	local subWorldId = self:getWorld().id
+	local infoChannelName = consts.chunkInfoChannelName .. subWorldId
 	self.infoChannel = love.thread.getChannel(infoChannelName)
-	local requestChannelName = consts.chunkLoadingRequestChannelName .. self:getWorld().id
+	local requestChannelName = consts.chunkLoadingRequestChannelName .. subWorldId
 	self.requestChannel = love.thread.getChannel(requestChannelName)
-	local resultChannelName = consts.chunkLoadingResultChannelName .. self:getWorld().id
+	local resultChannelName = consts.chunkLoadingResultChannelName .. subWorldId
 	self.resultChannel = love.thread.getChannel(resultChannelName)
 	
-	self.chunkLoadingThread:start(consts.quitChannelName, infoChannelName, requestChannelName, resultChannelName)
+	self.chunkLoadingThread:start(subWorldId)
 end
 
 local function getChunkIterationStartEnd(player, radius)

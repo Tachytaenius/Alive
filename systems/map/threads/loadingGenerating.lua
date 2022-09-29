@@ -8,14 +8,12 @@ local registry -- = require("registry")
 local soilMaterials
 local superWorldSeed
 
--- TODO: Minor refactor so that only sub-world id is passed and consts is used
+local subWorldId = ...
 
-local quitChannelName, infoChannelName, requestChannelName, resultChannelName = ...
-
-local quitChannel = love.thread.getChannel(quitChannelName)
-local infoChannelName = love.thread.getChannel(infoChannelName)
-local requestChannel = love.thread.getChannel(requestChannelName)
-local resultChannel = love.thread.getChannel(resultChannelName)
+local quitChannel = love.thread.getChannel(consts.quitChannelName)
+local infoChannelName = love.thread.getChannel(consts.chunkInfoChannelName .. subWorldId)
+local requestChannel = love.thread.getChannel(consts.chunkLoadingRequestChannelName .. subWorldId)
+local resultChannel = love.thread.getChannel(consts.chunkLoadingResultChannelName .. subWorldId)
 
 local function generateConstituents(x, y, materialsSet)
 	-- All constituents must add up to const.lumpConstituentsTotal
