@@ -1,6 +1,6 @@
 # Chunks
 
-Chunks are loaded from file or generated when they are inside the smaller loading radius, only ticked when within that radius, and unloaded when they reach the larger unloading radius.
+Chunks are loaded from file or generated when they are inside the (middle) loading radius, only ticked when within the (smaller) processing radius, and unloaded when they reach the (larger) unloading radius.
 
 You can't iterate over the loaded chunks list for processing as it is not deterministically ordered.
 
