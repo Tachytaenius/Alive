@@ -111,7 +111,6 @@ function tiles:tickTile(tile, dt)
 						end
 					end
 				end
-				-- TODO: Verify this all works as intended
 				if toDelete then
 					table.remove(tile.superTopping.subLayers, i)
 				else
