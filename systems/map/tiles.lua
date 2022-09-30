@@ -16,7 +16,6 @@ end
 local function getGrassTargetHealth(tile, subLayerIndex)
 	-- WARNING: Used in a different copy to the map system's copy of the tiles table by one or more extra threads!
 	local x, y = tile.globalTileX, tile.globalTileY
-	-- TODO: not hardcoded (grass loam requirement, grass water requirement...)
 	local loamAmount, waterAmount = 0, 0
 	if subLayerIndex == 1 and tile.topping then
 		local lumps = tile.topping.lumps
@@ -100,7 +99,6 @@ function tiles:tickTile(tile, dt)
 						end
 						
 						-- Update amount
-						-- TODO: Grass amount of grass with health x should approach x.
 						-- Speed of approach should be multiplied with 1 - health downwards and with health upwards.
 						-- Check docs/materials.md.
 						local targetAmount = math.max(0, math.min(1, subLayer.lump.grassHealth + grassMaterial.grassTargetAmountAdd))

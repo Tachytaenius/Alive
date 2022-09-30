@@ -16,7 +16,7 @@ vec4 sampleInputCanvas(sampler2D texture, vec2 fragmentPosition) {
 	float crushedDistance = max(fragmentDistance, crushStart * pow(fragmentDistance / crushStart, power));
 	vec2 crushedFragmentPosition = crushCentre + crushedDistance * normalize(crushCentreToPosition);
 	
-	float fogLength = 10.0; // TODO: Constant value on Lua side
+	float fogLength = 10.0;
 	float sensingCircleFogFactor = (fragmentDistance - sensingCircleRadius + fogLength) / fogLength;
 	float fullViewDistanceFogFactor = (fragmentDistance - crushEnd + fogLength) / fogLength; // TEMP: Why does fragmentDistance work but crushedDistance not work???
 	float angle = atan(crushCentreToPosition.x, -crushCentreToPosition.y); // x and y are swapped around, normally the inputs are y, x. The input to the x parameter is also negated. This is to rotate the angle for easier maths (HACK, I guess?)

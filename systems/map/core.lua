@@ -58,8 +58,6 @@ function core:fixedUpdate(dt)
 	
 	self.randomTickTime = self.randomTickTime + dt
 	
-	-- TODO: Move below code to chunks.lua?
-	
 	assert(consts.chunkProcessingRadius <= consts.chunkLoadingRadius, "Chunk loading radius is less than chunk processing radius")
 	assert(consts.chunkLoadingRadius <= consts.chunkUnloadingRadius, "Chunk unloading radius is less than loading radius")
 	
@@ -92,8 +90,6 @@ function core:fixedUpdate(dt)
 	end
 	
 	-- Force wait for all chunks to load if any chunk in processing range is unloaded
-	-- TODO: Reorganise into non-spaghetti code
-	-- TODO: Only force waiting for chunks in processing range
 	local forceLoadAll = false
 	local x1, x2, y1, y2 = self:getChunkIterationStartEnd(player, consts.chunkProcessingRadius)
 	for x = x1, x2 do
@@ -112,7 +108,6 @@ function core:fixedUpdate(dt)
 		end
 	end
 	if forceLoadAll then
-		-- TODO: Maybe log forcing loading all chunks?
 		while self.activeChunkRequests > 0 do
 			self:receiveChunk(self.resultChannel:demand())
 		end

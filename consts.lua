@@ -21,7 +21,7 @@ consts.canvasSystemHeight = 270
 consts.preCrushCanvasWidth = 2048
 consts.preCrushCanvasHeight = 2048
 consts.crushStart = 100
-consts.crushEnd = consts.canvasSystemHeight - 35 -- TODO: Dynamically
+consts.crushEnd = consts.canvasSystemHeight - 35
 
 consts.turningMouseMovementMultiplier = 0.01
 
