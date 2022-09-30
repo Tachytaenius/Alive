@@ -221,6 +221,7 @@ function rendering:draw(lerp, dt, performance)
 	self.crushAndClipShader:send("sensingCircleRadius", sensingCircleRadius)
 	self.crushAndClipShader:send("fov", fov)
 	self.crushAndClipShader:send("power", power)
+	self.crushAndClipShader:send("fogLength", boilerplate.settings.graphics.fogLength)
 	love.graphics.draw(self.preCrushCanvas,
 		boilerplate.gameCanvas:getWidth() / 2 - crushCentreX,
 		boilerplate.gameCanvas:getHeight() - self.preCrushCanvas:getHeight()

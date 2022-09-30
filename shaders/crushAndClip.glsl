@@ -9,6 +9,7 @@ uniform float crushEnd;
 uniform float sensingCircleRadius;
 uniform float fov;
 uniform float power;
+uniform float fogLength;
 
 float calculateFogFactor(float dist, float maxDist, float fogLength) {
 	return clamp((dist - maxDist + fogLength) / fogLength, 0.0, 1.0);
@@ -20,7 +21,6 @@ vec4 sampleInputCanvas(sampler2D texture, vec2 fragmentPosition) {
 	float crushedDistance = max(fragmentDistance, crushStart * pow(fragmentDistance / crushStart, power));
 	vec2 crushedFragmentPosition = crushCentre + crushedDistance * normalize(crushCentreToPosition);
 	
-	float fogLength = 10.0;
 	float sensingCircleFogFactor = calculateFogFactor(fragmentDistance, sensingCircleRadius, fogLength);
 	float fullViewDistanceFogFactor = calculateFogFactor(fragmentDistance, crushEnd, fogLength); // TEMP: Why does fragmentDistance work but crushedDistance not work???
 	float angle = atan(crushCentreToPosition.x, -crushCentreToPosition.y); // x and y are swapped around, normally the inputs are y, x. The input to the x parameter is also negated. This is to rotate the angle for easier maths (HACK, I guess?)
