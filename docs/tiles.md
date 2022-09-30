@@ -51,7 +51,7 @@ Mostly to-decide-upon.
 	In cases where the player needs to know what the state of a tile is before acting on it, the tile could indeed be ticked every tick.
 	Perhaps tiles closest to the player should be ticked every tick.
 	(TEMP, if this is implemented, please replace the sentence before.)
-- TODO: Should tiles be ticked before or after building on them, or both?
+- Tiles are ticked before building on/near them.
 - The tilemap indices start at 0 and ends at (width or height) - 1.
 - Lump constituents must only have one entry per material.
 - Grass lumps may only have one material entry.
