@@ -28,7 +28,7 @@ local fixedCommands = {
 local settingsUiLayout = {
 	{title = "Graphics",
 		{name = "Fog Fade Length", "graphics","fogFadeLength",
-			getLowLimit = function() return 0.01 end,
+			getLowLimit = function() return 0 end,
 			getLimit = function() return 40 end
 		}
 	},

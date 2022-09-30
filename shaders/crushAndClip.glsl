@@ -12,6 +12,9 @@ uniform float power;
 uniform float fogFadeLength;
 
 float calculateFogFactor(float dist, float maxDist, float fogFadeLength) {
+	if (fogFadeLength == 0.0) { // Avoid dividing by zero
+		return dist <= maxDist ? 0.0 : 1.0;
+	}
 	return clamp((dist - maxDist + fogFadeLength) / fogFadeLength, 0.0, 1.0);
 }
 
