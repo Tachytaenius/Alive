@@ -27,7 +27,7 @@ local fixedCommands = {
 
 local settingsUiLayout = {
 	{title = "Graphics",
-		{name = "Fog Fade Length", "graphics","fogLength",
+		{name = "Fog Fade Length", "graphics","fogFadeLength",
 			getLowLimit = function() return 0.01 end,
 			getLimit = function() return 40 end
 		}
@@ -43,7 +43,7 @@ local settingsUiLayout = {
 local settingsTypes = boilerplate.settingsTypes
 local settingsTemplate = {
 	graphics = {
-		fogLength = settingsTypes.number(10)
+		fogFadeLength = settingsTypes.number(10)
 	},
 	mouse = {
 		turnSensitivity = settingsTypes.number(0.5)
