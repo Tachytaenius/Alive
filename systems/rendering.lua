@@ -3,22 +3,27 @@ local concord = require("lib.concord")
 
 local consts = require("consts")
 
-local rendering = concord.system({players = {"player", "vision"}, sprites = {"position", "sprite"}})
+local rendering = concord.system({players = {"position", "player", "vision"}, sprites = {"position", "sprite"}, lights = {"position", "light"}})
 
 function rendering:sendConstantsToShaders()
-	self.crushAndClipShader:send("inputCanvasSize", {self.preCrushCanvas:getDimensions()})
+	self.crushAndClipShader:send("inputCanvasSize", {consts.preCrushCanvasWidth, consts.preCrushCanvasHeight})
+	
 	self.textureShader:send("noiseTexture", boilerplate.assets.noiseTexture.value)
 	self.textureShader:send("noiseTextureSize", {boilerplate.assets.noiseTexture.value:getDimensions()})
+	
+	self.lightingShader:send("canvasSize", {consts.preCrushCanvasWidth, consts.preCrushCanvasHeight})
 end
 
 function rendering:init()
-	self.preCrushCanvas = love.graphics.newCanvas(consts.preCrushCanvasWidth, consts.preCrushCanvasHeight)
-	self.preCrushCanvas:setWrap("clampzero")
-	
-	self.dummyImage = love.graphics.newImage(love.image.newImageData(1, 1))
+	self.preCrushCanvases = {
+		albedo = love.graphics.newCanvas(consts.preCrushCanvasWidth, consts.preCrushCanvasHeight),
+		lighting = love.graphics.newCanvas(consts.preCrushCanvasWidth, consts.preCrushCanvasHeight)
+	}
+	self.preCrushCanvases.lighting:setWrap("clampzero")
 	
 	self.crushAndClipShader = love.graphics.newShader("shaders/crushAndClip.glsl")
 	self.textureShader = love.graphics.newShader("shaders/texture.glsl")
+	self.lightingShader = love.graphics.newShader("shaders/lighting.glsl")
 	self:sendConstantsToShaders()
 	
 	self.changedTiles = {}
@@ -154,9 +159,9 @@ function rendering:draw(lerp, dt, performance)
 	
 	assert(renderDistance <= consts.chunkProcessingRadius, "Player vision is greater than chunk processing radius")
 	
-	local preCrushPlayerPosX, preCrushPlayerPosY = self.preCrushCanvas:getWidth() / 2, self.preCrushCanvas:getHeight() - (sensingCircleRadius + viewPadding)
+	local preCrushPlayerPosX, preCrushPlayerPosY = consts.preCrushCanvasWidth / 2, consts.preCrushCanvasHeight - (sensingCircleRadius + viewPadding)
 	
-	love.graphics.setCanvas(self.preCrushCanvas)
+	love.graphics.setCanvas(self.preCrushCanvases.albedo)
 	love.graphics.clear()
 	love.graphics.translate(preCrushPlayerPosX, preCrushPlayerPosY)
 	love.graphics.rotate(-player.angle.lerpedValue)
@@ -181,7 +186,7 @@ function rendering:draw(lerp, dt, performance)
 	love.graphics.setShader()
 	
 	-- Draw entities in ditches
-	for _, e in ipairs(normalHeightSprites) do
+	for _, e in ipairs(normalHeightSprites) do -- TODO
 		self:drawSprite(e)
 	end
 	
@@ -206,11 +211,26 @@ function rendering:draw(lerp, dt, performance)
 		self:drawSprite(e)
 	end
 	
+	-- Switch to lights phase
+	love.graphics.setCanvas(self.preCrushCanvases.lighting)
+	love.graphics.clear(0, 0, 0, 1)
+	self.lightingShader:send("albedoCanvas", self.preCrushCanvases.albedo)
+	love.graphics.setShader(self.lightingShader)
+	love.graphics.setBlendMode("add")
+	
+	-- Draw lights
+	for _, e in ipairs(self.lights) do
+		love.graphics.setColor(e.light.r, e.light.g, e.light.b)
+		love.graphics.draw(boilerplate.assets.lightInfluenceTexture.value, e.position.lerpedValue.x - e.light.radius, e.position.lerpedValue.y - e.light.radius, 0, e.light.radius * 2 / consts.lightInfluenceTextureSize)
+	end
+	love.graphics.setColor(1, 1, 1)
+	
+	-- Draw lighting canvas crushed
+	love.graphics.setBlendMode("alpha")
 	love.graphics.origin()
 	love.graphics.setCanvas(boilerplate.gameCanvas)
 	love.graphics.clear(0, 0, 0, 1)
 	love.graphics.setShader(self.crushAndClipShader)
-	
 	local crushCentreX, crushCentreY = preCrushPlayerPosX, preCrushPlayerPosY
 	local crushStart = consts.crushStart
 	local crushEnd = consts.crushEnd
@@ -222,11 +242,12 @@ function rendering:draw(lerp, dt, performance)
 	self.crushAndClipShader:send("fov", fov)
 	self.crushAndClipShader:send("power", power)
 	self.crushAndClipShader:send("fogFadeLength", boilerplate.settings.graphics.fogFadeLength)
-	love.graphics.draw(self.preCrushCanvas,
+	love.graphics.draw(self.preCrushCanvases.lighting,
 		boilerplate.gameCanvas:getWidth() / 2 - crushCentreX,
-		boilerplate.gameCanvas:getHeight() - self.preCrushCanvas:getHeight()
+		boilerplate.gameCanvas:getHeight() - consts.preCrushCanvasHeight
 	)
 	
+	-- Finish
 	love.graphics.setCanvas()
 	love.graphics.origin()
 	love.graphics.setShader()

@@ -67,6 +67,22 @@ local assets = {
 		self.value:setFilter("linear")
 		self.value:setWrap("repeat")
 	end},
+	lightInfluenceTexture = {load = function(self)
+		local lightInfluenceTextureCanvas = love.graphics.newCanvas(consts.lightInfluenceTextureSize, consts.lightInfluenceTextureSize)
+		love.graphics.setCanvas(lightInfluenceTextureCanvas)
+		love.graphics.setShader(love.graphics.newShader([[
+			vec4 effect(vec4 colour, sampler2D texture, vec2 textureCoords, vec2 windowCoords) {
+				vec2 transformedTextureCoords = (textureCoords - 0.5) * 2.0;
+				float value = max(0.0, 1.0 - length(transformedTextureCoords));
+				return vec4(vec3(value), 1.0);
+			}
+		]]))
+		love.graphics.draw(love.graphics.newImage(love.image.newImageData(1, 1)), 0, 0, 0, consts.lightInfluenceTextureSize)
+		love.graphics.setCanvas()
+		love.graphics.setShader()
+		self.value = love.graphics.newImage(lightInfluenceTextureCanvas:newImageData())
+		self.value:setFilter("linear")
+	end},
 	ui = {
 		font = {load = function(self) self.value = love.graphics.newImageFont("assets/images/ui/font.png", " ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.!?$,#@~:;-{}&()<>'%/*0123456789") end},
 		cursor = {load = function(self) self.value = love.graphics.newImage("assets/images/ui/cursor.png") end}

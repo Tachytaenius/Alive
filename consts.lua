@@ -22,6 +22,7 @@ consts.preCrushCanvasWidth = 2048
 consts.preCrushCanvasHeight = 2048
 consts.crushStart = 100
 consts.crushEnd = consts.canvasSystemHeight - 35
+consts.lightInfluenceTextureSize = 256
 
 consts.turningMouseMovementMultiplier = 0.01
 
