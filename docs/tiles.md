@@ -58,6 +58,7 @@ Mostly to-decide-upon.
 - Grass lumps may not be used to add to toppings.
 - Lumps may not be modified without creating a new constituents table in case the table is used by another lump.
 	Lumps probably won't be able to be modified anyway, only broken down and produced.
+- Tiles must have `updateLumpDependentTickValues` used on them whenever anything to do with lumps changes.
 
 Lump fields:
 - `constituents`: (Saved) An array of entries with the following fields:
