@@ -156,6 +156,7 @@ function rendering:draw(lerp, dt, performance)
 	local sensingCircleRadius = 30 -- TODO
 	local viewPadding = 4 -- TODO
 	local fov = 7 * math.tau / 16 -- TODO
+	local ambientLightR, ambientLightG, ambientLightB = 1, 1, 1 -- TODO
 	
 	assert(renderDistance <= consts.chunkProcessingRadius, "Player vision is greater than chunk processing radius")
 	
@@ -213,7 +214,12 @@ function rendering:draw(lerp, dt, performance)
 	
 	-- Switch to lights phase
 	love.graphics.setCanvas(self.preCrushCanvases.lighting)
-	love.graphics.clear(0, 0, 0, 1)
+	love.graphics.clear()
+	love.graphics.push("all")
+	love.graphics.setColor(ambientLightR, ambientLightG, ambientLightB)
+	love.graphics.origin() -- We are replacing one canvas' contents with (a tinted version of) another's, so we don't want to use player position information et cetera
+	love.graphics.draw(self.preCrushCanvases.albedo) -- Draw tinted albedo canvas as ambient lighting
+	love.graphics.pop()
 	self.lightingShader:send("albedoCanvas", self.preCrushCanvases.albedo)
 	love.graphics.setShader(self.lightingShader)
 	love.graphics.setBlendMode("add")
