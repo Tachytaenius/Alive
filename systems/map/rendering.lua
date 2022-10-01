@@ -20,7 +20,7 @@ end
 
 local function calculateConstituentDrawFields(materialAmount, tableToWriteTo, grassHealth)
 	local weightTotal = 0
-	local r, g, b, noiseSize, noiseContrast, noiseBrightness = 0, 0, 0, 0, 0, 0
+	local r, g, b, lightInfoR, lightInfoG, lightInfoB, noiseSize, noiseContrast, noiseBrightness = 0, 0, 0, 0, 0, 0, 0, 0, 0
 	for material, amount in pairs(materialAmount) do
 		local weight = amount * (material.visualWeight or 1)
 		weightTotal = weightTotal + weight
@@ -35,6 +35,14 @@ local function calculateConstituentDrawFields(materialAmount, tableToWriteTo, gr
 		r = r + materialRed * weight
 		g = g + materialGreen * weight
 		b = b + materialBlue * weight
+		
+		local materialLightInfoR = material.lightInfoColour and material.lightInfoColour[1] or 0
+		local materialLightInfoG = material.lightInfoColour and material.lightInfoColour[2] or 0
+		local materialLightInfoB = material.lightInfoColour and material.lightInfoColour[3] or 0
+		lightInfoR = lightInfoR + materialLightInfoR * weight
+		lightInfoG = lightInfoG + materialLightInfoG * weight
+		lightInfoB = lightInfoB + materialLightInfoB * weight
+		
 		noiseSize = noiseSize + (material.noiseSize or 10) * weight
 		noiseContrast = noiseContrast + (material.noiseContrast or 0.5) * weight
 		noiseBrightness = noiseBrightness + (material.noiseBrightness or 0.5) * weight
@@ -42,6 +50,9 @@ local function calculateConstituentDrawFields(materialAmount, tableToWriteTo, gr
 	tableToWriteTo.r = r / weightTotal
 	tableToWriteTo.g = g / weightTotal
 	tableToWriteTo.b = b / weightTotal
+	tableToWriteTo.lightInfoR = lightInfoR
+	tableToWriteTo.lightInfoG = lightInfoG
+	tableToWriteTo.lightInfoB = lightInfoB
 	tableToWriteTo.noiseSize = math.max(consts.minimumTextureNoiseSize,
 		math.floor((noiseSize / weightTotal) / consts.textureNoiseSizeIrresolution) * consts.textureNoiseSizeIrresolution
 	)

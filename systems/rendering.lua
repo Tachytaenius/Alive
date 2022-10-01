@@ -34,38 +34,14 @@ function rendering:drawSprite(e)
 	love.graphics.circle("fill", e.position.lerpedValue.x, e.position.lerpedValue.y, e.sprite.radius)
 end
 
-local function setTileMeshVertices(mesh, iBase, x, y, col1, col2, col3, noiseSize, noiseContrast, noiseBrightness, fullness)
-	mesh:setVertex(iBase,
-		x * consts.tileWidth, y * consts.tileHeight,
-		col1, col2, col3,
-		noiseSize, noiseContrast, noiseBrightness, fullness
-	)
-	mesh:setVertex(iBase + 1,
-		(x + 1) * consts.tileWidth, y * consts.tileHeight,
-		col1, col2, col3,
-		noiseSize, noiseContrast, noiseBrightness, fullness
-	)
-	mesh:setVertex(iBase + 2,
-		x * consts.tileWidth, (y + 1) * consts.tileHeight,
-		col1, col2, col3,
-		noiseSize, noiseContrast, noiseBrightness, fullness
-	)
+local function setTileMeshVertices(mesh, iBase, x, y, ...)
+	mesh:setVertex(iBase, x * consts.tileWidth, y * consts.tileHeight, ...)
+	mesh:setVertex(iBase + 1, (x + 1) * consts.tileWidth, y * consts.tileHeight, ...)
+	mesh:setVertex(iBase + 2, x * consts.tileWidth, (y + 1) * consts.tileHeight, ...)
 	
-	mesh:setVertex(iBase + 3,
-		x * consts.tileWidth, (y + 1) * consts.tileHeight,
-		col1, col2, col3,
-		noiseSize, noiseContrast, noiseBrightness, fullness
-	)
-	mesh:setVertex(iBase + 4,
-		(x + 1) * consts.tileWidth, y * consts.tileHeight,
-		col1, col2, col3,
-		noiseSize, noiseContrast, noiseBrightness, fullness
-	)
-	mesh:setVertex(iBase + 5,
-		(x + 1) * consts.tileWidth, (y + 1) * consts.tileHeight,
-		col1, col2, col3,
-		noiseSize, noiseContrast, noiseBrightness, fullness
-	)
+	mesh:setVertex(iBase + 3, x * consts.tileWidth, (y + 1) * consts.tileHeight, ...)
+	mesh:setVertex(iBase + 4, (x + 1) * consts.tileWidth, y * consts.tileHeight, ...)
+	mesh:setVertex(iBase + 5, (x + 1) * consts.tileWidth, (y + 1) * consts.tileHeight, ...)
 end
 
 function rendering:fixedUpdate(dt)
@@ -78,14 +54,17 @@ function rendering:fixedUpdate(dt)
 		-- Update topping
 		if tile.topping then
 			local
-				col1, col2, col3,
+				colourR, colourG, colourB,
+				lightInfoColourR, lightInfoColourG, lightInfoColourB, lightInfoColourA,
 				noiseSize, noiseContrast, noiseBrightness, fullness
 			=
 				tile.topping.r, tile.topping.g, tile.topping.b,
+				nil, nil, nil, 0, -- This isn't a wall
 				tile.topping.noiseSize, tile.topping.noiseContrast, tile.topping.noiseBrightness, 1
 			
 			setTileMeshVertices(chunk.toppingMesh, iBase, globalTileX, globalTileY,
-				col1, col2, col3,
+				colourR, colourG, colourB,
+				lightInfoColourR, lightInfoColourG, lightInfoColourB, lightInfoColourA,
 				noiseSize, noiseContrast, noiseBrightness, fullness
 			)
 		else
@@ -98,18 +77,21 @@ function rendering:fixedUpdate(dt)
 		if tile.superTopping then
 			if tile.superTopping.type == "wall" then
 				local
-					col1, col2, col3,
+					colourR, colourG, colourB,
+					lightInfoColourR, lightInfoColourG, lightInfoColourB, lightInfoColourA,
 					noiseSize, noiseContrast, noiseBrightness, fullness
 				=
 					tile.superTopping.r, tile.superTopping.g, tile.superTopping.b,
-					tile.superTopping.noiseSize, tile.superTopping.noiseContrast, tile.superTopping.noiseBrightness, tile.superTopping.fullness
+					tile.superTopping.lightInfoR, tile.superTopping.lightInfoG, tile.superTopping.lightInfoB, 1,
+					tile.superTopping.noiseSize, tile.superTopping.noiseContrast, tile.superTopping.noiseBrightness, 1
 				
 				setTileMeshVertices(chunk.superToppingMeshes[1], iBase, globalTileX, globalTileY,
-					col1, col2, col3,
+					colourR, colourG, colourB,
+					lightInfoColourR, lightInfoColourG, lightInfoColourB, lightInfoColourA,
 					noiseSize, noiseContrast, noiseBrightness, fullness
 				)
 				
-				for j = 2, consts.maxSubLayers do
+				for j = 2, consts.maxSubLayers do -- Clear meshes used for sub-layers
 					for i = 0, 5 do
 						chunk.superToppingMeshes[j]:setVertex(iBase + i) -- nil all
 					end
@@ -119,14 +101,17 @@ function rendering:fixedUpdate(dt)
 					local subLayer = tile.superTopping.subLayers[j]
 					if subLayer then
 						local
-							col1, col2, col3,
+							colourR, colourG, colourB,
+							lightInfoColourR, lightInfoColourG, lightInfoColourB, lightInfoColourA,
 							noiseSize, noiseContrast, noiseBrightness, fullness
 						=
 							subLayer.r, subLayer.g, subLayer.b,
+							nil, nil, nil, 0, -- This isn't a wall
 							subLayer.noiseSize, subLayer.noiseContrast, subLayer.noiseBrightness, subLayer.fullness
 						
 						setTileMeshVertices(chunk.superToppingMeshes[j], iBase, globalTileX, globalTileY,
-							col1, col2, col3,
+							colourR, colourG, colourB,
+							lightInfoColourR, lightInfoColourG, lightInfoColourB, lightInfoColourA,
 							noiseSize, noiseContrast, noiseBrightness, fullness
 						)
 					else
@@ -136,7 +121,7 @@ function rendering:fixedUpdate(dt)
 					end
 				end
 			end
-		else
+		else -- No super topping
 			for j = 1, consts.maxSubLayers do
 				for i = 0, 5 do
 					chunk.superToppingMeshes[j]:setVertex(iBase + i) -- nil all
@@ -230,6 +215,7 @@ function rendering:draw(lerp, dt, performance)
 	love.graphics.draw(self.albedoCanvas) -- Draw tinted albedo canvas as ambient lighting
 	love.graphics.pop()
 	self.lightingShader:send("albedoCanvas", self.albedoCanvas)
+	self.lightingShader:send("lightInfoCanvas", self.lightInfoCanvas)
 	love.graphics.setShader(self.lightingShader)
 	love.graphics.setBlendMode("add")
 	

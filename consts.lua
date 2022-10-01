@@ -43,6 +43,7 @@ consts.minimumTextureNoiseSize = 0.2
 consts.tileMeshVertexFormat = {
 	{"VertexPosition", "float", 2},
 	{"VertexColour", "float", 3},
+	{"VertexLightInfoColour", "float", 4},
 	{"VertexNoiseSize", "float", 1},
 	{"VertexContrast", "float", 1},
 	{"VertexBrightness", "float", 1},

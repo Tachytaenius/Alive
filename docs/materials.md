@@ -5,6 +5,8 @@ Part of the registry.
 Fields:
 - `colour`: An array of three 0-1 numbers corresponding to red, green, and blue.
 - `grassDeadColour`: For grass super topping sub-layers, display colour is a lerp between this and `colour` using `grassHealth`.
+- `lightInfoColour`: Like `colour`, but it's what this material contributes to the light info canvas as a constituent-- if it is a wall.
+	Defaults to black.
 - `noiseSize`: Higher numbers mean bigger clouds when rendering tiles.
 - `visualWeight`: How much to multiply into the weight of this material's impact on the apppearance of a tile. Defaults to 1.
 - `noiseContrast`: The contrast of the noise texture.
