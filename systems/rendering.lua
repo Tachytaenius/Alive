@@ -15,11 +15,12 @@ function rendering:sendConstantsToShaders()
 end
 
 function rendering:init()
-	self.preCrushCanvases = {
-		albedo = love.graphics.newCanvas(consts.preCrushCanvasWidth, consts.preCrushCanvasHeight),
-		lighting = love.graphics.newCanvas(consts.preCrushCanvasWidth, consts.preCrushCanvasHeight)
+	self.albedoCanvas = love.graphics.newCanvas(consts.preCrushCanvasWidth, consts.preCrushCanvasHeight)
+	self.lightInfoCanvas = love.graphics.newCanvas(consts.preCrushCanvasWidth, consts.preCrushCanvasHeight)
+	self.lightingCanvas = love.graphics.newCanvas(consts.preCrushCanvasWidth, consts.preCrushCanvasHeight)
+	self.tileCanvasSetup = {
+		self.albedoCanvas, self.lightInfoCanvas
 	}
-	self.preCrushCanvases.lighting:setWrap("clampzero")
 	
 	self.crushAndClipShader = love.graphics.newShader("shaders/crushAndClip.glsl")
 	self.textureShader = love.graphics.newShader("shaders/texture.glsl")
@@ -162,8 +163,6 @@ function rendering:draw(lerp, dt, performance)
 	
 	local preCrushPlayerPosX, preCrushPlayerPosY = consts.preCrushCanvasWidth / 2, consts.preCrushCanvasHeight - (sensingCircleRadius + viewPadding)
 	
-	love.graphics.setCanvas(self.preCrushCanvases.albedo)
-	love.graphics.clear()
 	love.graphics.translate(preCrushPlayerPosX, preCrushPlayerPosY)
 	love.graphics.rotate(-player.angle.lerpedValue)
 	love.graphics.translate(-player.position.lerpedValue.x, -player.position.lerpedValue.y)
@@ -172,7 +171,13 @@ function rendering:draw(lerp, dt, performance)
 	
 	local mapSystem = self:getWorld().map
 	
+	love.graphics.setCanvas(self.albedoCanvas)
+	love.graphics.clear()
+	love.graphics.setCanvas(self.lightInfoCanvas)
+	love.graphics.clear(1, 1, 1, 1) -- TODO: Clear to mist. Maybe call it fog and rename fog elsewhere to something else
+	
 	-- Draw toppings
+	love.graphics.setCanvas(self.tileCanvasSetup)
 	love.graphics.setShader(self.textureShader)
 	local x1, x2, y1, y2 = mapSystem:getChunkIterationStartEnd(player, renderDistance)
 	for x = x1, x2 do
@@ -184,14 +189,16 @@ function rendering:draw(lerp, dt, performance)
 			end
 		end
 	end
-	love.graphics.setShader()
 	
 	-- Draw entities in ditches
+	love.graphics.setCanvas(self.albedoCanvas)
+	love.graphics.setShader()
 	for _, e in ipairs(normalHeightSprites) do -- TODO
 		self:drawSprite(e)
 	end
 	
 	-- Draw superToppings
+	love.graphics.setCanvas(self.tileCanvasSetup)
 	love.graphics.setShader(self.textureShader)
 	local x1, x2, y1, y2 = mapSystem:getChunkIterationStartEnd(player, renderDistance)
 	for x = x1, x2 do
@@ -205,22 +212,24 @@ function rendering:draw(lerp, dt, performance)
 			end
 		end
 	end
-	love.graphics.setShader()
 	
 	-- Draw entities at normal height
+	love.graphics.setCanvas(self.albedoCanvas)
+	love.graphics.setShader()
 	for _, e in ipairs(normalHeightSprites) do
 		self:drawSprite(e)
 	end
 	
 	-- Switch to lights phase
-	love.graphics.setCanvas(self.preCrushCanvases.lighting)
+	love.graphics.setCanvas(self.lightingCanvas)
+	love.graphics.setShader()
 	love.graphics.clear()
 	love.graphics.push("all")
 	love.graphics.setColor(ambientLightR, ambientLightG, ambientLightB)
 	love.graphics.origin() -- We are replacing one canvas' contents with (a tinted version of) another's, so we don't want to use player position information et cetera
-	love.graphics.draw(self.preCrushCanvases.albedo) -- Draw tinted albedo canvas as ambient lighting
+	love.graphics.draw(self.albedoCanvas) -- Draw tinted albedo canvas as ambient lighting
 	love.graphics.pop()
-	self.lightingShader:send("albedoCanvas", self.preCrushCanvases.albedo)
+	self.lightingShader:send("albedoCanvas", self.albedoCanvas)
 	love.graphics.setShader(self.lightingShader)
 	love.graphics.setBlendMode("add")
 	
@@ -248,7 +257,7 @@ function rendering:draw(lerp, dt, performance)
 	self.crushAndClipShader:send("fov", fov)
 	self.crushAndClipShader:send("power", power)
 	self.crushAndClipShader:send("fogFadeLength", boilerplate.settings.graphics.fogFadeLength)
-	love.graphics.draw(self.preCrushCanvases.lighting,
+	love.graphics.draw(self.lightingCanvas,
 		boilerplate.gameCanvas:getWidth() / 2 - crushCentreX,
 		boilerplate.gameCanvas:getHeight() - consts.preCrushCanvasHeight
 	)
