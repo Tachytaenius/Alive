@@ -23,6 +23,7 @@ consts.preCrushCanvasHeight = 2048
 consts.crushStart = 100
 consts.crushEnd = consts.canvasSystemHeight - 35
 consts.lightInfluenceTextureSize = 256
+consts.linearFilterLightInfoCanvas = false
 
 consts.turningMouseMovementMultiplier = 0.01
 

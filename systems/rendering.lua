@@ -1,5 +1,6 @@
 local boilerplate = require("lib.love-game-boilerplate-lib")
 local concord = require("lib.concord")
+local vec2 = require("lib.mathsies").vec2
 
 local consts = require("consts")
 
@@ -21,6 +22,9 @@ function rendering:init()
 	self.tileCanvasSetup = {
 		self.albedoCanvas, self.lightInfoCanvas
 	}
+	if consts.linearFilterLightInfoCanvas then
+		self.lightInfoCanvas:setFilter("linear", "linear")
+	end
 	
 	self.crushAndClipShader = love.graphics.newShader("shaders/crushAndClip.glsl")
 	self.textureShader = love.graphics.newShader("shaders/texture.glsl")
@@ -159,7 +163,7 @@ function rendering:draw(lerp, dt, performance)
 	love.graphics.setCanvas(self.albedoCanvas)
 	love.graphics.clear()
 	love.graphics.setCanvas(self.lightInfoCanvas)
-	love.graphics.clear(1, 1, 1, 1) -- TODO: Clear to mist. Maybe call it fog and rename fog elsewhere to something else
+	love.graphics.clear(1, 1, 1, 0)
 	
 	-- Draw toppings
 	love.graphics.setCanvas(self.tileCanvasSetup)
@@ -221,6 +225,11 @@ function rendering:draw(lerp, dt, performance)
 	
 	-- Draw lights
 	for _, e in ipairs(self.lights) do
+		local posInWindowSpace = e.position.lerpedValue
+		posInWindowSpace = posInWindowSpace - player.position.lerpedValue
+		posInWindowSpace = vec2.rotate(posInWindowSpace, -player.angle.lerpedValue)
+		posInWindowSpace = posInWindowSpace + vec2(preCrushPlayerPosX, preCrushPlayerPosY)
+		self.lightingShader:send("lightOrigin", {vec2.components(posInWindowSpace)})
 		love.graphics.setColor(e.light.r, e.light.g, e.light.b)
 		love.graphics.draw(boilerplate.assets.lightInfluenceTexture.value, e.position.lerpedValue.x - e.light.radius, e.position.lerpedValue.y - e.light.radius, 0, e.light.radius * 2 / consts.lightInfluenceTextureSize)
 	end

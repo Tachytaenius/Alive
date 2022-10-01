@@ -2,11 +2,22 @@ uniform vec2 canvasSize;
 
 uniform sampler2D albedoCanvas, lightInfoCanvas;
 
-vec4 effect(vec4 lightColour, sampler2D lightInfluenceTexture, vec2 textureCoords, vec2 windowCoords) {
-	// TODO: Cast rays and shadows
-	float lightInfluence = Texel(lightInfluenceTexture, textureCoords).r;
+uniform vec2 lightOrigin;
+
+vec4 effect(vec4 colour, sampler2D texture, vec2 textureCoords, vec2 windowCoords) {
+	vec3 lightColour = colour.rgb;
+	vec2 direction = normalize(windowCoords - lightOrigin);
+	// Filter light colour
+	float len = distance(windowCoords, lightOrigin);
+	for (int i = 0; i < len; i++) {
+		vec2 currentPosition = lightOrigin + direction * i;
+		vec4 lightInfoColour = Texel(lightInfoCanvas, currentPosition / canvasSize);
+		lightColour = min(lightInfoColour.rgb, lightColour);
+		if (lightColour == vec3(0.0)) {
+			discard; // Optimisation
+		}
+	}
+	float lightInfluence = Texel(texture, textureCoords).r; // Falloff
 	vec3 albedo = Texel(albedoCanvas, windowCoords / canvasSize).rgb;
-	vec3 lightInfo = Texel(lightInfoCanvas, windowCoords / canvasSize).rgb;
-	lightColour.rgb = min(lightInfo.rgb, lightColour.rgb);
-	return vec4(lightColour.rgb * lightInfluence * albedo, 1.0);
+	return vec4(lightColour * lightInfluence * albedo, 1.0);
 }
