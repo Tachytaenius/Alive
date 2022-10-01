@@ -24,6 +24,7 @@ consts.crushStart = 100
 consts.crushEnd = consts.canvasSystemHeight - 35
 consts.lightInfluenceTextureSize = 256
 consts.linearFilterLightInfoCanvas = false
+consts.shadowTextureRevealDepth = 12 -- Half a tile
 
 consts.turningMouseMovementMultiplier = 0.01
 
