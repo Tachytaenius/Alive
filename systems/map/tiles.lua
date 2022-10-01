@@ -50,7 +50,7 @@ local function updateGrassTargetHealths(tile)
 	if not tile.superTopping then
 		return
 	end
-	if not tile.superTopping.type == "layers" then
+	if tile.superTopping.type ~= "layers" then
 		return
 	end
 	for i = 1, #tile.superTopping.subLayers do

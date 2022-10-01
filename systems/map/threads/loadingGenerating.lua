@@ -83,25 +83,39 @@ local function generateTile(chunk, localTileX, localTileY)
 	tile.topping.lumps.compressionLumpCount = consts.lumpsPerLayer
 	
 	-- Generate super topping
-	tile.superTopping = {
-		type = "layers",
-		subLayers = {}
-	}
-	local subLayerIndex = 1
-	local grassMaterialName = "grass"
-	local grassMaterial = registry.materials.byName[grassMaterialName]
-	local newSubLayer = {
-		type = "grass",
-		lump = {
-			constituents = {
-				{materialName = grassMaterialName, amount = consts.lumpConstituentsTotal}
+	if love.math.random() < 0.01 then -- TEMP: We can't actually use the super world RNG in a thread (undefined order) nor love's own one anywhere in fixed update (intended to be used elsewhere like in graphics) for determinism reasons
+		tile.superTopping = {
+			type = "wall",
+			lumps = {}
+		}
+		local constituents = generateConstituents(globalTileX, globalTileY, soilMaterials)
+		tile.superTopping.lumps.compressedToOne = true
+		tile.superTopping.lumps.compressionLump = {
+			constituents = constituents
+		}
+		tile.superTopping.lumps.compressionLumpCount = consts.lumpsPerLayer
+		tiles:updateLumpDependentTickValues(tile)
+	else
+		tile.superTopping = {
+			type = "layers",
+			subLayers = {}
+		}
+		local subLayerIndex = 1
+		local grassMaterialName = "grass"
+		local grassMaterial = registry.materials.byName[grassMaterialName]
+		local newSubLayer = {
+			type = "grass",
+			lump = {
+				constituents = {
+					{materialName = grassMaterialName, amount = consts.lumpConstituentsTotal}
+				}
 			}
 		}
-	}
-	tile.superTopping.subLayers[subLayerIndex] = newSubLayer
-	tiles:updateLumpDependentTickValues(tile)
-	newSubLayer.lump.grassHealth = newSubLayer.grassTargetHealth
-	newSubLayer.lump.grassAmount = math.max(0, math.min(1, newSubLayer.lump.grassHealth + grassMaterial.grassTargetAmountAdd))
+		tile.superTopping.subLayers[subLayerIndex] = newSubLayer
+		tiles:updateLumpDependentTickValues(tile)
+		newSubLayer.lump.grassHealth = newSubLayer.grassTargetHealth
+		newSubLayer.lump.grassAmount = math.max(0, math.min(1, newSubLayer.lump.grassHealth + grassMaterial.grassTargetAmountAdd))
+	end
 	
 	return tile
 end

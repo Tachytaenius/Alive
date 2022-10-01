@@ -85,7 +85,7 @@ function rendering:updateTileRendering(tile)
 		else -- type == "wall"
 			local materialAmount = {}
 			if tile.superTopping.lumps.compressedToOne then
-				for _, constituent in ipairs(tile.superTopping.compressionLump.constituents) do
+				for _, constituent in ipairs(tile.superTopping.lumps.compressionLump.constituents) do
 					local material = registry.materials.byName[constituent.materialName]
 					materialAmount[material] = (materialAmount[material] or 0) + constituent.amount * tile.superTopping.lumps.compressionLumpCount
 				end

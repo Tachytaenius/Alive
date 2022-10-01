@@ -111,7 +111,7 @@ function rendering:fixedUpdate(dt)
 				
 				for j = 2, consts.maxSubLayers do
 					for i = 0, 5 do
-						self.superToppingMeshes[i]:setVertex(iBase + i) -- nil all
+						chunk.superToppingMeshes[j]:setVertex(iBase + i) -- nil all
 					end
 				end
 			else -- "layers"
