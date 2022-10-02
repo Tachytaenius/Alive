@@ -17,17 +17,17 @@ Tiles consist of:
 - A super topping layer, which can be either a series of flat sub-layers (or just one) (with a maximum number of allowed sub-layers) or a wall, or be empty.
 
 Configurations of tiles and entities that should be able to exist:
-- Covered booby trap (super topping) hole into spiked (entities) ditch (no topping) (ouch!).
 - Metal grating (super topping) over water underneath (topping).
 - Stone foundation (topping) with planks and carpet (super topping(s)).
 - Basic soil (topping) with grass (super topping).
 - Stone foundation (topping) with a wall (super topping).
 
 Configurations of tiles that would not be able to exist:
-- A grate on top of bedrock.
+- A grate directly on top of bedrock.
 - Flowing liquid in the super topping layer.
+- Entities below a super topping.
 
-When mining tiles, lumps of the part that you are mining will be taken off the tile and added to the game world, probably randomly selected.
+When mining tiles, lumps of the part that you are mining will be taken off the tile and added to the game world, top lump first.
 Each lump would be its own inventory item.
 A lump would be little more than a constituents table that maps material definitions to their counts, adding up to a constant size.
 All constituent counts are integers!
