@@ -152,7 +152,7 @@ function rendering:draw(lerp, dt, performance)
 	
 	assert(renderDistance <= consts.chunkProcessingRadius, "Player vision is greater than chunk processing radius")
 	
-	local preCrushPlayerPosX, preCrushPlayerPosY = consts.preCrushCanvasWidth / 2, consts.preCrushCanvasHeight - (sensingCircleRadius + viewPadding)
+	local preCrushPlayerPosX, preCrushPlayerPosY = consts.preCrushCanvasWidth / 2, consts.preCrushCanvasHeight / 2
 	
 	love.graphics.translate(preCrushPlayerPosX, preCrushPlayerPosY)
 	love.graphics.rotate(-player.angle.lerpedValue)
@@ -256,7 +256,7 @@ function rendering:draw(lerp, dt, performance)
 	self.crushAndClipShader:send("fogFadeLength", boilerplate.settings.graphics.fogFadeLength)
 	love.graphics.draw(self.lightingCanvas,
 		boilerplate.gameCanvas:getWidth() / 2 - crushCentreX,
-		boilerplate.gameCanvas:getHeight() - consts.preCrushCanvasHeight
+		boilerplate.gameCanvas:getHeight() - crushCentreY - sensingCircleRadius - viewPadding
 	)
 	
 	-- Finish
