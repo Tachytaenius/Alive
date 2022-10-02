@@ -1,5 +1,7 @@
 local json = require("lib.json")
 
+local log = require("log")
+
 -- WARNING: Registry is sent (without registry.load) through to a thread and would need to be re-sent if changed.
 
 local function traverse(registryTable, path, createFromJson)
@@ -41,6 +43,7 @@ local function createWorldTheme(jsonData, entryName, path)
 end
 
 function registry.load()
+	log.out("Loading registry")
 	traverse(registry.materials, "registry/materials/", createMaterial)
 	registry.loaded = true
 end

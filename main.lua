@@ -13,6 +13,7 @@ require("monkeypatch")
 
 local consts = require("consts")
 local registry = require("registry")
+local log = require("log")
 
 local frameCommands = {
 	
@@ -121,6 +122,8 @@ function boilerplate.load(args)
 	local seed = love.math.random(0, consts.maxWorldSeed)
 	local rng = love.math.newRandomGenerator(seed)
 	
+	log.out("Creating super-world")
+	
 	superWorld = {
 		seed = seed,
 		rng = rng,
@@ -165,6 +168,8 @@ function boilerplate.load(args)
 	for _, subWorld in ipairs(superWorld.subWorldsById) do
 		subWorld:emit("newWorld")
 	end
+	
+	log.out("Done initialising super-world")
 end
 
 local function getSubWorldsAsArray()

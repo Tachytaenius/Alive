@@ -2,6 +2,7 @@ local list = require("lib.list")
 
 local registry = require("registry")
 local consts = require("consts")
+local log = require("log")
 
 local core = {}
 
@@ -108,6 +109,7 @@ function core:fixedUpdate(dt)
 		end
 	end
 	if forceLoadAll then
+		log.out("Forcing load of all chunks (" .. self.activeChunkRequests .. ")")
 		while self.activeChunkRequests > 0 do
 			self:receiveChunk(self.resultChannel:demand())
 		end
