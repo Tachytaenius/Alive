@@ -74,6 +74,18 @@ Lump fields:
 	Goes from 0 to 1.
 	Smaller amounts make it patchier.
 
+Rendering fields:
+- `r`: (Not saved) The red channel of the colour of the layer/sub-layer.
+- `g`: (Not saved) The green channel of the colour of the layer/sub-layer.
+- `b`: (Not saved) The blue channel of the colour of the layer/sub-layer.
+- `lightInfoR`: (Not saved) The red channel of the wall's influence on the light info canvas.
+- `lightInfoG`: (Not saved) The green channel of the wall's influence on the light info canvas.
+- `lightInfoB`: (Not saved) The blue channel of the wall's influence on the light info canvas.
+- `noiseSize`: (Not saved) The size of the layer/sub-layer's noise texture's clouds.
+- `noiseContrast`: (Not saved) The contrast of the layer/sub-layer's noise texture's clouds.
+- `noiseBrightness`: (Not saved) The brightness of the layer/sub-layer's noise texture's clouds.
+- `noiseFullness`: (Not saved) For sub-layers, controls how many fragments to discard.
+
 Tile fields:
 - `chunk`: (Not saved) Link to the containing chunk.
 - `localTileX`: (Not saved) Chunk-local x position of tile in tiles, not pixels.
@@ -81,6 +93,7 @@ Tile fields:
 - `globalTileX`: (Not saved) Global x position of tile in tiles.
 - `globalTileY`: (Not saved) Global y position of tile in tiles.
 - `topping`: (Saved) The topping layer's table, or `nil` for no topping.
+	Contains rendering fields.
 - `topping.type`: (Saved) Determines the topping's type.
 	- `"solid"`: A mix of various solid (and possibly absorbed liquid) constituents in lumps.
 	- `"liquid"`: Purely liquid, flows to other nil topping or liquid topping tiles.
@@ -90,6 +103,7 @@ Tile fields:
 	If `compressedToOne` (saved) is true in the table then interpret there as being `compressionLumpCount` (saved) of the `compressionLump` (saved) (and the array should be empty).
 - `superTopping`: (Saved) The super topping layer's table, or `nil` for no super topping.
 - `superTopping.type`: (Saved) Can be either `"subLayers"` or `"wall"`.
+	For wall-type, `superTopping` contains rendering fields.
 - `superTopping.subLayers`: (Saved) For sub-layers-type super toppings, an array of super topping sub-layers.
 	Fields for entries:
 	- `type`: (Saved) One of:
@@ -99,6 +113,7 @@ Tile fields:
 		- `grate`: Solid, for a grate texture.
 	- `lump`: (Saved) A single lump that defines the materials of the sub-layer.
 	- `grassTargetHealth`: (Not saved) Cached value that is recalculated only when a tile is changed.
+	- As well as the rendering fields.
 - `superTopping.lumps` (Saved) For walls-type super toppings, an array of lumps that works the same as `topping.lumps`.
 - `lastTimeTicked`: (Saved) The chunk's `time` value last time this tile was ticked.
 	Used with current `time` to get how much effective delta time to use.
