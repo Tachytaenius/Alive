@@ -108,7 +108,7 @@ function chunks:unloadChunk(chunk)
 	local data = serialisation.serialiseChunk(chunk)
 	local success, errorMessage = love.filesystem.write(path, data)
 	if not success then
-		error("Could not create file for chunk at " .. chunk.x .. ", " .. chunk.y .. ": " .. errorMessage)
+		error("Could not write file for chunk at " .. chunk.x .. ", " .. chunk.y .. ": " .. errorMessage)
 	end
 end
 
