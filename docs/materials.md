@@ -18,5 +18,6 @@ Fields:
 - `grassNoiseFullness1`: The `grassAmount` at and above which the texture fullness is 1. Defaults to 1.
 - `grassTargetAmountAdd`: Amount to add to health to get target grass amount when doing growth/decay calculations.
 	Target remains clamped between 0 and 1.
+	Is not used when grass health is 0.
 - `grassTargetHealthZero`: Under or at this threshold when calculated, the target health of grass will be set to 0.
 	Defaults to 0.

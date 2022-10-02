@@ -114,7 +114,8 @@ local function generateTile(chunk, localTileX, localTileY)
 		tile.superTopping.subLayers[subLayerIndex] = newSubLayer
 		tiles:updateLumpDependentTickValues(tile, registry)
 		newSubLayer.lump.grassHealth = newSubLayer.grassTargetHealth
-		newSubLayer.lump.grassAmount = math.max(0, math.min(1, newSubLayer.lump.grassHealth + grassMaterial.grassTargetAmountAdd))
+		local healthAdd = newSubLayer.lump.grassHealth > 0 and grassMaterial.grassTargetAmountAdd or 0
+		newSubLayer.lump.grassAmount = math.max(0, math.min(1, newSubLayer.lump.grassHealth + healthAdd))
 	end
 	
 	return tile

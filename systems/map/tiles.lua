@@ -108,7 +108,8 @@ function tiles:tickTile(tile, dt)
 						-- Update amount
 						-- Speed of approach should be multiplied with 1 - health downwards and with health upwards.
 						-- Check docs/materials.md.
-						local targetAmount = math.max(0, math.min(1, subLayer.lump.grassHealth + grassMaterial.grassTargetAmountAdd))
+						local healthAdd = subLayer.lump.grassHealth > 0 and grassMaterial.grassTargetAmountAdd or 0
+						local targetAmount = math.max(0, math.min(1, subLayer.lump.grassHealth + healthAdd))
 						if targetAmount > subLayer.lump.grassAmount then -- Add to amount using grassHealth and grassGrowthRate
 							subLayer.lump.grassAmount = math.min(targetAmount, subLayer.lump.grassAmount + grassMaterial.grassGrowthRate * subLayer.lump.grassHealth * effectiveDt)
 							changedRendering = true
