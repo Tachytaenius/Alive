@@ -94,7 +94,7 @@ local function generateTile(chunk, localTileX, localTileY)
 			constituents = constituents
 		}
 		tile.superTopping.lumps.compressionLumpCount = consts.lumpsPerLayer
-		tiles:updateLumpDependentTickValues(tile)
+		tiles:updateLumpDependentTickValues(tile, registry)
 	else
 		tile.superTopping = {
 			type = "subLayers",
@@ -112,7 +112,7 @@ local function generateTile(chunk, localTileX, localTileY)
 			}
 		}
 		tile.superTopping.subLayers[subLayerIndex] = newSubLayer
-		tiles:updateLumpDependentTickValues(tile)
+		tiles:updateLumpDependentTickValues(tile, registry)
 		newSubLayer.lump.grassHealth = newSubLayer.grassTargetHealth
 		newSubLayer.lump.grassAmount = math.max(0, math.min(1, newSubLayer.lump.grassHealth + grassMaterial.grassTargetAmountAdd))
 	end
@@ -171,7 +171,7 @@ while quitChannel:peek() ~= "quit" do
 			for x = 0, consts.chunkWidth - 1 do
 				for y = 0, consts.chunkHeight - 1 do
 					local tile = chunk.tiles[x][y]
-					tiles:updateLumpDependentTickValues(tile)
+					tiles:updateLumpDependentTickValues(tile, registry)
 				end
 			end
 			

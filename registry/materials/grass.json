@@ -9,5 +9,6 @@
 	"grassGrowthRate": 0.01,
 	"grassDecayRate": 0.01,
 	"grassTargetAmountAdd": 0.25,
-	"grassNoiseFullness1": 1
+	"grassNoiseFullness1": 1,
+	"grassTargetHealthZero": 0.2
 }

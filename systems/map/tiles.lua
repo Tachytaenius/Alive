@@ -13,9 +13,11 @@ function tiles:getTile(x, y)
 	end
 end
 
-local function getGrassTargetHealth(tile, subLayerIndex)
+local function getGrassTargetHealth(tile, subLayerIndex, threadRegistry)
 	-- WARNING: Used in a different copy to the map system's copy of the tiles table by one or more extra threads!
+	local registry = threadRegistry or registry
 	local x, y = tile.globalTileX, tile.globalTileY
+	local grassMaterial = registry.materials.byName[tile.superTopping.subLayers[subLayerIndex].lump.constituents[1].materialName]
 	local loamAmount, waterAmount = 0, 0
 	if subLayerIndex == 1 and tile.topping then
 		local lumps = tile.topping.lumps
@@ -42,10 +44,15 @@ local function getGrassTargetHealth(tile, subLayerIndex)
 	local waterFractionTarget = 0.3
 	local loamHealthMultiplier = math.min(1, (loamAmount / consts.lumpConstituentsTotal) / loamFractionTarget)
 	local waterHealthMultiplier = math.min(1, (waterAmount / consts.lumpConstituentsTotal) / waterFractionTarget)
-	return loamHealthMultiplier * waterHealthMultiplier
+	local preZeroTargetHealth = loamHealthMultiplier * waterHealthMultiplier
+	if preZeroTargetHealth <= (grassMaterial.grassTargetHealthZero or 0) then
+		return 0
+	else
+		return preZeroTargetHealth
+	end
 end
 
-local function updateGrassTargetHealths(tile)
+local function updateGrassTargetHealths(tile, threadRegistry)
 	-- WARNING: Used in a different copy to the map system's copy of the tiles table by one or more extra threads!
 	if not tile.superTopping then
 		return
@@ -54,14 +61,14 @@ local function updateGrassTargetHealths(tile)
 		return
 	end
 	for i = 1, #tile.superTopping.subLayers do
-		tile.superTopping.subLayers[i].grassTargetHealth = getGrassTargetHealth(tile, i)
+		tile.superTopping.subLayers[i].grassTargetHealth = getGrassTargetHealth(tile, i, threadRegistry)
 	end
 end
 
-function tiles:updateLumpDependentTickValues(tile)
+function tiles:updateLumpDependentTickValues(tile, threadRegistry)
 	-- WARNING: Used in a different copy to the map system's copy of the tiles table by one or more extra threads!
 	-- Only values relevant to fixed update, and only values dependent on the tile's lumps
-	updateGrassTargetHealths(tile)
+	updateGrassTargetHealths(tile, threadRegistry)
 end
 
 function tiles:tickTile(tile, dt)
