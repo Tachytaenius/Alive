@@ -102,7 +102,7 @@ function rendering:fixedUpdate(dt)
 						chunk.superToppingMeshes[j]:setVertex(iBase + i) -- nil all
 					end
 				end
-			else -- "layers"
+			else -- "subLayers"
 				for j = 1, consts.maxSubLayers do
 					local subLayer = tile.superTopping.subLayers[j]
 					if subLayer then

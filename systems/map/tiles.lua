@@ -50,7 +50,7 @@ local function updateGrassTargetHealths(tile)
 	if not tile.superTopping then
 		return
 	end
-	if tile.superTopping.type ~= "layers" then
+	if tile.superTopping.type ~= "subLayers" then
 		return
 	end
 	for i = 1, #tile.superTopping.subLayers do
@@ -74,8 +74,8 @@ function tiles:tickTile(tile, dt)
 	end
 	-- Update grass
 	if tile.superTopping then
-		if tile.superTopping.type == "layers" then
-			-- Iterate over the layers
+		if tile.superTopping.type == "subLayers" then
+			-- Iterate over the sub-layers
 			local i = 1
 			while i <= #tile.superTopping.subLayers do
 				local subLayer = tile.superTopping.subLayers[i]

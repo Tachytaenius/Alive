@@ -89,8 +89,8 @@ Tile fields:
 	When the total descends below a threshold, it should break into its constituent parts.
 	If `compressedToOne` (saved) is true in the table then interpret there as being `compressionLumpCount` (saved) of the `compressionLump` (saved) (and the array should be empty).
 - `superTopping`: (Saved) The super topping layer's table, or `nil` for no super topping.
-- `superTopping.type`: (Saved) Can be either `"layers"` or `"wall"`.
-- `superTopping.subLayers`: (Saved) For layers-type super toppings, an array of super topping sub-layers.
+- `superTopping.type`: (Saved) Can be either `"subLayers"` or `"wall"`.
+- `superTopping.subLayers`: (Saved) For sub-layers-type super toppings, an array of super topping sub-layers.
 	Fields for entries:
 	- `type`: (Saved) One of:
 		- `grass`: For living matter coating the topping.

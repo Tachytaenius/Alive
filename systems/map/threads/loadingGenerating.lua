@@ -97,7 +97,7 @@ local function generateTile(chunk, localTileX, localTileY)
 		tiles:updateLumpDependentTickValues(tile)
 	else
 		tile.superTopping = {
-			type = "layers",
+			type = "subLayers",
 			subLayers = {}
 		}
 		local subLayerIndex = 1

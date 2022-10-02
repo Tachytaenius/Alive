@@ -84,7 +84,7 @@ function rendering:updateTileRendering(tile)
 	
 	-- Update super topping
 	if tile.superTopping then
-		if tile.superTopping.type == "layers" then
+		if tile.superTopping.type == "subLayers" then
 			for _, subLayer in ipairs(tile.superTopping.subLayers) do
 				local materialAmount = {}
 				for _, constituent in ipairs(subLayer.lump.constituents) do

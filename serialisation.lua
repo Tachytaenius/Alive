@@ -75,7 +75,7 @@ function serialisation.serialiseChunk(chunk)
 							}
 						end
 					end
-				else -- "layers"
+				else -- "subLayers"
 					tileToDump.superTopping.subLayers = {}
 					for i, subLayer in ipairs(tile.superTopping.subLayers) do
 						local subLayerToDump = {}
