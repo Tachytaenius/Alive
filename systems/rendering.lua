@@ -158,7 +158,7 @@ function rendering:draw(lerp, dt, performance)
 	love.graphics.rotate(-player.angle.lerpedValue)
 	love.graphics.translate(-player.position.lerpedValue.x, -player.position.lerpedValue.y)
 	
-	local normalHeightSprites = self.sprites -- TODO
+	local sprites = self.sprites -- TODO: Clone table and sort it by distance and whether sprite is in a ditch
 	
 	local mapSystem = self:getWorld().map
 	
@@ -181,13 +181,6 @@ function rendering:draw(lerp, dt, performance)
 		end
 	end
 	
-	-- Draw entities in ditches
-	love.graphics.setCanvas(self.albedoCanvas)
-	love.graphics.setShader()
-	for _, e in ipairs(normalHeightSprites) do -- TODO
-		self:drawSprite(e)
-	end
-	
 	-- Draw superToppings
 	love.graphics.setCanvas(self.tileCanvasSetup)
 	love.graphics.setShader(self.textureShader)
@@ -204,10 +197,10 @@ function rendering:draw(lerp, dt, performance)
 		end
 	end
 	
-	-- Draw entities at normal height
+	-- Draw entities
 	love.graphics.setCanvas(self.albedoCanvas)
 	love.graphics.setShader()
-	for _, e in ipairs(normalHeightSprites) do
+	for _, e in ipairs(sprites) do
 		self:drawSprite(e)
 	end
 	
