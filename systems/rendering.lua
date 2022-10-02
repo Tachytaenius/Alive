@@ -9,8 +9,8 @@ local rendering = concord.system({players = {"position", "player", "vision"}, sp
 function rendering:sendConstantsToShaders()
 	self.crushAndClipShader:send("inputCanvasSize", {consts.preCrushCanvasWidth, consts.preCrushCanvasHeight})
 	
-	self.textureShader:send("noiseTexture", boilerplate.assets.noiseTexture.value)
-	self.textureShader:send("noiseTextureSize", {boilerplate.assets.noiseTexture.value:getDimensions()})
+	self.noiseShader:send("noiseTexture", boilerplate.assets.noiseTexture.value)
+	self.noiseShader:send("noiseTextureSize", {boilerplate.assets.noiseTexture.value:getDimensions()})
 	
 	self.lightingShader:send("canvasSize", {consts.preCrushCanvasWidth, consts.preCrushCanvasHeight})
 	self.lightingShader:send("revealDepth", consts.shadowTextureRevealDepth)
@@ -29,7 +29,7 @@ function rendering:init()
 	end
 	
 	self.crushAndClipShader = love.graphics.newShader("shaders/crushAndClip.glsl")
-	self.textureShader = love.graphics.newShader("shaders/texture.glsl")
+	self.noiseShader = love.graphics.newShader("shaders/noise.glsl")
 	self.lightingShader = love.graphics.newShader("shaders/lighting.glsl")
 	self:sendConstantsToShaders()
 	
@@ -169,7 +169,7 @@ function rendering:draw(lerp, dt, performance)
 	
 	-- Draw toppings
 	love.graphics.setCanvas(self.tileCanvasSetup)
-	love.graphics.setShader(self.textureShader)
+	love.graphics.setShader(self.noiseShader)
 	local x1, x2, y1, y2 = mapSystem:getChunkIterationStartEnd(player, renderDistance)
 	for x = x1, x2 do
 		for y = y1, y2 do
@@ -183,7 +183,7 @@ function rendering:draw(lerp, dt, performance)
 	
 	-- Draw superToppings
 	love.graphics.setCanvas(self.tileCanvasSetup)
-	love.graphics.setShader(self.textureShader)
+	love.graphics.setShader(self.noiseShader)
 	local x1, x2, y1, y2 = mapSystem:getChunkIterationStartEnd(player, renderDistance)
 	for x = x1, x2 do
 		for y = y1, y2 do
