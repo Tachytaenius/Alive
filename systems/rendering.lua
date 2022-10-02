@@ -62,7 +62,7 @@ function rendering:fixedUpdate(dt)
 			local
 				colourR, colourG, colourB,
 				lightInfoColourR, lightInfoColourG, lightInfoColourB, lightInfoColourA,
-				noiseSize, noiseContrast, noiseBrightness, fullness
+				noiseSize, noiseContrast, noiseBrightness, noiseFullness
 			=
 				tile.topping.r, tile.topping.g, tile.topping.b,
 				nil, nil, nil, 0, -- This isn't a wall
@@ -71,7 +71,7 @@ function rendering:fixedUpdate(dt)
 			setTileMeshVertices(chunk.toppingMesh, iBase, globalTileX, globalTileY,
 				colourR, colourG, colourB,
 				lightInfoColourR, lightInfoColourG, lightInfoColourB, lightInfoColourA,
-				noiseSize, noiseContrast, noiseBrightness, fullness
+				noiseSize, noiseContrast, noiseBrightness, noiseFullness
 			)
 		else
 			for i = 0, 5 do
@@ -85,7 +85,7 @@ function rendering:fixedUpdate(dt)
 				local
 					colourR, colourG, colourB,
 					lightInfoColourR, lightInfoColourG, lightInfoColourB, lightInfoColourA,
-					noiseSize, noiseContrast, noiseBrightness, fullness
+					noiseSize, noiseContrast, noiseBrightness, noiseFullness
 				=
 					tile.superTopping.r, tile.superTopping.g, tile.superTopping.b,
 					tile.superTopping.lightInfoR, tile.superTopping.lightInfoG, tile.superTopping.lightInfoB, 1,
@@ -94,7 +94,7 @@ function rendering:fixedUpdate(dt)
 				setTileMeshVertices(chunk.superToppingMeshes[1], iBase, globalTileX, globalTileY,
 					colourR, colourG, colourB,
 					lightInfoColourR, lightInfoColourG, lightInfoColourB, lightInfoColourA,
-					noiseSize, noiseContrast, noiseBrightness, fullness
+					noiseSize, noiseContrast, noiseBrightness, noiseFullness
 				)
 				
 				for j = 2, consts.maxSubLayers do -- Clear meshes used for sub-layers
@@ -109,16 +109,16 @@ function rendering:fixedUpdate(dt)
 						local
 							colourR, colourG, colourB,
 							lightInfoColourR, lightInfoColourG, lightInfoColourB, lightInfoColourA,
-							noiseSize, noiseContrast, noiseBrightness, fullness
+							noiseSize, noiseContrast, noiseBrightness, noiseFullness
 						=
 							subLayer.r, subLayer.g, subLayer.b,
 							nil, nil, nil, 0, -- This isn't a wall
-							subLayer.noiseSize, subLayer.noiseContrast, subLayer.noiseBrightness, subLayer.fullness
+							subLayer.noiseSize, subLayer.noiseContrast, subLayer.noiseBrightness, subLayer.noiseFullness
 						
 						setTileMeshVertices(chunk.superToppingMeshes[j], iBase, globalTileX, globalTileY,
 							colourR, colourG, colourB,
 							lightInfoColourR, lightInfoColourG, lightInfoColourB, lightInfoColourA,
-							noiseSize, noiseContrast, noiseBrightness, fullness
+							noiseSize, noiseContrast, noiseBrightness, noiseFullness
 						)
 					else
 						for i = 0, 5 do

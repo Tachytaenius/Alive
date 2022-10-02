@@ -91,7 +91,7 @@ function rendering:updateTileRendering(tile)
 					materialAmount[registry.materials.byName[constituent.materialName]] = constituent.amount
 				end
 				calculateConstituentDrawFields(materialAmount, subLayer, subLayer.type == "grass" and subLayer.lump.grassHealth)
-				subLayer.fullness = getGrassNoiseFullness(subLayer)
+				subLayer.noiseFullness = getGrassNoiseFullness(subLayer)
 			end
 		else -- type == "wall"
 			local materialAmount = {}
