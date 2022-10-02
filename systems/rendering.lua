@@ -14,6 +14,7 @@ function rendering:sendConstantsToShaders()
 	
 	self.lightingShader:send("canvasSize", {consts.preCrushCanvasWidth, consts.preCrushCanvasHeight})
 	self.lightingShader:send("revealDepth", consts.shadowTextureRevealDepth)
+	self.lightingShader:send("forceNonRevealMinDepth", consts.shadowForceTextureNonRevealMinDepth)
 end
 
 function rendering:init()

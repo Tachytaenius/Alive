@@ -25,6 +25,7 @@ consts.crushEnd = consts.canvasSystemHeight - 35
 consts.lightInfluenceTextureSize = 256
 consts.linearFilterLightInfoCanvas = false
 consts.shadowTextureRevealDepth = 12
+consts.shadowForceTextureNonRevealMinDepth = 4
 
 consts.turningMouseMovementMultiplier = 0.01
 
