@@ -36,10 +36,6 @@ function rendering:init()
 	self.changedTiles = {}
 end
 
-function rendering:drawSprite(e)
-	love.graphics.circle("fill", e.position.lerpedValue.x, e.position.lerpedValue.y, e.sprite.radius)
-end
-
 local function setTileMeshVertices(mesh, iBase, x, y, ...)
 	mesh:setVertex(iBase, x * consts.tileWidth, y * consts.tileHeight, ...)
 	mesh:setVertex(iBase + 1, (x + 1) * consts.tileWidth, y * consts.tileHeight, ...)
@@ -48,6 +44,10 @@ local function setTileMeshVertices(mesh, iBase, x, y, ...)
 	mesh:setVertex(iBase + 3, x * consts.tileWidth, (y + 1) * consts.tileHeight, ...)
 	mesh:setVertex(iBase + 4, (x + 1) * consts.tileWidth, y * consts.tileHeight, ...)
 	mesh:setVertex(iBase + 5, (x + 1) * consts.tileWidth, (y + 1) * consts.tileHeight, ...)
+end
+
+function rendering:drawSprite(e)
+	love.graphics.circle("fill", e.position.lerpedValue.x, e.position.lerpedValue.y, e.sprite.radius)
 end
 
 function rendering:fixedUpdate(dt)
@@ -158,8 +158,6 @@ function rendering:draw(lerp, dt, performance)
 	love.graphics.rotate(-player.angle.lerpedValue)
 	love.graphics.translate(-player.position.lerpedValue.x, -player.position.lerpedValue.y)
 	
-	local sprites = self.sprites -- TODO: Clone table and sort it by distance and whether sprite is in a ditch
-	
 	local mapSystem = self:getWorld().map
 	
 	love.graphics.setCanvas(self.albedoCanvas)
@@ -200,6 +198,15 @@ function rendering:draw(lerp, dt, performance)
 	-- Draw entities
 	love.graphics.setCanvas(self.albedoCanvas)
 	love.graphics.setShader()
+	local sprites = {}
+	for i, v in ipairs(self.sprites) do
+		sprites[i] = v
+	end
+	table.sort(sprites, function(a, b)
+		-- Draw closer sprites on top, i.e. draw more distant sprites first
+		-- TODO: Also draw sprites on top of the topping layer on top
+		return vec2.distance(a.position.lerpedValue, player.position.lerpedValue) > vec2.distance(b.position.lerpedValue, player.position.lerpedValue)
+	end)
 	for _, e in ipairs(sprites) do
 		self:drawSprite(e)
 	end
