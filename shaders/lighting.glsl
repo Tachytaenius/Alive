@@ -25,9 +25,11 @@ vec4 effect(vec4 colour, sampler2D texture, vec2 textureCoords, vec2 windowCoord
 		wallPenetration += hitWall ? 1.0 : 0.0; // Only increment penetration if we've hit a wall
 		forceNonReveal = hitWall && lightInfoColour.a == 0.0 && wallPenetration >= forceNonRevealMinDepth ? true : forceNonReveal; // Force shadow if we leave the wall again before wallPenetration reaches revealDepth, but only if we have already penetrated a forceNonRevealMinDepth into the wall (the second check is to avoid fragment being erroneously in shadow)
 	}
+	// Ignore shadow if in revealed portion of wall
 	if (wallPenetration < revealDepth && !forceNonReveal) {
 		lightColour = colour.rgb;
 	}
+	// Return values
 	float lightInfluence = Texel(texture, textureCoords).r; // Falloff
 	vec3 albedo = Texel(albedoCanvas, windowCoords / canvasSize).rgb;
 	return vec4(lightColour * lightInfluence * albedo, 1.0);
