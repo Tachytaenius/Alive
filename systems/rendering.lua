@@ -64,7 +64,7 @@ function rendering:fixedUpdate(dt)
 				lightInfoColourR, lightInfoColourG, lightInfoColourB, lightInfoColourA,
 				noiseSize, noiseContrast, noiseBrightness, noiseFullness
 			=
-				tile.topping.r, tile.topping.g, tile.topping.b,
+				tile.topping.red, tile.topping.green, tile.topping.blue,
 				nil, nil, nil, 0, -- This isn't a wall
 				tile.topping.noiseSize, tile.topping.noiseContrast, tile.topping.noiseBrightness, 1
 			
@@ -87,7 +87,7 @@ function rendering:fixedUpdate(dt)
 					lightInfoColourR, lightInfoColourG, lightInfoColourB, lightInfoColourA,
 					noiseSize, noiseContrast, noiseBrightness, noiseFullness
 				=
-					tile.superTopping.r, tile.superTopping.g, tile.superTopping.b,
+					tile.superTopping.red, tile.superTopping.green, tile.superTopping.blue,
 					tile.superTopping.lightInfoR, tile.superTopping.lightInfoG, tile.superTopping.lightInfoB, 1,
 					tile.superTopping.noiseSize, tile.superTopping.noiseContrast, tile.superTopping.noiseBrightness, 1
 				
@@ -111,7 +111,7 @@ function rendering:fixedUpdate(dt)
 							lightInfoColourR, lightInfoColourG, lightInfoColourB, lightInfoColourA,
 							noiseSize, noiseContrast, noiseBrightness, noiseFullness
 						=
-							subLayer.r, subLayer.g, subLayer.b,
+							subLayer.red, subLayer.green, subLayer.blue,
 							nil, nil, nil, 0, -- This isn't a wall
 							subLayer.noiseSize, subLayer.noiseContrast, subLayer.noiseBrightness, subLayer.noiseFullness
 						
@@ -203,10 +203,10 @@ function rendering:draw(lerp, dt, performance)
 	for i, v in ipairs(self.sprites) do
 		sprites[i] = v
 	end
-	table.sort(sprites, function(a, b)
+	table.sort(sprites, function(a, blue)
 		-- Draw closer sprites on top, i.e. draw more distant sprites first
 		-- TODO: Also draw sprites on top of the topping layer on top
-		return vec2.distance(a.position.lerpedValue, player.position.lerpedValue) > vec2.distance(b.position.lerpedValue, player.position.lerpedValue)
+		return vec2.distance(a.position.lerpedValue, player.position.lerpedValue) > vec2.distance(blue.position.lerpedValue, player.position.lerpedValue)
 	end)
 	for _, e in ipairs(sprites) do
 		self:drawSprite(e)
@@ -233,7 +233,7 @@ function rendering:draw(lerp, dt, performance)
 		posInWindowSpace = vec2.rotate(posInWindowSpace, -player.angle.lerpedValue)
 		posInWindowSpace = posInWindowSpace + vec2(preCrushPlayerPosX, preCrushPlayerPosY)
 		self.lightingShader:send("lightOrigin", {vec2.components(posInWindowSpace)})
-		love.graphics.setColor(e.light.r, e.light.g, e.light.b)
+		love.graphics.setColor(e.light.red, e.light.green, e.light.blue)
 		love.graphics.draw(boilerplate.assets.lightInfluenceTexture.value, e.position.lerpedValue.x - e.light.radius, e.position.lerpedValue.y - e.light.radius, 0, e.light.radius * 2 / consts.lightInfluenceTextureSize)
 	end
 	love.graphics.setColor(1, 1, 1)

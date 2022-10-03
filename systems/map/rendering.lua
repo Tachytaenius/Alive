@@ -20,7 +20,7 @@ end
 
 local function calculateConstituentDrawFields(materialAmount, tableToWriteTo, grassHealth)
 	local weightTotal = 0
-	local r, g, b, lightInfoR, lightInfoG, lightInfoB, noiseSize, noiseContrast, noiseBrightness = 0, 0, 0, 0, 0, 0, 0, 0, 0
+	local red, green, blue, lightInfoR, lightInfoG, lightInfoB, noiseSize, noiseContrast, noiseBrightness = 0, 0, 0, 0, 0, 0, 0, 0, 0
 	for material, amount in pairs(materialAmount) do
 		local weight = amount * (material.visualWeight or 1)
 		weightTotal = weightTotal + weight
@@ -32,9 +32,9 @@ local function calculateConstituentDrawFields(materialAmount, tableToWriteTo, gr
 			materialGreen = math.lerp(material.grassDeadColour[2], materialGreen, grassHealth)
 			materialBlue = math.lerp(material.grassDeadColour[3], materialBlue, grassHealth)
 		end
-		r = r + materialRed * weight
-		g = g + materialGreen * weight
-		b = b + materialBlue * weight
+		red = red + materialRed * weight
+		green = green + materialGreen * weight
+		blue = blue + materialBlue * weight
 		
 		local materialLightInfoR = material.lightInfoColour and material.lightInfoColour[1] or 0
 		local materialLightInfoG = material.lightInfoColour and material.lightInfoColour[2] or 0
@@ -47,9 +47,9 @@ local function calculateConstituentDrawFields(materialAmount, tableToWriteTo, gr
 		noiseContrast = noiseContrast + (material.noiseContrast or 0.5) * weight
 		noiseBrightness = noiseBrightness + (material.noiseBrightness or 0.5) * weight
 	end
-	tableToWriteTo.r = r / weightTotal
-	tableToWriteTo.g = g / weightTotal
-	tableToWriteTo.b = b / weightTotal
+	tableToWriteTo.red = red / weightTotal
+	tableToWriteTo.green = green / weightTotal
+	tableToWriteTo.blue = blue / weightTotal
 	tableToWriteTo.lightInfoR = lightInfoR
 	tableToWriteTo.lightInfoG = lightInfoG
 	tableToWriteTo.lightInfoB = lightInfoB

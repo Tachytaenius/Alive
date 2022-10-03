@@ -75,9 +75,9 @@ Lump fields:
 	Smaller amounts make it patchier.
 
 Rendering fields:
-- `r`: (Not saved) The red channel of the colour of the layer/sub-layer.
-- `g`: (Not saved) The green channel of the colour of the layer/sub-layer.
-- `b`: (Not saved) The blue channel of the colour of the layer/sub-layer.
+- `red`: (Not saved) The red channel of the colour of the layer/sub-layer.
+- `green`: (Not saved) The green channel of the colour of the layer/sub-layer.
+- `blue`: (Not saved) The blue channel of the colour of the layer/sub-layer.
 - `lightInfoR`: (Not saved) The red channel of the wall's influence on the light info canvas.
 - `lightInfoG`: (Not saved) The green channel of the wall's influence on the light info canvas.
 - `lightInfoB`: (Not saved) The blue channel of the wall's influence on the light info canvas.
