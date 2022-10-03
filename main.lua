@@ -219,13 +219,22 @@ end
 
 function boilerplate.killThreads()
 	love.thread.getChannel(consts.quitChannelName):push("quit")
-	log.out("Quitting threads...")
+	local timeStart = love.timer.getTime()
+	local definitelyQuitAllThreads = true
 	for _, subWorld in pairs(gameInstance.subWorldsById) do
 		while subWorld.map.chunkLoadingThread:isRunning() do
-			-- pass
+			if love.timer.getTime() - timeStart > consts.threadShutdownTime then
+				log.out("Chunk loading thread in sub-world with ID " .. subWorld.id .. " hasn't shut down after " .. consts.threadShutdownTime .. " seconds")
+				definitelyQuitAllThreads = false
+				break
+			end
 		end
 	end
-	log.out("Quit threads")
+	if definitelyQuitAllThreads then
+		log.out("Quit threads")
+	else
+		log.quit("Some threads may still be running")
+	end
 end
 
 boilerplate.init(initConfig, arg)
