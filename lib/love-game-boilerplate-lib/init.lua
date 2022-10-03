@@ -9,6 +9,7 @@ local config = require(path .. ".config")
 local input = require(path .. ".input")
 local assets = require(path .. ".assets")
 local ui = require(path .. ".ui")
+local log = require(path .. ".log")
 
 local takeScreenshot = require(path .. ".takeScreenshot")
 
@@ -22,6 +23,8 @@ boilerplate.config = config
 boilerplate.input = input
 boilerplate.assets = assets
 boilerplate.ui = ui
+boilerplate.log = log
+
 boilerplate.suit = suit
 
 function boilerplate.remakeWindow()
@@ -106,6 +109,11 @@ function boilerplate.init(initConfig, arg)
 			{name = "Use Scancodes for Keys", "useScancodesForCommands"},
 			{name = "Frame Commands", "frameCommands"},
 			{named = "Fixed Commands", "fixedCommands"}
+		},
+		
+		{title = "Logging",
+			{name = "Log Trace Messages", "logging","logTraceMessages"},
+			{name = "Log Debug Messages", "logging","logDebugMessages"}
 		}
 	}
 	
@@ -149,6 +157,10 @@ function boilerplate.init(initConfig, arg)
 	settingsTemplate.mouse.cursorColour = settingsTypes.rgba(1, 1, 1, 1)
 	
 	settingsTemplate.useScancodesForCommands = settingsTemplate.useScancodesForCommands or settingsTypes.boolean(true)
+	
+	settingsTemplate.logging = settingsTemplate.logging or {}
+	settingsTemplate.logging.logTraceMessages = settingsTypes.boolean(false)
+	settingsTemplate.logging.logDebugMessages = settingsTypes.boolean(false)
 	
 	settingsTemplate.frameCommands = settingsTemplate.frameCommands or settingsTypes.commands("frame", {})
 	local frameCommandsSettingDefaults = settingsTemplate.frameCommands(nil) -- HACK: Get defaults by calling with settingsTemplate.frameCommands with nil
@@ -243,6 +255,8 @@ function boilerplate.init(initConfig, arg)
 	end
 	
 	function love.load(arg, unfilteredArg)
+		log.start()
+		log.info("Starting program")
 		input.frameUpdates = {{}, {}}
 		input.fixedUpdates = {{}, {}}
 		input.recording = false -- TODO
@@ -261,6 +275,7 @@ function boilerplate.init(initConfig, arg)
 		if boilerplate.load then
 			boilerplate.load(arg, unfilteredArg)
 		end
+		log.trace("Finished love.load")
 	end
 	
 	function love.update(dt)
@@ -413,8 +428,14 @@ function boilerplate.init(initConfig, arg)
 		end
 		-- It is in this code path here that we actually quit
 		if boilerplate.killThreads then
-			boilerplate.killThreads()
+			log.info("Quitting threads...")
+			if boilerplate.killThreads() then
+				log.info("Quit threads")
+			else
+				log.error("Some threads may still be running")
+			end
 		end
+		log.info("Quitting program")
 	end
 	
 	function love.mousemoved(x, y, dx, dy)

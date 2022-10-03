@@ -1,3 +1,8 @@
+local path = (...):gsub("%.[^%.]+$", "")
+
+local settings = require(path .. ".settings")
+local log = require(path .. ".log")
+
 local utilities = {}
 
 function utilities.blankImage(r, g, b, a, w, h)
@@ -27,8 +32,10 @@ end
 return setmetatable(assets, {
 	__call = function(assets, action, ...)
 		if action == "load" then
+			log.info("Loading assets")
 			traverse(assets)
 		elseif action == "save" then
+			log.info("Saving assets")
 			-- TODO (make sure we can specify particular assets)
 		elseif action == "configure" then
 			for k, _ in pairs(assets) do

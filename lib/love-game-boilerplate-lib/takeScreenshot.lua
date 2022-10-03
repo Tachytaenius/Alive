@@ -1,10 +1,14 @@
+local path = (...):gsub("%.[^%.]+$", "")
+
+local log = require(path .. ".log")
+
 return function(canvas, canvasName)
 	local info = love.filesystem.getInfo("screenshots")
 	if not info then
-		print("Couldn't find screenshots folder. Creating")
+		log.info("Couldn't find screenshots folder. Creating")
 		love.filesystem.createDirectory("screenshots")
 	elseif info.type ~= "directory" then
-		print("There is already a non-folder item called screenshots. Rename it or move it to take a screenshot") -- TODO: UX(?)
+		log.error("There is already a non-folder item called screenshots. Rename it or move it to take a screenshot") -- TODO: UX(?)
 		return
 	end
 	

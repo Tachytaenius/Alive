@@ -8,7 +8,5 @@ core.windowTitle = "Alive"
 core.loveVersion = "11.4"
 core.loveIdentity = "alive"
 core.firstSubWorldId = 1 -- Not 0 because 0 isn't counted as part of an array and subWorlds are processed as a sorted array
-core.outputLogFileName = "out.log"
-core.errorLogFileName = "error.log"
 
 return core

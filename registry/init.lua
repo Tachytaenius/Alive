@@ -1,6 +1,6 @@
 local json = require("lib.json")
 
-local log = require("log")
+local log = require("lib.love-game-boilerplate-lib.log")
 
 -- WARNING: Registry is sent (without registry.load) through to a thread and would need to be re-sent if changed.
 
@@ -43,7 +43,7 @@ local function createWorldTheme(jsonData, entryName, path)
 end
 
 function registry.load()
-	log.out("Loading registry")
+	log.info("Loading registry")
 	traverse(registry.materials, "registry/materials/", createMaterial)
 	registry.loaded = true
 end

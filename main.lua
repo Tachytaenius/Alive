@@ -13,7 +13,6 @@ require("monkeypatch")
 
 local consts = require("consts")
 local registry = require("registry")
-local log = require("log")
 
 local frameCommands = {
 	
@@ -127,7 +126,7 @@ function boilerplate.load(args)
 	local seed = love.math.random(0, consts.maxWorldSeed)
 	local rng = love.math.newRandomGenerator(seed)
 	
-	log.out("Creating game instance")
+	boilerplate.log.info("Creating game instance")
 	
 	gameInstance = {
 		seed = seed,
@@ -174,7 +173,7 @@ function boilerplate.load(args)
 		subWorld:emit("newWorld")
 	end
 	
-	log.out("Done initialising game instance")
+	boilerplate.log.info("Done initialising game instance")
 end
 
 local function getSubWorldsAsArray()
@@ -224,17 +223,13 @@ function boilerplate.killThreads()
 	for _, subWorld in pairs(gameInstance.subWorldsById) do
 		while subWorld.map.chunkLoadingThread:isRunning() do
 			if love.timer.getTime() - timeStart > consts.threadShutdownTime then
-				log.out("Chunk loading thread in sub-world with ID " .. subWorld.id .. " hasn't shut down after " .. consts.threadShutdownTime .. " seconds")
+				boilerplate.log.error("Chunk loading thread in sub-world with ID " .. subWorld.id .. " hasn't shut down after " .. consts.threadShutdownTime .. " seconds")
 				definitelyQuitAllThreads = false
 				break
 			end
 		end
 	end
-	if definitelyQuitAllThreads then
-		log.out("Quit threads")
-	else
-		log.quit("Some threads may still be running")
-	end
+	return definitelyQuitAllThreads
 end
 
 boilerplate.init(initConfig, arg)

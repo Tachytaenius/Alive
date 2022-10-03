@@ -3,6 +3,7 @@ local path = (...):gsub("%.[^%.]+$", "")
 local json = require(path .. ".lib.json")
 
 local config = require(path .. ".config")
+local log = require(path .. ".log")
 
 local settings = {}
 
@@ -96,10 +97,10 @@ function types.commands(kind, default)
 					if pcall(settings.useScancodesForCommands and love.keyboard.isScancodeDown or love.keyboard.isDown, v) or pcall(love.mouse.isDown, v) then
 						result[k] = v
 					else
-						print("\"" .. v .. "\" is not a valid input to bind to a " .. kind .. " command")
+						log.error("\"" .. v .. "\" is not a valid input to bind to a " .. kind .. " command")
 					end
 				else
-					print("\"" .. k .. "\" is not a valid " .. kind .. " command to bind inputs to")
+					log.error("\"" .. k .. "\" is not a valid " .. kind .. " command to bind inputs to")
 				end
 			end
 			return result
@@ -130,31 +131,35 @@ end
 return setmetatable(settings, {
 	__call = function(settings, action, ...)
 		if action == "save" then
+			log.info("Saving settings")
 			local success, message = love.filesystem.write("settings.json", json.encode(settings))
 			if not success then
-				print(message) -- TODO: UX(?)
+				log.error(message) -- TODO: UX(?)
 			end
 		
 		elseif action == "load" then
+			log.info("Loading settings")
 			local info = love.filesystem.getInfo("settings.json")
 			local decoded
 			if info then
 				if info.type == "file" then
 					decoded = json.decode(love.filesystem.read("settings.json"))
 				else
-					print("There is already a non-file item called settings.json. Rename it or move it to use custom settings")
+					log.error("There is already a non-file item called settings.json. Rename it or move it to use custom settings")
 				end
 			else
-				print("Couldn't find settings.json, creating")
+				log.info("Couldn't find settings.json, creating")
 			end
 			loadDecoded(decoded)
 		
 		elseif action == "apply" then
+			log.info("Applying settings")
 			if not select(1, ...) then
 				require(path).remakeWindow() -- Avoid circular dependency error
 			end
 		
 		elseif action == "reset" then
+			log.info("Resetting settings")
 			loadDecoded({})
 		
 		elseif action == "meta" then
