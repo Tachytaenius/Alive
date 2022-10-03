@@ -6,7 +6,7 @@ local tiles = require("systems.map.tiles")
 
 local registry -- = require("registry")
 local soilMaterials
-local superWorldSeed
+local gameInstanceSeed
 
 local subWorldId = ...
 
@@ -28,7 +28,7 @@ local function generateConstituents(x, y, materialsSet)
 		local noise = love.math.noise(
 			x / (materialsSetEntry.noiseWidth or 1),
 			y / (materialsSetEntry.noiseHeight or 1),
-			material.id + superWorldSeed
+			material.id + gameInstanceSeed
 		)
 		
 		local amount = noise * materialsSetEntry.abundanceMultiply + (materialsSetEntry.abundanceAdd or 0)
@@ -83,7 +83,7 @@ local function generateTile(chunk, localTileX, localTileY)
 	tile.topping.lumps.compressionLumpCount = consts.lumpsPerLayer
 	
 	-- Generate super topping
-	if love.math.random() < 0.01 then -- TEMP: We can't actually use the super world RNG in a thread (undefined order) nor love's own one anywhere in fixed update (intended to be used elsewhere like in graphics) for determinism reasons
+	if love.math.random() < 0.01 then -- TEMP: We can't actually use the game instance RNG in a thread (undefined order) nor love's own one anywhere in fixed update (intended to be used elsewhere like in graphics) for determinism reasons
 		tile.superTopping = {
 			type = "wall",
 			lumps = {}
@@ -146,7 +146,7 @@ while quitChannel:peek() ~= "quit" do
 	if newInfo then
 		registry = newInfo.registry or registry
 		soilMaterials = newInfo.soilMaterials or soilMaterials
-		superWorldSeed = newInfo.superWorldSeed or superWorldSeed
+		gameInstanceSeed = newInfo.gameInstanceSeed or gameInstanceSeed
 	end
 	
 	local chunkRequestCoords = requestChannel:pop()

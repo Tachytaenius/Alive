@@ -1,4 +1,4 @@
-local function save(superWorld, directoryName)
+local function save(gameInstance, directoryName)
 	
 end
 

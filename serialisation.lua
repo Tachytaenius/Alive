@@ -7,21 +7,21 @@ local consts  = require("consts")
 
 local serialisation = {}
 
--- Super world common info
+-- Game instance common info
 
-function serialisation.serialiseSuperWorldInfo(superWorld)
+function serialisation.serialiseGameInstanceInfo(gameInstance)
 	local toDump = {}
-	toDump.seed = superWorld.seed
-	toDump.rngSeedLow, toDump.rngSeedHigh = superWorld.rng:getSeed()
-	toDump.time = superWorld.time
+	toDump.seed = gameInstance.seed
+	toDump.rngSeedLow, toDump.rngSeedHigh = gameInstance.rng:getSeed()
+	toDump.time = gameInstance.time
 	return bitser.dumps(toDump)
 end
 
-function serialisation.deserialiseSuperWorldInfo(serialisedSuperWorldInfo)
-	local superWorld = bitser.loads(serialisedSuperWorldInfo)
-	superWorld.rng = love.math.newRandomGenerator(superWorld.rngSeedLow, superWorld.rngSeedHigh)
-	superWorld.rngSeedLow, superWorld.rngSeedHigh = nil, nil
-	return superWorld
+function serialisation.deserialiseGameInstanceInfo(serialisedGameInstanceInfo)
+	local gameInstance = bitser.loads(serialisedGameInstanceInfo)
+	gameInstance.rng = love.math.newRandomGenerator(gameInstance.rngSeedLow, gameInstance.rngSeedHigh)
+	gameInstance.rngSeedLow, gameInstance.rngSeedHigh = nil, nil
+	return gameInstance
 end
 
 -- Chunks

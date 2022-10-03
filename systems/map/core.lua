@@ -39,7 +39,7 @@ function core:newWorld()
 	local infoTable = {
 		registry = registry,
 		soilMaterials = self.soilMaterials,
-		superWorldSeed = self:getWorld().superWorld.seed
+		gameInstanceSeed = self:getWorld().gameInstance.seed
 	}
 	local registryLoad
 	registryLoad, registry.load = registry.load, nil -- Remove function temporarily
@@ -125,8 +125,8 @@ function core:fixedUpdate(dt)
 	end
 	
 	-- Tick chunks within processing range
-	local superWorld = self:getWorld().superWorld
-	local rng = superWorld.rng
+	local gameInstance = self:getWorld().gameInstance
+	local rng = gameInstance.rng
 	local x1, x2, y1, y2 = self:getChunkIterationStartEnd(player, consts.chunkProcessingRadius)
 	for x = x1, x2 do
 		for y = y1, y2 do

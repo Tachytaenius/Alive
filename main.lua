@@ -114,7 +114,7 @@ local initConfig = {
 	pauseInputType = "released"
 }
 
-local superWorld -- The whole game instance
+local gameInstance
 
 function boilerplate.load(args)
 	registry.load()
@@ -122,9 +122,9 @@ function boilerplate.load(args)
 	local seed = love.math.random(0, consts.maxWorldSeed)
 	local rng = love.math.newRandomGenerator(seed)
 	
-	log.out("Creating super-world")
+	log.out("Creating game instance")
 	
-	superWorld = {
+	gameInstance = {
 		seed = seed,
 		rng = rng,
 		unsaved = true,
@@ -134,10 +134,10 @@ function boilerplate.load(args)
 	}
 	
 	local mainSubWorld = concord.world()
-	mainSubWorld.id = superWorld.nextSubWorldId
-	superWorld.subWorldsById[superWorld.nextSubWorldId] = mainSubWorld
-	mainSubWorld.superWorld = superWorld
-	superWorld.nextSubWorldId = superWorld.nextSubWorldId + 1
+	mainSubWorld.id = gameInstance.nextSubWorldId
+	gameInstance.subWorldsById[gameInstance.nextSubWorldId] = mainSubWorld
+	mainSubWorld.gameInstance = gameInstance
+	gameInstance.nextSubWorldId = gameInstance.nextSubWorldId + 1
 	mainSubWorld
 		:addSystem(systems.quantities) -- Should be first
 		:addSystem(systems.map)
@@ -165,17 +165,17 @@ function boilerplate.load(args)
 	mainSubWorld
 		:addEntity(player)
 	
-	for _, subWorld in ipairs(superWorld.subWorldsById) do
+	for _, subWorld in ipairs(gameInstance.subWorldsById) do
 		subWorld:emit("newWorld")
 	end
 	
-	log.out("Done initialising super-world")
+	log.out("Done initialising game instance")
 end
 
 local function getSubWorldsAsArray()
 	-- For determinism reasons
 	local array = {}
-	for _, subWorld in pairs(superWorld.subWorldsById) do
+	for _, subWorld in pairs(gameInstance.subWorldsById) do
 		array[#array + 1] = subWorld
 	end
 	table.sort(array, function(a, b)
@@ -191,11 +191,11 @@ function boilerplate.update(dt, performance)
 end
 
 function boilerplate.fixedUpdate(dt)
-	superWorld.time = superWorld.time + dt
+	gameInstance.time = gameInstance.time + dt
 	for _, subWorld in ipairs(getSubWorldsAsArray()) do
 		subWorld:emit("fixedUpdate", dt)
 	end
-	superWorld.unsaved = true
+	gameInstance.unsaved = true
 end
 
 function boilerplate.draw(lerp, dt, performance)
@@ -205,16 +205,16 @@ function boilerplate.draw(lerp, dt, performance)
 end
 
 function boilerplate.getUnsaved()
-	return superWorld.unsaved
+	return gameInstance.unsaved
 end
 
 function boilerplate.save()
-	superWorld.unsaved = false
+	gameInstance.unsaved = false
 end
 
 function boilerplate.killThreads()
 	love.thread.getChannel(consts.quitChannelName):push("quit")
-	for _, subWorld in pairs(superWorld.subWorldsById) do
+	for _, subWorld in pairs(gameInstance.subWorldsById) do
 		while subWorld.map.chunkLoadingThread:isRunning() do
 			-- pass
 		end

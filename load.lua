@@ -1,5 +1,5 @@
 local function load(directoryName)
-	return superWorld
+	return gameInstance
 end
 
 return load
