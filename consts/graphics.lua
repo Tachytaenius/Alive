@@ -4,7 +4,6 @@ graphics.canvasSystemWidth = 480
 graphics.canvasSystemHeight = 270
 graphics.preCrushCanvasWidth = 2048
 graphics.preCrushCanvasHeight = 2048
-graphics.crushStart = 100
 graphics.crushEnd = graphics.canvasSystemHeight - 35
 graphics.lightInfluenceTextureSize = 256
 graphics.linearFilterLightInfoCanvas = false

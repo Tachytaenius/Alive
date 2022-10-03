@@ -151,6 +151,7 @@ function rendering:draw(lerp, dt, performance)
 	local ambientLightR, ambientLightG, ambientLightB = 1, 1, 1 -- TODO
 	
 	assert(renderDistance <= consts.chunkProcessingRadius, "Player vision is greater than chunk processing radius")
+	assert(boilerplate.settings.graphics.crushStartRatio > 0 and boilerplate.settings.graphics.crushStartRatio <= 1, "Crush start ratio must be between 0 (exclusive) and 1 (inclusive).")
 	
 	local preCrushPlayerPosX, preCrushPlayerPosY = consts.preCrushCanvasWidth / 2, consts.preCrushCanvasHeight / 2
 	
@@ -244,8 +245,8 @@ function rendering:draw(lerp, dt, performance)
 	love.graphics.clear(0, 0, 0, 1)
 	love.graphics.setShader(self.crushAndClipShader)
 	local crushCentreX, crushCentreY = preCrushPlayerPosX, preCrushPlayerPosY
-	local crushStart = consts.crushStart
 	local crushEnd = consts.crushEnd
+	local crushStart = boilerplate.settings.graphics.crushStartRatio * crushEnd
 	local power = math.log(renderDistance / crushStart) / math.log(crushEnd / crushStart)
 	self.crushAndClipShader:send("crushCentre", {crushCentreX, crushCentreY})
 	self.crushAndClipShader:send("crushStart", crushStart)

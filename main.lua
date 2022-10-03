@@ -31,6 +31,10 @@ local settingsUiLayout = {
 		{name = "Fog Fade Length", "graphics","fogFadeLength",
 			getLowLimit = function() return 0 end,
 			getLimit = function() return 40 end
+		},
+		{name = "Crush Start Ratio", "graphics","crushStartRatio",
+			getLowLimit = function() return 0.01 end,
+			getLimit = function() return 1 end
 		}
 	},
 	{title = "Mouse",
@@ -44,7 +48,8 @@ local settingsUiLayout = {
 local settingsTypes = boilerplate.settingsTypes
 local settingsTemplate = {
 	graphics = {
-		fogFadeLength = settingsTypes.number(10)
+		fogFadeLength = settingsTypes.number(10),
+		crushStartRatio = settingsTypes.number(0.3)
 	},
 	mouse = {
 		turnSensitivity = settingsTypes.number(0.5)
