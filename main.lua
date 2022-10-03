@@ -219,11 +219,13 @@ end
 
 function boilerplate.killThreads()
 	love.thread.getChannel(consts.quitChannelName):push("quit")
+	log.out("Quitting threads...")
 	for _, subWorld in pairs(gameInstance.subWorldsById) do
 		while subWorld.map.chunkLoadingThread:isRunning() do
 			-- pass
 		end
 	end
+	log.out("Quit threads")
 end
 
 boilerplate.init(initConfig, arg)
