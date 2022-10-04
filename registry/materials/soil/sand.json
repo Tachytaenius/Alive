@@ -1,6 +1,6 @@
 {
 	"colour": [0.6, 0.5, 0.2],
 	"noiseSize": 0.2,
-	"noiseContrast": 1,
-	"noiseBrightness": 0.25
+	"noiseContrast": 0.8,
+	"noiseBrightness": 0.5
 }

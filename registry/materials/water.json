@@ -2,6 +2,6 @@
 	"colour": [0.4, 0.4, 0.8],
 	"noiseSize": 5,
 	"noiseContrast": 0.5,
-	"noiseBrightness": 0.2,
+	"noiseBrightness": 0.4,
 	"visualWeight": 0.01
 }
