@@ -11,7 +11,6 @@ varying float brightness;
 varying float fullness; // Controls amount of pixels to discard
 
 #ifdef VERTEX
-	attribute vec3 VertexColour;
 	attribute vec4 VertexLightInfoColour;
 	attribute float VertexNoiseSize;
 	attribute float VertexContrast;
@@ -22,8 +21,8 @@ varying float fullness; // Controls amount of pixels to discard
 		vec4 transformedPosition = transformProjection * vertexPosition;
 		
 		fragmentPosition = vertexPosition.xy;
-		fragmentColour = VertexColour.rgb; // Avoid gamma correct of VaryingColor
-		lightInfoColour = VertexLightInfoColour;
+		fragmentColour = gammaCorrectColor(VertexColor.rgb);
+		lightInfoColour = gammaCorrectColor(VertexLightInfoColour);
 		noiseSize = VertexNoiseSize;
 		contrast = VertexContrast;
 		brightness = VertexBrightness;

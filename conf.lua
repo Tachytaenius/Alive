@@ -4,4 +4,5 @@ function love.conf(t)
 	t.window = nil
 	t.identity = consts.loveIdentity
 	t.version = consts.loveVersion
+	t.gammacorrect = true
 end

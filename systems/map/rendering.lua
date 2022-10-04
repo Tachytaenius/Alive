@@ -24,21 +24,30 @@ local function calculateConstituentDrawFields(materialAmount, tableToWriteTo, gr
 	for material, amount in pairs(materialAmount) do
 		local weight = amount * (material.visualWeight or 1)
 		weightTotal = weightTotal + weight
-		local materialRed = material.colour[1]
-		local materialGreen = material.colour[2]
-		local materialBlue = material.colour[3]
+		
+		-- Get colour in linear space
+		local materialRed, materialGreen, materialBlue = love.math.gammaToLinear(material.colour[1], material.colour[2], material.colour[3])
 		if grassHealth and material.grassDeadColour then
-			materialRed = math.lerp(material.grassDeadColour[1], materialRed, grassHealth)
-			materialGreen = math.lerp(material.grassDeadColour[2], materialGreen, grassHealth)
-			materialBlue = math.lerp(material.grassDeadColour[3], materialBlue, grassHealth)
+			local deadRed, deadGreen, deadBlue = love.math.gammaToLinear(material.grassDeadColour[1], material.grassDeadColour[2], material.grassDeadColour[3])
+			materialRed = math.lerp(deadRed, materialRed, grassHealth)
+			materialGreen = math.lerp(deadGreen, materialGreen, grassHealth)
+			materialBlue = math.lerp(deadBlue, materialBlue, grassHealth)
 		end
 		red = red + materialRed * weight
 		green = green + materialGreen * weight
 		blue = blue + materialBlue * weight
 		
-		local materialLightInfoR = material.lightInfoColour and material.lightInfoColour[1] or 0
-		local materialLightInfoG = material.lightInfoColour and material.lightInfoColour[2] or 0
-		local materialLightInfoB = material.lightInfoColour and material.lightInfoColour[3] or 0
+		-- Get light info colour in linear space
+		local materialLightInfoR, materialLightInfoG, materialLightInfoB
+		if material.lightInfoColour then
+			materialLightInfoR, materialLightInfoG, materialLightInfoB = love.math.gammaToLinear(
+				material.lightInfoColour[1],
+				material.lightInfoColour[2],
+				material.lightInfoColour[3]
+			)
+		else
+			materialLightInfoR, materialLightInfoG, materialLightInfoB = 0, 0, 0
+		end
 		lightInfoR = lightInfoR + materialLightInfoR * weight
 		lightInfoG = lightInfoG + materialLightInfoG * weight
 		lightInfoB = lightInfoB + materialLightInfoB * weight
@@ -47,12 +56,19 @@ local function calculateConstituentDrawFields(materialAmount, tableToWriteTo, gr
 		noiseContrast = noiseContrast + (material.noiseContrast or 0.5) * weight
 		noiseBrightness = noiseBrightness + (material.noiseBrightness or 0.5) * weight
 	end
-	tableToWriteTo.red = red / weightTotal
-	tableToWriteTo.green = green / weightTotal
-	tableToWriteTo.blue = blue / weightTotal
-	tableToWriteTo.lightInfoR = lightInfoR
-	tableToWriteTo.lightInfoG = lightInfoG
-	tableToWriteTo.lightInfoB = lightInfoB
+	
+	-- Convert colours back to sRGB
+	tableToWriteTo.red, tableToWriteTo.green, tableToWriteTo.blue = love.math.linearToGamma(
+		red / weightTotal,
+		green / weightTotal,
+		blue / weightTotal
+	)
+	tableToWriteTo.lightInfoR, tableToWriteTo.lightInfoG, tableToWriteTo.lightInfoB = love.math.linearToGamma(
+		lightInfoR / weightTotal,
+		lightInfoG / weightTotal,
+		lightInfoB / weightTotal
+	)
+	
 	tableToWriteTo.noiseSize = math.max(consts.minimumTextureNoiseSize,
 		math.floor((noiseSize / weightTotal) / consts.textureNoiseSizeIrresolution) * consts.textureNoiseSizeIrresolution
 	)
