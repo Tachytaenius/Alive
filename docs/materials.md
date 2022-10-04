@@ -6,7 +6,7 @@ Fields:
 - `colour`: An array of three 0-1 numbers corresponding to red, green, and blue, in sRGB.
 - `grassDeadColour`: For grass super topping sub-layers, display colour is a lerp between this and `colour` using `grassHealth`.
 	Also in sRGB.
-- `lightInfoColour`: Like `colour`, but it's what this material contributes to the light info canvas as a constituent-- if it is a wall.
+- `lightFilterColour`: Like `colour`, but it's what this material contributes to the light filter canvas as a constituent-- if it is a wall.
 	Also in sRGB.
 	Defaults to black.
 - `noiseSize`: Higher numbers mean bigger clouds when rendering tiles.

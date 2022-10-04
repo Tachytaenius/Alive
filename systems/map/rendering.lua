@@ -20,7 +20,7 @@ end
 
 local function calculateConstituentDrawFields(materialAmount, tableToWriteTo, grassHealth)
 	local weightTotal = 0
-	local red, green, blue, lightInfoR, lightInfoG, lightInfoB, noiseSize, noiseContrast, noiseBrightness = 0, 0, 0, 0, 0, 0, 0, 0, 0
+	local red, green, blue, lightFilterR, lightFilterG, lightFilterB, noiseSize, noiseContrast, noiseBrightness = 0, 0, 0, 0, 0, 0, 0, 0, 0
 	for material, amount in pairs(materialAmount) do
 		local weight = amount * (material.visualWeight or 1)
 		weightTotal = weightTotal + weight
@@ -37,20 +37,20 @@ local function calculateConstituentDrawFields(materialAmount, tableToWriteTo, gr
 		green = green + materialGreen * weight
 		blue = blue + materialBlue * weight
 		
-		-- Get light info colour in linear space
-		local materialLightInfoR, materialLightInfoG, materialLightInfoB
-		if material.lightInfoColour then
-			materialLightInfoR, materialLightInfoG, materialLightInfoB = love.math.gammaToLinear(
-				material.lightInfoColour[1],
-				material.lightInfoColour[2],
-				material.lightInfoColour[3]
+		-- Get light filter colour in linear space
+		local materialLightFilterR, materialLightFilterG, materialLightFilterB
+		if material.lightFilterColour then
+			materialLightFilterR, materialLightFilterG, materialLightFilterB = love.math.gammaToLinear(
+				material.lightFilterColour[1],
+				material.lightFilterColour[2],
+				material.lightFilterColour[3]
 			)
 		else
-			materialLightInfoR, materialLightInfoG, materialLightInfoB = 0, 0, 0
+			materialLightFilterR, materialLightFilterG, materialLightFilterB = 0, 0, 0
 		end
-		lightInfoR = lightInfoR + materialLightInfoR * weight
-		lightInfoG = lightInfoG + materialLightInfoG * weight
-		lightInfoB = lightInfoB + materialLightInfoB * weight
+		lightFilterR = lightFilterR + materialLightFilterR * weight
+		lightFilterG = lightFilterG + materialLightFilterG * weight
+		lightFilterB = lightFilterB + materialLightFilterB * weight
 		
 		noiseSize = noiseSize + (material.noiseSize or 10) * weight
 		noiseContrast = noiseContrast + (material.noiseContrast or 0.5) * weight
@@ -63,10 +63,10 @@ local function calculateConstituentDrawFields(materialAmount, tableToWriteTo, gr
 		green / weightTotal,
 		blue / weightTotal
 	)
-	tableToWriteTo.lightInfoR, tableToWriteTo.lightInfoG, tableToWriteTo.lightInfoB = love.math.linearToGamma(
-		lightInfoR / weightTotal,
-		lightInfoG / weightTotal,
-		lightInfoB / weightTotal
+	tableToWriteTo.lightFilterR, tableToWriteTo.lightFilterG, tableToWriteTo.lightFilterB = love.math.linearToGamma(
+		lightFilterR / weightTotal,
+		lightFilterG / weightTotal,
+		lightFilterB / weightTotal
 	)
 	
 	tableToWriteTo.noiseSize = math.max(consts.minimumTextureNoiseSize,

@@ -6,14 +6,14 @@ uniform float fullnessNoiseOffset;
 // TODO: Prefix all of these with fragment
 varying vec2 fragmentPosition;
 varying vec3 fragmentColour;
-varying vec4 lightInfoColour;
+varying vec4 lightFilterColour;
 varying float noiseSize;
 varying float contrast;
 varying float brightness;
 varying float fullness; // Controls amount of pixels to discard
 
 #ifdef VERTEX
-	attribute vec4 VertexLightInfoColour;
+	attribute vec4 VertexLightFilterColour;
 	attribute float VertexNoiseSize;
 	attribute float VertexContrast;
 	attribute float VertexBrightness;
@@ -24,7 +24,7 @@ varying float fullness; // Controls amount of pixels to discard
 		
 		fragmentPosition = vertexPosition.xy;
 		fragmentColour = gammaCorrectColor(VertexColor.rgb);
-		lightInfoColour = gammaCorrectColor(VertexLightInfoColour);
+		lightFilterColour = gammaCorrectColor(VertexLightFilterColour);
 		noiseSize = VertexNoiseSize;
 		contrast = VertexContrast;
 		brightness = VertexBrightness;
@@ -51,6 +51,6 @@ varying float fullness; // Controls amount of pixels to discard
 		noise = noise / 2.0 + 0.5; // Back to [0, 1]
 		
 		love_Canvases[0] = vec4(fragmentColour * noise, 1.0); // Albedo
-		love_Canvases[1] = lightInfoColour; // Light info. Rely on alpha to not change light info canvas if not supposed to
+		love_Canvases[1] = lightFilterColour; // Light filter. Rely on alpha to not change light filter canvas if not supposed to
 	}
 #endif

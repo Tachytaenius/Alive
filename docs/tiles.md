@@ -78,9 +78,9 @@ Rendering fields:
 - `red`: (Not saved) The red channel of the colour of the layer/sub-layer.
 - `green`: (Not saved) The green channel of the colour of the layer/sub-layer.
 - `blue`: (Not saved) The blue channel of the colour of the layer/sub-layer.
-- `lightInfoR`: (Not saved) The red channel of the wall's influence on the light info canvas.
-- `lightInfoG`: (Not saved) The green channel of the wall's influence on the light info canvas.
-- `lightInfoB`: (Not saved) The blue channel of the wall's influence on the light info canvas.
+- `lightFilterR`: (Not saved) The red channel of the wall's influence on the light filter canvas.
+- `lightFilterG`: (Not saved) The green channel of the wall's influence on the light filter canvas.
+- `lightFilterB`: (Not saved) The blue channel of the wall's influence on the light filter canvas.
 - `noiseSize`: (Not saved) The size of the layer/sub-layer's noise texture's clouds.
 - `noiseContrast`: (Not saved) The contrast of the layer/sub-layer's noise texture's clouds.
 - `noiseBrightness`: (Not saved) The brightness of the layer/sub-layer's noise texture's clouds.

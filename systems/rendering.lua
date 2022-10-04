@@ -21,13 +21,13 @@ end
 
 function rendering:init()
 	self.albedoCanvas = love.graphics.newCanvas(consts.preCrushCanvasWidth, consts.preCrushCanvasHeight)
-	self.lightInfoCanvas = love.graphics.newCanvas(consts.preCrushCanvasWidth, consts.preCrushCanvasHeight)
+	self.lightFilterCanvas = love.graphics.newCanvas(consts.preCrushCanvasWidth, consts.preCrushCanvasHeight)
 	self.lightingCanvas = love.graphics.newCanvas(consts.preCrushCanvasWidth, consts.preCrushCanvasHeight)
 	self.tileCanvasSetup = {
-		self.albedoCanvas, self.lightInfoCanvas
+		self.albedoCanvas, self.lightFilterCanvas
 	}
-	if consts.linearFilterLightInfoCanvas then
-		self.lightInfoCanvas:setFilter("linear", "linear")
+	if consts.linearFilterLightFilterCanvas then
+		self.lightFilterCanvas:setFilter("linear", "linear")
 	end
 	
 	self.crushAndClipShader = love.graphics.newShader("shaders/crushAndClip.glsl")
@@ -59,7 +59,7 @@ function rendering:fixedUpdate(dt)
 		if tile.topping then
 			local
 				colourR, colourG, colourB,
-				lightInfoColourR, lightInfoColourG, lightInfoColourB, lightInfoColourA,
+				lightFilterColourR, lightFilterColourG, lightFilterColourB, lightFilterColourA,
 				noiseSize, noiseContrast, noiseBrightness, noiseFullness
 			=
 				tile.topping.red, tile.topping.green, tile.topping.blue,
@@ -68,7 +68,7 @@ function rendering:fixedUpdate(dt)
 			
 			setTileMeshVertices(chunk.toppingMesh, iBase, globalTileX, globalTileY,
 				colourR, colourG, colourB,
-				lightInfoColourR, lightInfoColourG, lightInfoColourB, lightInfoColourA,
+				lightFilterColourR, lightFilterColourG, lightFilterColourB, lightFilterColourA,
 				noiseSize, noiseContrast, noiseBrightness, noiseFullness
 			)
 		else
@@ -82,16 +82,16 @@ function rendering:fixedUpdate(dt)
 			if tile.superTopping.type == "wall" then
 				local
 					colourR, colourG, colourB,
-					lightInfoColourR, lightInfoColourG, lightInfoColourB, lightInfoColourA,
+					lightFilterColourR, lightFilterColourG, lightFilterColourB, lightFilterColourA,
 					noiseSize, noiseContrast, noiseBrightness, noiseFullness
 				=
 					tile.superTopping.red, tile.superTopping.green, tile.superTopping.blue,
-					tile.superTopping.lightInfoR, tile.superTopping.lightInfoG, tile.superTopping.lightInfoB, 1,
+					tile.superTopping.lightFilterR, tile.superTopping.lightFilterG, tile.superTopping.lightFilterB, 1,
 					tile.superTopping.noiseSize, tile.superTopping.noiseContrast, tile.superTopping.noiseBrightness, 1
 				
 				setTileMeshVertices(chunk.superToppingMeshes[1], iBase, globalTileX, globalTileY,
 					colourR, colourG, colourB,
-					lightInfoColourR, lightInfoColourG, lightInfoColourB, lightInfoColourA,
+					lightFilterColourR, lightFilterColourG, lightFilterColourB, lightFilterColourA,
 					noiseSize, noiseContrast, noiseBrightness, noiseFullness
 				)
 				
@@ -106,7 +106,7 @@ function rendering:fixedUpdate(dt)
 					if subLayer then
 						local
 							colourR, colourG, colourB,
-							lightInfoColourR, lightInfoColourG, lightInfoColourB, lightInfoColourA,
+							lightFilterColourR, lightFilterColourG, lightFilterColourB, lightFilterColourA,
 							noiseSize, noiseContrast, noiseBrightness, noiseFullness
 						=
 							subLayer.red, subLayer.green, subLayer.blue,
@@ -115,7 +115,7 @@ function rendering:fixedUpdate(dt)
 						
 						setTileMeshVertices(chunk.superToppingMeshes[j], iBase, globalTileX, globalTileY,
 							colourR, colourG, colourB,
-							lightInfoColourR, lightInfoColourG, lightInfoColourB, lightInfoColourA,
+							lightFilterColourR, lightFilterColourG, lightFilterColourB, lightFilterColourA,
 							noiseSize, noiseContrast, noiseBrightness, noiseFullness
 						)
 					else
@@ -165,7 +165,7 @@ function rendering:draw(lerp, dt, performance)
 	
 	love.graphics.setCanvas(self.albedoCanvas)
 	love.graphics.clear()
-	love.graphics.setCanvas(self.lightInfoCanvas)
+	love.graphics.setCanvas(self.lightFilterCanvas)
 	love.graphics.clear(1, 1, 1, 0)
 	
 	-- Draw toppings
@@ -222,7 +222,7 @@ function rendering:draw(lerp, dt, performance)
 	love.graphics.setCanvas(self.lightingCanvas)
 	love.graphics.setShader()
 	love.graphics.clear(ambientLightR, ambientLightG, ambientLightB)
-	self.lightingShader:send("lightInfoCanvas", self.lightInfoCanvas)
+	self.lightingShader:send("lightFilterCanvas", self.lightFilterCanvas)
 	love.graphics.setShader(self.lightingShader)
 	love.graphics.setBlendMode("add")
 	
