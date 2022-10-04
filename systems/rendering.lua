@@ -174,8 +174,10 @@ function rendering:draw(lerp, dt, performance)
 		for y = y1, y2 do
 			if mapSystem:chunkPositionIsInRadius(x, y, player, renderDistance) then
 				local chunk = mapSystem:getLoadedChunk(x, y)
-				assert(chunk, "Missing chunk in draw radius at " .. x .. ", " .. y)
-				love.graphics.draw(chunk.toppingMesh)
+				if chunk.toppingPresent then
+					assert(chunk, "Missing chunk in draw radius at " .. x .. ", " .. y)
+					love.graphics.draw(chunk.toppingMesh)
+				end
 			end
 		end
 	end
@@ -189,8 +191,10 @@ function rendering:draw(lerp, dt, performance)
 			if mapSystem:chunkPositionIsInRadius(x, y, player, renderDistance) then
 				local chunk = mapSystem:getLoadedChunk(x, y)
 				assert(chunk, "Missing chunk in draw radius at " .. x .. ", " .. y)
-				for _, mesh in ipairs(chunk.superToppingMeshes) do
-					love.graphics.draw(mesh)
+				for i, mesh in ipairs(chunk.superToppingMeshes) do
+					if chunk.superToppingPresences[i] then
+						love.graphics.draw(mesh)
+					end
 				end
 			end
 		end
@@ -264,6 +268,8 @@ function rendering:draw(lerp, dt, performance)
 	love.graphics.setCanvas()
 	love.graphics.origin()
 	love.graphics.setShader()
+	
+	print(love.graphics.getStats().drawcalls)
 end
 
 return rendering

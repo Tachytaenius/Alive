@@ -90,6 +90,7 @@ function chunks:receiveChunk(chunk)
 	self:unregisterChunkRequest(chunk.x, chunk.y)
 	self:addChunkToLoadedChunksGrid(chunk)
 	self:makeChunkMeshes(chunk)
+	self:checkEmptyMeshes(chunk)
 	self.loadedChunksList:add(chunk)
 	self.activeChunkRequests = self.activeChunkRequests - 1
 	assert(self.activeChunkRequests >= 0, "Remaining chunk requests is negative")
@@ -110,6 +111,29 @@ function chunks:unloadChunk(chunk)
 	if not success then
 		error("Could not write file for chunk at " .. chunk.x .. ", " .. chunk.y .. ": " .. errorMessage)
 	end
+end
+
+function chunks:checkEmptyMeshes(chunk)
+	local toppingPresent, superToppingPresences = false, {}
+	for x = 0, consts.chunkWidth - 1 do
+		for y = 0, consts.chunkHeight - 1 do
+			local tile = chunk.tiles[x][y]
+			if tile.topping then
+				toppingPresent = true
+			end
+			if tile.superTopping then
+				if tile.superTopping.type == "wall" then
+					superToppingPresences[1] = true
+				else -- "subLayers"
+					for i = 1, consts.maxSubLayers do
+						superToppingPresences[i] = not not tile.superTopping.subLayers[i]
+					end
+				end
+			end
+		end
+	end
+	chunk.toppingPresent = toppingPresent
+	chunk.superToppingPresences = superToppingPresences
 end
 
 return chunks

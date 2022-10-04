@@ -131,6 +131,7 @@ function tiles:tickTile(tile, dt)
 		self:updateTileRendering(tile)
 	end
 	tile.lastTimeTicked = currentTime
+	return changedRendering
 end
 
 function tiles:decompressLumps(lumps)

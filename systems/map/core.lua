@@ -135,11 +135,15 @@ function core:fixedUpdate(dt)
 				assert(chunk, "Missing chunk in processing chunks radius at " .. x .. ", " .. y)
 				chunk.time = chunk.time + dt
 				chunk.randomTickTime = chunk.randomTickTime + dt
+				local changedRendering = false
 				while chunk.randomTickTime >= consts.randomTickInterval do
 					local x = rng:random(0, consts.chunkWidth - 1)
 					local y = rng:random(0, consts.chunkHeight - 1)
-					self:tickTile(chunk.tiles[x][y], dt)
+					changedRendering = changedRendering or self:tickTile(chunk.tiles[x][y], dt)
 					chunk.randomTickTime = chunk.randomTickTime - consts.randomTickInterval
+				end
+				if changedRendering then -- Actual mesh changes are requested with tickTile
+					chunk:checkEmptyMeshes(chunk)
 				end
 			end
 		end
