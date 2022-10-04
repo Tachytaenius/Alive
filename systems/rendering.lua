@@ -46,10 +46,6 @@ local function setTileMeshVertices(mesh, iBase, x, y, ...)
 	mesh:setVertex(iBase + 5, (x + 1) * consts.tileWidth, (y + 1) * consts.tileHeight, ...)
 end
 
-function rendering:drawSprite(e)
-	love.graphics.circle("fill", e.position.lerpedValue.x, e.position.lerpedValue.y, e.sprite.radius)
-end
-
 function rendering:fixedUpdate(dt)
 	for _, tile in ipairs(self.changedTiles) do
 		local localTileX, localTileY = tile.localTileX, tile.localTileY
@@ -136,6 +132,10 @@ function rendering:fixedUpdate(dt)
 		end
 	end
 	self.changedTiles = {}
+end
+
+function rendering:drawSprite(e)
+	love.graphics.circle("fill", e.position.lerpedValue.x, e.position.lerpedValue.y, e.sprite.radius)
 end
 
 function rendering:draw(lerp, dt, performance)
