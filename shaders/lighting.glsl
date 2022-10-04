@@ -2,7 +2,7 @@ uniform vec2 canvasSize;
 uniform float revealDepth;
 uniform float forceNonRevealMinDepth;
 
-uniform sampler2D albedoCanvas, lightInfoCanvas;
+uniform sampler2D lightInfoCanvas;
 
 uniform vec2 lightOrigin;
 
@@ -31,6 +31,5 @@ vec4 effect(vec4 colour, sampler2D texture, vec2 textureCoords, vec2 windowCoord
 	}
 	// Return values
 	float lightInfluence = Texel(texture, textureCoords).r; // Falloff
-	vec3 albedo = Texel(albedoCanvas, windowCoords / canvasSize).rgb;
-	return vec4(lightColour * lightInfluence * albedo, 1.0);
+	return vec4(lightColour * lightInfluence, 1.0);
 }

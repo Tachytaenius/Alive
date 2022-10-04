@@ -221,13 +221,7 @@ function rendering:draw(lerp, dt, performance)
 	-- Switch to lights phase
 	love.graphics.setCanvas(self.lightingCanvas)
 	love.graphics.setShader()
-	love.graphics.clear()
-	love.graphics.push("all")
-	love.graphics.setColor(ambientLightR, ambientLightG, ambientLightB)
-	love.graphics.origin() -- We are replacing one canvas' contents with (a tinted version of) another's, so we don't want to use player position information et cetera
-	love.graphics.draw(self.albedoCanvas) -- Draw tinted albedo canvas as ambient lighting
-	love.graphics.pop()
-	self.lightingShader:send("albedoCanvas", self.albedoCanvas)
+	love.graphics.clear(ambientLightR, ambientLightG, ambientLightB)
 	self.lightingShader:send("lightInfoCanvas", self.lightInfoCanvas)
 	love.graphics.setShader(self.lightingShader)
 	love.graphics.setBlendMode("add")
@@ -244,9 +238,14 @@ function rendering:draw(lerp, dt, performance)
 	end
 	love.graphics.setColor(1, 1, 1)
 	
-	-- Draw lighting canvas crushed
-	love.graphics.setBlendMode("alpha")
+	-- Multiply albedo into lighting canvas
 	love.graphics.origin()
+	love.graphics.setShader()
+	love.graphics.setBlendMode("multiply", "premultiplied")
+	love.graphics.draw(self.albedoCanvas)
+	love.graphics.setBlendMode("alpha", "alphamultiply")
+	
+	-- Draw lighting canvas crushed
 	love.graphics.setCanvas(boilerplate.gameCanvas)
 	love.graphics.clear(0, 0, 0, 1)
 	love.graphics.setShader(self.crushAndClipShader)
