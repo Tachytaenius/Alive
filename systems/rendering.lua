@@ -256,9 +256,9 @@ function rendering:draw(lerp, dt, performance)
 	self.crushAndClipShader:send("crushCentre", {crushCentreX, crushCentreY})
 	self.crushAndClipShader:send("crushStart", crushStart)
 	self.crushAndClipShader:send("crushEnd", crushEnd)
+	self.crushAndClipShader:send("power", power)
 	self.crushAndClipShader:send("sensingCircleRadius", sensingCircleRadius)
 	self.crushAndClipShader:send("fov", fov)
-	self.crushAndClipShader:send("power", power)
 	self.crushAndClipShader:send("fogFadeLength", boilerplate.settings.graphics.fogFadeLength)
 	love.graphics.draw(self.lightingCanvas,
 		boilerplate.gameCanvas:getWidth() / 2 - crushCentreX,
