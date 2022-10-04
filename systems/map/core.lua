@@ -143,7 +143,7 @@ function core:fixedUpdate(dt)
 					chunk.randomTickTime = chunk.randomTickTime - consts.randomTickInterval
 				end
 				if changedRendering then -- Actual mesh changes are requested with tickTile
-					chunk:checkEmptyMeshes(chunk)
+					self:checkEmptyMeshes(chunk)
 				end
 			end
 		end
