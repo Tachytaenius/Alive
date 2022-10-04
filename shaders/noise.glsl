@@ -45,8 +45,10 @@ varying float fullness; // Controls amount of pixels to discard
 		
 		vec2 noisePos = fragmentPosition / noiseSize;
 		float noise = Texel(noiseTexture, noisePos / noiseTextureSize).r;
-		noise = (noise - 0.5) * 2.0 * contrast + 0.5;
-		noise += brightness;
+		noise = noise * 2.0 - 1.0; // To [-1, 1]
+		noise *= contrast;
+		noise += brightness * 2.0 - 1.0;
+		noise = noise / 2.0 + 0.5; // Back to [0, 1]
 		
 		love_Canvases[0] = vec4(fragmentColour * noise, 1.0); // Albedo
 		love_Canvases[1] = lightInfoColour; // Light info. Rely on alpha to not change light info canvas if not supposed to
