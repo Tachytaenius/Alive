@@ -88,10 +88,11 @@ local function generateTile(chunk, localTileX, localTileY)
 			type = "wall",
 			lumps = {}
 		}
-		local constituents = generateConstituents(globalTileX, globalTileY, soilMaterials)
 		tile.superTopping.lumps.compressedToOne = true
 		tile.superTopping.lumps.compressionLump = {
-			constituents = constituents
+			constituents = {
+				{materialName = "stone", amount = consts.lumpConstituentsTotal}
+			}
 		}
 		tile.superTopping.lumps.compressionLumpCount = consts.lumpsPerLayer
 		tiles:updateLumpDependentTickValues(tile, registry)
