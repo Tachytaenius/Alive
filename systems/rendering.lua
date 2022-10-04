@@ -268,8 +268,6 @@ function rendering:draw(lerp, dt, performance)
 	love.graphics.setCanvas()
 	love.graphics.origin()
 	love.graphics.setShader()
-	
-	print(love.graphics.getStats().drawcalls)
 end
 
 return rendering
