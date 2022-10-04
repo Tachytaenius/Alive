@@ -4,8 +4,10 @@ Part of the registry.
 
 Fields:
 - `colour`: An array of three 0-1 numbers corresponding to red, green, and blue, in sRGB.
+	Can include alpha (linear, of course) as well, defaults to 1 if excluded.
 - `grassDeadColour`: For grass super topping sub-layers, display colour is a lerp between this and `colour` using `grassHealth`.
 	Also in sRGB.
+	Also has optional alpha that defaults to 1.
 - `lightFilterColour`: Like `colour`, but it's what this material contributes to the light filter canvas as a constituent-- if it is a wall.
 	Also in sRGB.
 	Defaults to black.

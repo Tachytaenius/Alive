@@ -13,7 +13,7 @@ graphics.textureNoiseSizeIrresolution = 0.25 -- Higher numbers mean fewer steps,
 graphics.minimumTextureNoiseSize = 0.2
 graphics.tileMeshVertexFormat = {
 	{"VertexPosition", "float", 2},
-	{"VertexColor", "float", 3},
+	{"VertexColor", "float", 4},
 	{"VertexLightFilterColour", "float", 4},
 	{"VertexNoiseSize", "float", 1},
 	{"VertexContrast", "float", 1},

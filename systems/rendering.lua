@@ -58,16 +58,16 @@ function rendering:fixedUpdate(dt)
 		-- Update topping
 		if tile.topping then
 			local
-				colourR, colourG, colourB,
+				colourR, colourG, colourB, colourA,
 				lightFilterColourR, lightFilterColourG, lightFilterColourB, lightFilterColourA,
 				noiseSize, noiseContrast, noiseBrightness, noiseFullness
 			=
-				tile.topping.red, tile.topping.green, tile.topping.blue,
+				tile.topping.red, tile.topping.green, tile.topping.blue, tile.topping.alpha,
 				nil, nil, nil, 0, -- This isn't a wall
 				tile.topping.noiseSize, tile.topping.noiseContrast, tile.topping.noiseBrightness, 1
 			
 			setTileMeshVertices(chunk.toppingMesh, iBase, globalTileX, globalTileY,
-				colourR, colourG, colourB,
+				colourR, colourG, colourB, colourA,
 				lightFilterColourR, lightFilterColourG, lightFilterColourB, lightFilterColourA,
 				noiseSize, noiseContrast, noiseBrightness, noiseFullness
 			)
@@ -81,16 +81,16 @@ function rendering:fixedUpdate(dt)
 		if tile.superTopping then
 			if tile.superTopping.type == "wall" then
 				local
-					colourR, colourG, colourB,
+					colourR, colourG, colourB, colourA,
 					lightFilterColourR, lightFilterColourG, lightFilterColourB, lightFilterColourA,
 					noiseSize, noiseContrast, noiseBrightness, noiseFullness
 				=
-					tile.superTopping.red, tile.superTopping.green, tile.superTopping.blue,
+					tile.superTopping.red, tile.superTopping.green, tile.superTopping.blue, tile.superTopping.alpha,
 					tile.superTopping.lightFilterR, tile.superTopping.lightFilterG, tile.superTopping.lightFilterB, 1,
 					tile.superTopping.noiseSize, tile.superTopping.noiseContrast, tile.superTopping.noiseBrightness, 1
 				
 				setTileMeshVertices(chunk.superToppingMeshes[1], iBase, globalTileX, globalTileY,
-					colourR, colourG, colourB,
+					colourR, colourG, colourB, colourA,
 					lightFilterColourR, lightFilterColourG, lightFilterColourB, lightFilterColourA,
 					noiseSize, noiseContrast, noiseBrightness, noiseFullness
 				)
@@ -105,16 +105,16 @@ function rendering:fixedUpdate(dt)
 					local subLayer = tile.superTopping.subLayers[j]
 					if subLayer then
 						local
-							colourR, colourG, colourB,
+							colourR, colourG, colourB, colourA,
 							lightFilterColourR, lightFilterColourG, lightFilterColourB, lightFilterColourA,
 							noiseSize, noiseContrast, noiseBrightness, noiseFullness
 						=
-							subLayer.red, subLayer.green, subLayer.blue,
+							subLayer.red, subLayer.green, subLayer.blue, subLayer.alpha,
 							nil, nil, nil, 0, -- This isn't a wall
 							subLayer.noiseSize, subLayer.noiseContrast, subLayer.noiseBrightness, subLayer.noiseFullness
 						
 						setTileMeshVertices(chunk.superToppingMeshes[j], iBase, globalTileX, globalTileY,
-							colourR, colourG, colourB,
+							colourR, colourG, colourB, colourA,
 							lightFilterColourR, lightFilterColourG, lightFilterColourB, lightFilterColourA,
 							noiseSize, noiseContrast, noiseBrightness, noiseFullness
 						)

@@ -20,22 +20,26 @@ end
 
 local function calculateConstituentDrawFields(materialAmount, tableToWriteTo, grassHealth)
 	local weightTotal = 0
-	local red, green, blue, lightFilterR, lightFilterG, lightFilterB, noiseSize, noiseContrast, noiseBrightness = 0, 0, 0, 0, 0, 0, 0, 0, 0
+	local red, green, blue, alpha, lightFilterR, lightFilterG, lightFilterB, noiseSize, noiseContrast, noiseBrightness = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 	for material, amount in pairs(materialAmount) do
 		local weight = amount * (material.visualWeight or 1)
 		weightTotal = weightTotal + weight
 		
 		-- Get colour in linear space
 		local materialRed, materialGreen, materialBlue = love.math.gammaToLinear(material.colour[1], material.colour[2], material.colour[3])
+		local materialAlpha = material.colour[4] or 1
 		if grassHealth and material.grassDeadColour then
 			local deadRed, deadGreen, deadBlue = love.math.gammaToLinear(material.grassDeadColour[1], material.grassDeadColour[2], material.grassDeadColour[3])
+			local deadAlpha = material.grassDeadColour[4] or 1
 			materialRed = math.lerp(deadRed, materialRed, grassHealth)
 			materialGreen = math.lerp(deadGreen, materialGreen, grassHealth)
 			materialBlue = math.lerp(deadBlue, materialBlue, grassHealth)
+			materialAlpha = math.lerp(deadAlpha, materialAlpha, grassHealth)
 		end
 		red = red + materialRed * weight
 		green = green + materialGreen * weight
 		blue = blue + materialBlue * weight
+		alpha = alpha + materialAlpha * weight
 		
 		-- Get light filter colour in linear space
 		local materialLightFilterR, materialLightFilterG, materialLightFilterB
@@ -63,6 +67,7 @@ local function calculateConstituentDrawFields(materialAmount, tableToWriteTo, gr
 		green / weightTotal,
 		blue / weightTotal
 	)
+	tableToWriteTo.alpha = alpha / weightTotal
 	tableToWriteTo.lightFilterR, tableToWriteTo.lightFilterG, tableToWriteTo.lightFilterB = love.math.linearToGamma(
 		lightFilterR / weightTotal,
 		lightFilterG / weightTotal,

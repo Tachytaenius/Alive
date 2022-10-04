@@ -78,6 +78,7 @@ Rendering fields:
 - `red`: (Not saved) The red channel of the colour of the layer/sub-layer.
 - `green`: (Not saved) The green channel of the colour of the layer/sub-layer.
 - `blue`: (Not saved) The blue channel of the colour of the layer/sub-layer.
+- `alpha`: (Not saved) The alpha channel of the colour of the layer/sub-layer.
 - `lightFilterR`: (Not saved) The red channel of the wall's influence on the light filter canvas.
 - `lightFilterG`: (Not saved) The green channel of the wall's influence on the light filter canvas.
 - `lightFilterB`: (Not saved) The blue channel of the wall's influence on the light filter canvas.

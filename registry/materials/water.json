@@ -1,5 +1,5 @@
 {
-	"colour": [0.4, 0.4, 0.8],
+	"colour": [0.4, 0.4, 0.8, 0.25],
 	"noiseSize": 5,
 	"noiseContrast": 0.5,
 	"noiseBrightness": 0.4,
