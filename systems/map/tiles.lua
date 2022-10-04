@@ -91,6 +91,7 @@ function tiles:tickTile(tile, dt)
 					-- Delete grass of amount 0
 					if subLayer.lump.grassAmount == 0 then
 						toDelete = true
+						changedRendering = true
 					else
 						local grassMaterial = registry.materials.byName[subLayer.lump.constituents[1].materialName]
 						
