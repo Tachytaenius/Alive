@@ -1,7 +1,7 @@
 local consts = require("consts")
 local serialisation = require("serialisation")
 
-local circleAabbCollision = require("util.collision.circleAabb")
+local circleAabbCollision = require("util").collision.circleAabb
 
 local chunks = {}
 
