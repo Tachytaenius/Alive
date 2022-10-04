@@ -20,5 +20,7 @@ graphics.tileMeshVertexFormat = {
 	{"VertexBrightness", "float", 1},
 	{"VertexFullness", "float", 1}
 }
+graphics.fullnessNoiseSize = 1
+graphics.fullnessNoiseOffset = 32 -- To stop noise with the same size as fullnessNoiseSize lining up with its discarded fragments
 
 return graphics

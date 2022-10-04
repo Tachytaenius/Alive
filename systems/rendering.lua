@@ -11,6 +11,8 @@ function rendering:sendConstantsToShaders()
 	
 	self.noiseShader:send("noiseTexture", boilerplate.assets.noiseTexture.value)
 	self.noiseShader:send("noiseTextureSize", {boilerplate.assets.noiseTexture.value:getDimensions()})
+	self.noiseShader:send("fullnessNoiseSize", consts.fullnessNoiseSize)
+	self.noiseShader:send("fullnessNoiseOffset", consts.fullnessNoiseOffset)
 	
 	self.lightingShader:send("canvasSize", {consts.preCrushCanvasWidth, consts.preCrushCanvasHeight})
 	self.lightingShader:send("revealDepth", consts.shadowTextureRevealDepth)
