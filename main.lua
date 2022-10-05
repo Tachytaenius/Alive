@@ -88,6 +88,16 @@ local assets = {
 		self.value = love.graphics.newImage(lightInfluenceTextureCanvas:newImageData())
 		self.value:setFilter("linear")
 	end},
+	nullTexture = {load = function(self) self.value = love.graphics.newImage(love.image.newImageData(1, 1)) end},
+	whiteNullTexture = {
+		load = function(self)
+			local imageData = love.image.newImageData(1, 1)
+			imageData:mapPixel(function()
+				return 1, 1, 1, 1
+			end)
+			self.value = love.graphics.newImage(imageData)
+		end
+	},
 	ui = {
 		font = {load = function(self) self.value = love.graphics.newImageFont("assets/images/ui/font.png", " ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.!?$,#@~:;-{}&()<>'%/*0123456789") end},
 		cursor = {load = function(self) self.value = love.graphics.newImage("assets/images/ui/cursor.png") end}

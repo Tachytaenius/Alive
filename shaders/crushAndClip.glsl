@@ -10,6 +10,8 @@ uniform float sensingCircleRadius;
 uniform float fov;
 uniform float power;
 uniform float fogFadeLength;
+uniform sampler2D lightingCanvas;
+uniform sampler2D lightFilterCanvas;
 
 float calculateFogFactor(float dist, float maxDist, float fogFadeLength) {
 	if (fogFadeLength == 0.0) { // Avoid dividing by zero
@@ -18,7 +20,9 @@ float calculateFogFactor(float dist, float maxDist, float fogFadeLength) {
 	return clamp((dist - maxDist + fogFadeLength) / fogFadeLength, 0.0, 1.0);
 }
 
-vec4 sampleInputCanvas(sampler2D texture, vec2 fragmentPosition) {
+vec3 getInputCanvasSamplePosAndFogFactor(vec2 fragmentPosition) {
+	// Returns pos in xy and fog factor in z
+	
 	vec2 crushCentreToPosition = fragmentPosition - crushCentre;
 	float fragmentDistance = length(crushCentreToPosition);
 	float crushedDistance = max(fragmentDistance, crushStart * pow(fragmentDistance / crushStart, power));
@@ -31,9 +35,11 @@ vec4 sampleInputCanvas(sampler2D texture, vec2 fragmentPosition) {
 	float fovFogFactor = calculateFogFactor(abs(angle), fov / 2.0, anglefogFadeLength);
 	float fogFactor = min(sensingCircleFogFactor, max(fullViewDistanceFogFactor, fovFogFactor));
 	
-	return Texel(texture, crushedFragmentPosition / inputCanvasSize) * (1.0 - fogFactor);
+	return vec3(crushedFragmentPosition / inputCanvasSize, fogFactor);
 }
 
-vec4 effect(vec4 colour, sampler2D texture, vec2 textureCoords, vec2 windowCoords) {
-	return colour * sampleInputCanvas(texture, textureCoords * inputCanvasSize);
+void effect() {
+	vec3 sampleInfo = getInputCanvasSamplePosAndFogFactor(VaryingTexCoord.xy * inputCanvasSize);
+	love_Canvases[0] = Texel(lightingCanvas, sampleInfo.xy) * (1.0 - sampleInfo.z);
+	love_Canvases[1] = Texel(lightFilterCanvas, sampleInfo.xy);
 }

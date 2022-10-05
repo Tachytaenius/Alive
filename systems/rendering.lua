@@ -14,7 +14,6 @@ function rendering:sendConstantsToShaders()
 	self.noiseShader:send("fullnessNoiseSize", consts.fullnessNoiseSize)
 	self.noiseShader:send("fullnessNoiseOffset", consts.fullnessNoiseOffset)
 	
-	self.lightingShader:send("canvasSize", {consts.preCrushCanvasWidth, consts.preCrushCanvasHeight})
 	self.lightingShader:send("revealDepth", consts.shadowTextureRevealDepth)
 	self.lightingShader:send("forceNonRevealMinDepth", consts.shadowForceTextureNonRevealMinDepth)
 end
@@ -23,11 +22,19 @@ function rendering:init()
 	self.albedoCanvas = love.graphics.newCanvas(consts.preCrushCanvasWidth, consts.preCrushCanvasHeight)
 	self.lightFilterCanvas = love.graphics.newCanvas(consts.preCrushCanvasWidth, consts.preCrushCanvasHeight)
 	self.lightingCanvas = love.graphics.newCanvas(consts.preCrushCanvasWidth, consts.preCrushCanvasHeight)
+	
+	self.crushedLightFilterCanvas = love.graphics.newCanvas(boilerplate.config.canvasSystemWidth, boilerplate.config.canvasSystemHeight)
+	
 	self.tileCanvasSetup = {
 		self.albedoCanvas, self.lightFilterCanvas
 	}
+	self.canvasCrushSetup = {
+		boilerplate.gameCanvas, self.crushedLightFilterCanvas -- TODO: Send setups as fresh tables in case canvases change
+	}
+	
 	if consts.linearFilterLightFilterCanvas then
 		self.lightFilterCanvas:setFilter("linear", "linear")
+		self.crushedLightFilterCanvas:setFilter("linear", "linear")
 	end
 	
 	self.crushAndClipShader = love.graphics.newShader("shaders/crushAndClip.glsl")
@@ -220,6 +227,7 @@ function rendering:draw(lerp, dt, performance)
 	
 	-- Switch to lights phase
 	love.graphics.setCanvas(self.lightingCanvas)
+	self.lightingShader:send("canvasSize", {consts.preCrushCanvasWidth, consts.preCrushCanvasHeight})
 	love.graphics.setShader()
 	love.graphics.clear(ambientLightR, ambientLightG, ambientLightB)
 	self.lightingShader:send("lightFilterCanvas", self.lightFilterCanvas)
@@ -245,9 +253,13 @@ function rendering:draw(lerp, dt, performance)
 	love.graphics.draw(self.albedoCanvas)
 	love.graphics.setBlendMode("alpha", "alphamultiply")
 	
-	-- Draw lighting canvas crushed
+	-- Draw lighting canvas to boilerplate canvas
+	-- Draw light filter canvas to crushed light filter canvas
 	love.graphics.setCanvas(boilerplate.gameCanvas)
 	love.graphics.clear(0, 0, 0, 1)
+	love.graphics.setCanvas(self.crushedLightFilterCanvas)
+	love.graphics.clear(1, 1, 1, 0)
+	love.graphics.setCanvas(self.canvasCrushSetup)
 	love.graphics.setShader(self.crushAndClipShader)
 	local crushCentreX, crushCentreY = preCrushPlayerPosX, preCrushPlayerPosY
 	local crushEnd = consts.crushEnd
@@ -260,14 +272,30 @@ function rendering:draw(lerp, dt, performance)
 	self.crushAndClipShader:send("sensingCircleRadius", sensingCircleRadius)
 	self.crushAndClipShader:send("fov", fov)
 	self.crushAndClipShader:send("fogFadeLength", boilerplate.settings.graphics.fogFadeLength)
-	love.graphics.draw(self.lightingCanvas,
-		boilerplate.gameCanvas:getWidth() / 2 - crushCentreX,
-		boilerplate.gameCanvas:getHeight() - crushCentreY - sensingCircleRadius - viewPadding
+	self.crushAndClipShader:send("lightingCanvas", self.lightingCanvas)
+	self.crushAndClipShader:send("lightFilterCanvas", self.lightFilterCanvas)
+	love.graphics.draw(boilerplate.assets.nullTexture.value,
+		boilerplate.config.canvasSystemWidth / 2 - crushCentreX,
+		boilerplate.config.canvasSystemHeight - sensingCircleRadius - viewPadding - crushCentreY,
+		0,
+		consts.preCrushCanvasWidth, consts.preCrushCanvasHeight
 	)
+	
+	-- Do light shader over view canvas with whiteNullTexture
+	love.graphics.setCanvas(boilerplate.gameCanvas)
+	love.graphics.setBlendMode("multiply", "premultiplied")
+	love.graphics.setShader(self.lightingShader)
+	self.lightingShader:send("lightFilterCanvas", self.crushedLightFilterCanvas)
+	self.lightingShader:send("canvasSize", {boilerplate.config.canvasSystemWidth, boilerplate.config.canvasSystemHeight})
+	self.lightingShader:send("lightOrigin", {
+		boilerplate.config.canvasSystemWidth / 2,
+		boilerplate.config.canvasSystemHeight - sensingCircleRadius - viewPadding
+	})
+	love.graphics.draw(boilerplate.assets.whiteNullTexture.value, 0, 0, 0, boilerplate.config.canvasSystemWidth, boilerplate.config.canvasSystemHeight)
+	love.graphics.setBlendMode("alpha", "alphamultiply")
 	
 	-- Finish
 	love.graphics.setCanvas()
-	love.graphics.origin()
 	love.graphics.setShader()
 end
 
