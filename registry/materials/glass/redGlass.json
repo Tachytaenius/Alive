@@ -1,0 +1,7 @@
+{
+	"colour": [0.9, 0.1, 0.1, 0.2],
+	"lightFilterColour": [1, 0, 0],
+	"noiseSize": 0.75,
+	"noiseContrast": 0.6,
+	"noiseBrightness": 0.5
+}
