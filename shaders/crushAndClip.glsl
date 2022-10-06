@@ -1,6 +1,3 @@
-const float pi = 3.1415926538;
-const float tau = pi * 2.0;
-
 uniform vec2 inputCanvasSize;
 uniform vec2 outputCanvasSize;
 uniform vec2 crushCentre;
