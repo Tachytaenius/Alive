@@ -1,7 +1,5 @@
 local consts = require("consts")
-local serialisation = require("serialisation")
-
-local circleAabbCollision = require("util").collision.circleAabb
+local util = require("util")
 
 local chunks = {}
 
@@ -14,7 +12,7 @@ function chunks:getChunkIterationStartEnd(player, radius)
 end
 
 function chunks:chunkPositionIsInRadius(x, y, player, radius)
-	return circleAabbCollision(
+	return util.collision.circleAabb(
 		player.position.value.x, player.position.value.y, radius,
 		x * consts.chunkWidth * consts.tileWidth, y * consts.chunkHeight * consts.tileHeight, consts.chunkWidth * consts.tileWidth, consts.chunkHeight * consts.tileHeight
 	)
@@ -106,7 +104,7 @@ function chunks:unloadChunk(chunk)
 		error("There is a non-folder item at chunks/")
 	end
 	local path = "chunks/" .. chunk.x .. "," .. chunk.y .. ".bin"
-	local data = serialisation.serialiseChunk(chunk)
+	local data = util.saveFiles.serialisation.serialiseChunk(chunk)
 	local success, errorMessage = love.filesystem.write(path, data)
 	if not success then
 		error("Could not write file for chunk at " .. chunk.x .. ", " .. chunk.y .. ": " .. errorMessage)

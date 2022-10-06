@@ -1,7 +1,7 @@
 require("love.math")
 
 local consts = require("consts")
-local serialisation = require("serialisation")
+local serialisation = require("util").saveFiles.serialisation
 local tiles = require("systems.map.tiles")
 
 local registry -- = require("registry")
