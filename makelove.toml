@@ -6,3 +6,7 @@ love_files = [
     "::git-ls-tree::",
     "-*/.*",
 ]
+
+[archive_files]
+"license.txt" = "license.txt"
+"love_license.txt" = "love_license.txt"
