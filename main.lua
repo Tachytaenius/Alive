@@ -162,22 +162,8 @@ function boilerplate.load(args)
 		:addSystem(systems.rendering)
 		:addSystem(systems.hud)
 	
-	local player = concord.entity()
-		:give("position", 0, 0)
-		:give("velocity")
-		:give("sprite", 10)
-		:give("will")
-		:give("grounded")
-		:give("gait", 100, 800, 100, 10)
-		:give("flyingRecoveryRate", 100)
-		:give("angle", 0)
-		:give("angularVelocity")
-		:give("angularGait", math.tau * 2, math.tau * 32)
-		:give("vision", 1024)
-		:give("player")
-	
-	mainSubWorld
-		:addEntity(player)
+	local player = concord.entity():assemble(assemblages.testEntity):give("player")
+	mainSubWorld:addEntity(player)
 	
 	for _, subWorld in ipairs(gameInstance.subWorldsById) do
 		subWorld:emit("newWorld")
