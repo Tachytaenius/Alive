@@ -7,6 +7,8 @@ love_files = [
     "-*/.*",
 ]
 
+love_version = "11.4"
+
 [archive_files]
 "license.txt" = "license.txt"
 "love_license.txt" = "love_license.txt"
