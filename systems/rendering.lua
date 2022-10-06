@@ -228,6 +228,7 @@ function rendering:draw(lerp, dt, performance)
 	-- Switch to lights phase
 	love.graphics.setCanvas(self.lightingCanvas)
 	self.lightingShader:send("canvasSize", {consts.preCrushCanvasWidth, consts.preCrushCanvasHeight})
+	self.lightingShader:send("isView", false)
 	love.graphics.setShader()
 	love.graphics.clear(ambientLightR, ambientLightG, ambientLightB)
 	self.lightingShader:send("lightFilterCanvas", self.lightFilterCanvas)
@@ -287,6 +288,9 @@ function rendering:draw(lerp, dt, performance)
 	love.graphics.setShader(self.lightingShader)
 	self.lightingShader:send("lightFilterCanvas", self.crushedLightFilterCanvas)
 	self.lightingShader:send("canvasSize", {boilerplate.config.canvasSystemWidth, boilerplate.config.canvasSystemHeight})
+	self.lightingShader:send("crushStart", crushStart)
+	self.lightingShader:send("power", power)
+	self.lightingShader:send("isView", true)
 	self.lightingShader:send("lightOrigin", {
 		boilerplate.config.canvasSystemWidth / 2,
 		boilerplate.config.canvasSystemHeight - sensingCircleRadius - viewPadding
