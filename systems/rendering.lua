@@ -25,13 +25,6 @@ function rendering:init()
 	
 	self.crushedLightFilterCanvas = love.graphics.newCanvas(boilerplate.config.canvasSystemWidth, boilerplate.config.canvasSystemHeight)
 	
-	self.tileCanvasSetup = {
-		self.albedoCanvas, self.lightFilterCanvas
-	}
-	self.canvasCrushSetup = {
-		boilerplate.gameCanvas, self.crushedLightFilterCanvas -- TODO: Send setups as fresh tables in case canvases change
-	}
-	
 	if consts.linearFilterLightFilterCanvas then
 		self.lightFilterCanvas:setFilter("linear", "linear")
 		self.crushedLightFilterCanvas:setFilter("linear", "linear")
@@ -153,6 +146,14 @@ function rendering:draw(lerp, dt, performance)
 		return
 	end
 	
+	-- Make render setups
+	local tileCanvasSetup = {
+		self.albedoCanvas, self.lightFilterCanvas
+	}
+	local canvasCrushSetup = {
+		boilerplate.gameCanvas, self.crushedLightFilterCanvas
+	}
+	
 	local renderDistance = player.vision.maxViewDistance
 	local sensingCircleRadius = 30 -- TODO
 	local viewPadding = 4 -- TODO
@@ -176,7 +177,7 @@ function rendering:draw(lerp, dt, performance)
 	love.graphics.clear(1, 1, 1, 0)
 	
 	-- Draw toppings
-	love.graphics.setCanvas(self.tileCanvasSetup)
+	love.graphics.setCanvas(tileCanvasSetup)
 	love.graphics.setShader(self.noiseShader)
 	local x1, x2, y1, y2 = mapSystem:getChunkIterationStartEnd(player, renderDistance)
 	for x = x1, x2 do
@@ -192,7 +193,7 @@ function rendering:draw(lerp, dt, performance)
 	end
 	
 	-- Draw superToppings
-	love.graphics.setCanvas(self.tileCanvasSetup)
+	love.graphics.setCanvas(tileCanvasSetup)
 	love.graphics.setShader(self.noiseShader)
 	local x1, x2, y1, y2 = mapSystem:getChunkIterationStartEnd(player, renderDistance)
 	for x = x1, x2 do
@@ -260,7 +261,7 @@ function rendering:draw(lerp, dt, performance)
 	love.graphics.clear(0, 0, 0, 1)
 	love.graphics.setCanvas(self.crushedLightFilterCanvas)
 	love.graphics.clear(1, 1, 1, 0)
-	love.graphics.setCanvas(self.canvasCrushSetup)
+	love.graphics.setCanvas(canvasCrushSetup)
 	love.graphics.setShader(self.crushAndClipShader)
 	local crushCentreX, crushCentreY = preCrushPlayerPosX, preCrushPlayerPosY
 	local crushEnd = consts.crushEnd
