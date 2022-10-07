@@ -111,7 +111,12 @@ function core:fixedUpdate(dt)
 	if forceLoadAll then
 		log.info("Forcing load of all chunks (" .. self.activeChunkRequests .. ")")
 		while self.activeChunkRequests > 0 do
-			self:receiveChunk(self.resultChannel:demand())
+			local err = self.chunkLoadingThread:getError()
+			assert(not err, err)
+			local chunk = self.resultChannel:pop()
+			if chunk then
+				self:receiveChunk(chunk)
+			end
 		end
 	end
 	

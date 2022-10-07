@@ -13,6 +13,7 @@ require("monkeypatch")
 
 local consts = require("consts")
 local registry = require("registry")
+local util = require("util")
 
 local frameCommands = {
 	
@@ -185,6 +186,10 @@ local function getSubWorldsAsArray()
 end
 
 function boilerplate.update(dt, performance)
+	util.iterateOverAllThreads(gameInstance, function(thread)
+		local err = thread:getError()
+		assert(not err, err)
+	end)
 	for _, subWorld in ipairs(getSubWorldsAsArray()) do
 		subWorld:emit("update", dt)
 	end
@@ -216,15 +221,15 @@ function boilerplate.killThreads()
 	love.thread.getChannel(consts.quitChannelName):push("quit")
 	local timeStart = love.timer.getTime()
 	local definitelyQuitAllThreads = true
-	for _, subWorld in pairs(gameInstance.subWorldsById) do
-		while subWorld.map.chunkLoadingThread:isRunning() do
+	util.iterateOverAllThreads(gameInstance, function(thread)
+		while thread:isRunning() do
 			if love.timer.getTime() - timeStart > consts.threadShutdownTime then
 				boilerplate.log.error("Chunk loading thread in sub-world with ID " .. subWorld.id .. " hasn't shut down after " .. consts.threadShutdownTime .. " seconds")
 				definitelyQuitAllThreads = false
 				break
 			end
 		end
-	end
+	end)
 	return definitelyQuitAllThreads
 end
 
