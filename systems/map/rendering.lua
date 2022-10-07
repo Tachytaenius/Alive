@@ -13,8 +13,7 @@ function rendering:makeChunkMeshes(chunk)
 end
 
 local function getGrassNoiseFullness(subLayer)
-	local grassMaterial = registry.materials.byName[subLayer.lump.constituents[1].materialName]
-	local grassNoiseFullness1 = grassMaterial.grassNoiseFullness1 or 1
+	local grassNoiseFullness1 = subLayer.mixedGrassNoiseFullness1 or 1
 	return grassNoiseFullness1 == 0 and 1 or subLayer.lump.grassAmount / grassNoiseFullness1 -- NOTE: Does not need to be capped at 1
 end
 

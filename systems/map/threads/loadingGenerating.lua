@@ -102,20 +102,18 @@ local function generateTile(chunk, localTileX, localTileY)
 			subLayers = {}
 		}
 		local subLayerIndex = 1
-		local grassMaterialName = "grass"
-		local grassMaterial = registry.materials.byName[grassMaterialName]
 		local newSubLayer = {
 			type = "grass",
 			lump = {
 				constituents = {
-					{materialName = grassMaterialName, amount = consts.lumpConstituentsTotal}
+					{materialName = "grass", amount = consts.lumpConstituentsTotal}
 				}
 			}
 		}
 		tile.superTopping.subLayers[subLayerIndex] = newSubLayer
 		tiles:updateLumpDependentTickValues(tile, registry)
 		newSubLayer.lump.grassHealth = newSubLayer.grassTargetHealth
-		local healthAdd = newSubLayer.lump.grassHealth > 0 and grassMaterial.grassTargetAmountAdd or 0
+		local healthAdd = newSubLayer.lump.grassHealth > 0 and newSubLayer.mixedGrassTargetAmountAdd or 0
 		newSubLayer.lump.grassAmount = math.max(0, math.min(1, newSubLayer.lump.grassHealth + healthAdd))
 	end
 	

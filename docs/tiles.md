@@ -54,7 +54,6 @@ Mostly to-decide-upon.
 - Tiles are ticked before building on/near them.
 - The tilemap indices start at 0 and ends at (width or height) - 1.
 - Lump constituents must only have one entry per material.
-- Grass lumps may only have one material entry.
 - Grass lumps may not be used to add to toppings.
 - Lumps may not be modified without creating a new constituents table in case the table is used by another lump.
 	Lumps probably won't be able to be modified anyway, only broken down and produced.
