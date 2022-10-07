@@ -1,0 +1,14 @@
+{
+	"colour": [0.4, 0.45, 0.5],
+	"grassDeadColour": [0.3, 0.25, 0.1],
+	"noiseSize": 0.25,
+	"noiseContrast": 0.1,
+	"noiseBrightness": 0.5,
+	"grassHealthIncreaseRate": 0.005,
+	"grassHealthDecreaseRate": 0.005,
+	"grassGrowthRate": 0.01,
+	"grassDecayRate": 0.01,
+	"grassTargetAmountAdd": 0.25,
+	"grassNoiseFullness1": 1,
+	"grassTargetHealthZero": 0.4
+}
