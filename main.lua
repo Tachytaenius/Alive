@@ -155,7 +155,7 @@ function boilerplate.load(args)
 	gameInstance.nextSubWorldId = gameInstance.nextSubWorldId + 1
 	mainSubWorld
 		:addSystem(systems.quantities) -- Should be first
-		:addSystem(systems.map)
+		:addSystem(systems.map) -- Should come before most other processing as it ensures the world is present
 		:addSystem(systems.flying)
 		:addSystem(systems.wills)
 		:addSystem(systems.walking)
