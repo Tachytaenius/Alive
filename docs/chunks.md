@@ -1,6 +1,7 @@
 # Chunks
 
-Chunks are loaded from file or generated when they are inside the (middle) loading radius, only ticked when within the (smaller) processing radius, and unloaded when they reach the (larger) unloading radius.
+Chunks are requested to be loaded from file or generated on a thread when they are inside the (middle) loading radius, only ticked when within the (smaller) processing radius, and unloaded when they reach the (larger) unloading radius.
+The whole game waits for all requested chunks to load when ticking if any requested chunks enter the force loading radius (between processing and loading radii).
 
 You can't iterate over the loaded chunks list for processing as it is not deterministically ordered.
 

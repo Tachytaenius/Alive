@@ -90,13 +90,13 @@ function core:fixedUpdate(dt)
 		self:receiveChunk(chunk)
 	end
 	
-	-- Force wait for all chunks to load if any chunk in processing range is unloaded
+	-- Force wait for all chunks to load if any chunk in force loading range is unloaded
 	local forceLoadAll = false
-	local x1, x2, y1, y2 = self:getChunkIterationStartEnd(player, consts.chunkProcessingRadius)
+	local x1, x2, y1, y2 = self:getChunkIterationStartEnd(player, consts.chunkForceLoadingRadius)
 	for x = x1, x2 do
 		local breakFromX = false
 		for y = y1, y2 do
-			if self:chunkPositionIsInRadius(x, y, player, consts.chunkProcessingRadius) then
+			if self:chunkPositionIsInRadius(x, y, player, consts.chunkForceLoadingRadius) then
 				if self:getChunkRequest(x, y) then
 					breakFromX = true
 					forceLoadAll = true
