@@ -69,8 +69,7 @@ local function getGrassTargetHealth(tile, subLayerIndex, threadRegistry)
 	local loamAmount, waterAmount = 0, 0
 	if subLayerIndex == 1 and tile.topping then
 		local lumps = tile.topping.lumps
-		assert(lumps.compressedToOne and lumps.compressionLumpCount == consts.lumpsPerLayer or #lumps == consts.lumpsPerLayer, "There must be " .. consts.lumpsPerLayer .. " lumps for grass to exist on a tile")
-		local topLump = lumps.compressedToOne and lumps.compressionLump or lumps[consts.lumpsPerLayer]
+		local topLump = lumps.compressedToOne and lumps.compressionLump or lumps[#lumps]
 		for _, entry in ipairs(topLump.constituents) do
 			if entry.materialName == "loam" then
 				loamAmount = entry.amount
@@ -78,15 +77,8 @@ local function getGrassTargetHealth(tile, subLayerIndex, threadRegistry)
 				waterAmount = entry.amount
 			end
 		end
-	else
-		-- NOTE: Could have even more complex code where grass passes through grates and the like
-		for _, entry in ipairs(subLayer.constituents) do
-			if entry.materialName == "loam" then
-				loamAmount = entry.amount
-			elseif entry.materialName == "water" then
-				waterAmount = entry.amount
-			end
-		end
+	elseif subLayerIndex ~= 1 then
+		error("Grass can't exist on any subLayer except the bottom one")
 	end
 	local loamFractionTarget = 0.3
 	local waterFractionTarget = 0.3
