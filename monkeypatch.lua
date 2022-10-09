@@ -6,12 +6,16 @@ do
 		  x == 0 and 0 or
 		  x < 0 and -1
 	end
+	
+	local floor = math.floor
 	function math.round(x)
-		return math.floor(x + 0.5)
+		return floor(x + 0.5)
 	end
+	
 	function math.lerp(a, b, i)
 		return a + (b - a) * i
 	end
+	
 	local function shortAngleDist(a, b)
 		local d = (b - a) % math.tau
 		return 2 * d % math.tau - d
