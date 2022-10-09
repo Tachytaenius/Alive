@@ -138,12 +138,12 @@ function rendering:fixedUpdate(dt)
 end
 
 function rendering:drawSprite(e)
-	love.graphics.circle("fill", e.position.lerpedValue.x, e.position.lerpedValue.y, e.sprite.radius)
+	love.graphics.circle("fill", e.position.interpolated.x, e.position.interpolated.y, e.sprite.radius)
 end
 
 function rendering:shouldDrawChunk(x, y, player, renderDistance, sensingCircleRadius)
-	local lineStart = player.position.lerpedValue
-	local lineDirection = vec2.rotate(vec2(1, 0), player.angle.lerpedValue) -- TEMP: Should be vec2.fromAngle
+	local lineStart = player.position.interpolated
+	local lineDirection = vec2.rotate(vec2(1, 0), player.angle.interpolated) -- TEMP: Should be vec2.fromAngle
 	local lineEnd = lineStart - lineDirection -- Subtraction to invert which side of the divided plane is supposed to be drawn
 	return
 		self:getWorld().map:chunkPositionIsInRadius(x, y, player, renderDistance) and
@@ -177,8 +177,8 @@ function rendering:draw(lerp, dt, performance)
 	local preCrushPlayerPosX, preCrushPlayerPosY = consts.preCrushCanvasWidth / 2, consts.preCrushCanvasHeight / 2
 	
 	love.graphics.translate(preCrushPlayerPosX, preCrushPlayerPosY)
-	love.graphics.rotate(-player.angle.lerpedValue)
-	love.graphics.translate(-player.position.lerpedValue.x, -player.position.lerpedValue.y)
+	love.graphics.rotate(-player.angle.interpolated)
+	love.graphics.translate(-player.position.interpolated.x, -player.position.interpolated.y)
 	
 	local mapSystem = self:getWorld().map
 	
@@ -231,7 +231,7 @@ function rendering:draw(lerp, dt, performance)
 	table.sort(sprites, function(a, blue)
 		-- Draw closer sprites on top, i.e. draw more distant sprites first
 		-- TODO: Also draw sprites on top of the topping layer on top
-		return vec2.distance(a.position.lerpedValue, player.position.lerpedValue) > vec2.distance(blue.position.lerpedValue, player.position.lerpedValue)
+		return vec2.distance(a.position.interpolated, player.position.interpolated) > vec2.distance(blue.position.interpolated, player.position.interpolated)
 	end)
 	for _, e in ipairs(sprites) do
 		self:drawSprite(e)
@@ -249,13 +249,13 @@ function rendering:draw(lerp, dt, performance)
 	
 	-- Draw lights
 	for _, e in ipairs(self.lights) do
-		local posInWindowSpace = e.position.lerpedValue
-		posInWindowSpace = posInWindowSpace - player.position.lerpedValue
-		posInWindowSpace = vec2.rotate(posInWindowSpace, -player.angle.lerpedValue)
+		local posInWindowSpace = e.position.interpolated
+		posInWindowSpace = posInWindowSpace - player.position.interpolated
+		posInWindowSpace = vec2.rotate(posInWindowSpace, -player.angle.interpolated)
 		posInWindowSpace = posInWindowSpace + vec2(preCrushPlayerPosX, preCrushPlayerPosY)
 		self.lightingShader:send("lightOrigin", {vec2.components(posInWindowSpace)})
 		love.graphics.setColor(e.light.red, e.light.green, e.light.blue)
-		love.graphics.draw(boilerplate.assets.lightInfluenceTexture.value, e.position.lerpedValue.x - e.light.radius, e.position.lerpedValue.y - e.light.radius, 0, e.light.radius * 2 / consts.lightInfluenceTextureSize)
+		love.graphics.draw(boilerplate.assets.lightInfluenceTexture.value, e.position.interpolated.x - e.light.radius, e.position.interpolated.y - e.light.radius, 0, e.light.radius * 2 / consts.lightInfluenceTextureSize)
 	end
 	love.graphics.setColor(1, 1, 1)
 	
