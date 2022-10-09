@@ -140,6 +140,10 @@ function rendering:drawSprite(e)
 	love.graphics.circle("fill", e.position.lerpedValue.x, e.position.lerpedValue.y, e.sprite.radius)
 end
 
+function rendering:shouldDrawChunk(x, y, player, renderDistance, sensingCircleRadius)
+	return self:getWorld().map:chunkPositionIsInRadius(x, y, player, renderDistance)
+end
+
 function rendering:draw(lerp, dt, performance)
 	local player = self.players[1]
 	if not player then
@@ -182,7 +186,7 @@ function rendering:draw(lerp, dt, performance)
 	local x1, x2, y1, y2 = mapSystem:getChunkIterationStartEnd(player, renderDistance)
 	for x = x1, x2 do
 		for y = y1, y2 do
-			if mapSystem:chunkPositionIsInRadius(x, y, player, renderDistance) then
+			if self:shouldDrawChunk(x, y, player, renderDistance, sensingCircleRadius) then
 				local chunk = mapSystem:getLoadedChunk(x, y)
 				if chunk.toppingPresent then
 					assert(chunk, "Missing chunk in draw radius at " .. x .. ", " .. y)
@@ -198,7 +202,7 @@ function rendering:draw(lerp, dt, performance)
 	local x1, x2, y1, y2 = mapSystem:getChunkIterationStartEnd(player, renderDistance)
 	for x = x1, x2 do
 		for y = y1, y2 do
-			if mapSystem:chunkPositionIsInRadius(x, y, player, renderDistance) then
+			if self:shouldDrawChunk(x, y, player, renderDistance, sensingCircleRadius) then
 				local chunk = mapSystem:getLoadedChunk(x, y)
 				assert(chunk, "Missing chunk in draw radius at " .. x .. ", " .. y)
 				for i, mesh in ipairs(chunk.superToppingMeshes) do
