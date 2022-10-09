@@ -31,7 +31,7 @@ float calculateFogFactor2(float dist, float fogFadeLength) { // More fog the clo
 	if (fogFadeLength == 0.0) { // Avoid dividing by zero
 		return 1.0; // Immediate fog
 	}
-	return clamp(-dist / fogFadeLength + 1, 0.0, 1.0);
+	return clamp(1 - dist / fogFadeLength, 0.0, 1.0);
 }
 
 vec2 directionFromAngle(float angle) {
