@@ -114,6 +114,13 @@ Tile fields:
 	- `lump`: (Saved) A single lump that defines the materials of the sub-layer.
 	- `grassTargetHealth`: (Not saved) Cached value that is recalculated only when a tile is changed.
 	- As well as the rendering fields.
+	- `mixedGrassHealthIncreaseRate`: (Not saved) Cached value from mixed material properties (only recalculated when a tile is changed).
+	- `mixedGrassHealthDecreaseRate`: (Not saved) Ditto.
+	- `mixedGrassGrowthRate`: (Not saved) Ditto.
+	- `mixedGrassDecayRate`: (Not saved) Ditto.
+	- `mixedGrassTargetAmountAdd`: (Not saved) Ditto.
+	- `mixedGrassNoiseFullness1`: (Not saved) Ditto.
+	- `mixedGrassTargetHealthZero`: (Not saved) Ditto.
 - `superTopping.lumps` (Saved) For walls-type super toppings, an array of lumps that works the same as `topping.lumps`.
 - `lastTimeTicked`: (Saved) The chunk's `time` value last time this tile was ticked.
 	Used with current `time` to get how much effective delta time to use.
