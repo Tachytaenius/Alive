@@ -3,6 +3,7 @@ local concord = require("lib.concord")
 local vec2 = require("lib.mathsies").vec2
 
 local consts = require("consts")
+local util = require("util")
 
 local rendering = concord.system({players = {"position", "player", "vision"}, sprites = {"position", "sprite"}, lights = {"position", "light"}})
 
@@ -141,7 +142,13 @@ function rendering:drawSprite(e)
 end
 
 function rendering:shouldDrawChunk(x, y, player, renderDistance, sensingCircleRadius)
-	return self:getWorld().map:chunkPositionIsInRadius(x, y, player, renderDistance)
+	local lineStart = player.position.lerpedValue
+	local lineDirection = vec2.rotate(vec2(1, 0), player.angle.lerpedValue) -- TEMP: Should be vec2.fromAngle
+	local lineEnd = lineStart - lineDirection -- Subtraction to invert which side of the divided plane is supposed to be drawn
+	return
+		self:getWorld().map:chunkPositionIsInRadius(x, y, player, renderDistance) and
+		util.collision.dividedPlaneAabb(lineStart.x, lineStart.y, lineEnd.x, lineEnd.y, x * consts.chunkWidth * consts.tileWidth, y * consts.chunkHeight * consts.chunkHeight,  consts.chunkWidth * consts.tileWidth, consts.chunkHeight * consts.chunkHeight) or
+		self:getWorld().map:chunkPositionIsInRadius(x, y, player, sensingCircleRadius)
 end
 
 function rendering:draw(lerp, dt, performance)
