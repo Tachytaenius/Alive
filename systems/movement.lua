@@ -1,6 +1,9 @@
 local concord = require("lib.concord")
 
-local movement = concord.system({translatees = {"position", "velocity"}, rotatees = {"angle", "angularVelocity"}})
+local movement = concord.system({
+	translatees = {"position", "velocity"},
+	rotatees = {"angle", "angularVelocity"}
+})
 
 function movement:fixedUpdate(dt)
 	for _, e in ipairs(self.translatees) do

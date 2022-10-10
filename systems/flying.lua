@@ -3,7 +3,10 @@ local vec2 = require("lib.mathsies").vec2
 
 local consts = require("consts")
 
-local flying = concord.system({flyers = {"flying", "velocity"}, walkers = {"grounded", "gait", "velocity"}})
+local flying = concord.system({
+	flyers = {"flying", "velocity"},
+	walkers = {"grounded", "gait", "velocity"}
+})
 
 function flying:fixedUpdate(dt)
 	for _, e in ipairs(self.flyers) do

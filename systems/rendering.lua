@@ -5,7 +5,10 @@ local vec2 = require("lib.mathsies").vec2
 local consts = require("consts")
 local util = require("util")
 
-local rendering = concord.system({players = {"position", "player", "vision"}, sprites = {"position", "sprite"}, lights = {"position", "light"}})
+local rendering = concord.system({
+	players = {"position", "player", "vision"},
+	sprites = {"position", "sprite"}, lights = {"position", "light"}
+})
 
 function rendering:sendConstantsToShaders()
 	self.crushAndClipShader:send("inputCanvasSize", {consts.preCrushCanvasWidth, consts.preCrushCanvasHeight})

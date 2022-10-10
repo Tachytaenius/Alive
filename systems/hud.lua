@@ -3,7 +3,9 @@ local concord = require("lib.concord")
 
 local consts = require("consts")
 
-local hud = concord.system({players = {"player"}})
+local hud = concord.system({
+	players = {"player"}
+})
 
 function hud:init()
 	

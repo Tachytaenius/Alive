@@ -1,6 +1,8 @@
 local concord = require("lib.concord")
 
-local map = concord.system({players = {"player", "position"}})
+local map = concord.system({
+	players = {"player", "position"}
+})
 
 for _, suffix in ipairs({
 	"core", "chunks", "tiles", "rendering"

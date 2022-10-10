@@ -1,7 +1,10 @@
 local concord = require("lib.concord")
 local vec2 = require("lib.mathsies").vec2
 
-local walking = concord.system({walkers = {"will", "gait", "velocity", "grounded"}, turners = {"will", "angularGait", "angularVelocity", "grounded"}})
+local walking = concord.system({
+	walkers = {"will", "gait", "velocity", "grounded"},
+	turners = {"will", "angularGait", "angularVelocity", "grounded"}
+})
 
 local function handleAxis(current, target, acceleration, dt)
 	if acceleration > 0 then

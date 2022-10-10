@@ -4,7 +4,10 @@ local boilerplate = require("lib.love-game-boilerplate-lib")
 
 local consts = require("consts")
 
-local wills = concord.system({wills = {"will"}, willPlayers = {"will", "player"}})
+local wills = concord.system({
+	wills = {"will"},
+	willPlayers = {"will", "player"}
+})
 
 function wills:fixedUpdate(dt)
 	for _, e in ipairs(self.wills) do
