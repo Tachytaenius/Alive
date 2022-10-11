@@ -12,12 +12,12 @@ local rendering = concord.system({
 
 function rendering:sendConstantsToShaders()
 	self.crushAndClipShader:send("inputCanvasSize", {consts.preCrushCanvasWidth, consts.preCrushCanvasHeight})
-	
+
 	self.noiseShader:send("noiseTexture", boilerplate.assets.noiseTexture.value)
 	self.noiseShader:send("noiseTextureSize", {boilerplate.assets.noiseTexture.value:getDimensions()})
 	self.noiseShader:send("fullnessNoiseSize", consts.fullnessNoiseSize)
 	self.noiseShader:send("fullnessNoiseOffset", consts.fullnessNoiseOffset)
-	
+
 	self.lightingShader:send("revealDepth", consts.shadowTextureRevealDepth)
 	self.lightingShader:send("forceNonRevealMinDepth", consts.shadowForceTextureNonRevealMinDepth)
 end
@@ -26,19 +26,19 @@ function rendering:init()
 	self.albedoCanvas = love.graphics.newCanvas(consts.preCrushCanvasWidth, consts.preCrushCanvasHeight)
 	self.lightFilterCanvas = love.graphics.newCanvas(consts.preCrushCanvasWidth, consts.preCrushCanvasHeight)
 	self.lightingCanvas = love.graphics.newCanvas(consts.preCrushCanvasWidth, consts.preCrushCanvasHeight)
-	
+
 	self.crushedLightFilterCanvas = love.graphics.newCanvas(boilerplate.config.canvasSystemWidth, boilerplate.config.canvasSystemHeight)
-	
+
 	if consts.linearFilterLightFilterCanvas then
 		self.lightFilterCanvas:setFilter("linear", "linear")
 		self.crushedLightFilterCanvas:setFilter("linear", "linear")
 	end
-	
+
 	self.crushAndClipShader = love.graphics.newShader("shaders/crushAndClip.glsl")
 	self.noiseShader = love.graphics.newShader("shaders/noise.glsl")
 	self.lightingShader = love.graphics.newShader("shaders/lighting.glsl")
 	self:sendConstantsToShaders()
-	
+
 	self.changedTiles = {}
 end
 
@@ -46,7 +46,7 @@ local function setTileMeshVertices(mesh, iBase, x, y, ...)
 	mesh:setVertex(iBase, x * consts.tileWidth, y * consts.tileHeight, ...)
 	mesh:setVertex(iBase + 1, (x + 1) * consts.tileWidth, y * consts.tileHeight, ...)
 	mesh:setVertex(iBase + 2, x * consts.tileWidth, (y + 1) * consts.tileHeight, ...)
-	
+
 	mesh:setVertex(iBase + 3, x * consts.tileWidth, (y + 1) * consts.tileHeight, ...)
 	mesh:setVertex(iBase + 4, (x + 1) * consts.tileWidth, y * consts.tileHeight, ...)
 	mesh:setVertex(iBase + 5, (x + 1) * consts.tileWidth, (y + 1) * consts.tileHeight, ...)
@@ -58,7 +58,7 @@ function rendering:fixedUpdate(dt)
 		local globalTileX, globalTileY = tile.globalTileX, tile.globalTileY
 		local chunk = tile.chunk
 		local iBase = (localTileX + localTileY * consts.chunkWidth) * 6 + 1
-		
+
 		-- Update topping
 		if tile.topping then
 			local
@@ -69,7 +69,7 @@ function rendering:fixedUpdate(dt)
 				tile.topping.red, tile.topping.green, tile.topping.blue, tile.topping.alpha,
 				nil, nil, nil, 0, -- This isn't a wall
 				tile.topping.noiseSize, tile.topping.noiseContrast, tile.topping.noiseBrightness, 1
-			
+
 			setTileMeshVertices(chunk.toppingMesh, iBase, globalTileX, globalTileY,
 				colourR, colourG, colourB, colourA,
 				lightFilterColourR, lightFilterColourG, lightFilterColourB, lightFilterColourA,
@@ -80,7 +80,7 @@ function rendering:fixedUpdate(dt)
 				self.toppingMesh:setVertex(iBase + i) -- nil all
 			end
 		end
-		
+
 		-- Update super topping
 		if tile.superTopping then
 			if tile.superTopping.type == "wall" then
@@ -92,13 +92,13 @@ function rendering:fixedUpdate(dt)
 					tile.superTopping.red, tile.superTopping.green, tile.superTopping.blue, tile.superTopping.alpha,
 					tile.superTopping.lightFilterR, tile.superTopping.lightFilterG, tile.superTopping.lightFilterB, 1,
 					tile.superTopping.noiseSize, tile.superTopping.noiseContrast, tile.superTopping.noiseBrightness, 1
-				
+
 				setTileMeshVertices(chunk.superToppingMeshes[1], iBase, globalTileX, globalTileY,
 					colourR, colourG, colourB, colourA,
 					lightFilterColourR, lightFilterColourG, lightFilterColourB, lightFilterColourA,
 					noiseSize, noiseContrast, noiseBrightness, noiseFullness
 				)
-				
+
 				for j = 2, consts.maxSubLayers do -- Clear meshes used for sub-layers
 					for i = 0, 5 do
 						chunk.superToppingMeshes[j]:setVertex(iBase + i) -- nil all
@@ -116,7 +116,7 @@ function rendering:fixedUpdate(dt)
 							subLayer.red, subLayer.green, subLayer.blue, subLayer.alpha,
 							nil, nil, nil, 0, -- This isn't a wall
 							subLayer.noiseSize, subLayer.noiseContrast, subLayer.noiseBrightness, subLayer.noiseFullness
-						
+
 						setTileMeshVertices(chunk.superToppingMeshes[j], iBase, globalTileX, globalTileY,
 							colourR, colourG, colourB, colourA,
 							lightFilterColourR, lightFilterColourG, lightFilterColourB, lightFilterColourA,
@@ -159,7 +159,7 @@ function rendering:draw(lerp, dt, performance)
 	if not player then
 		return
 	end
-	
+
 	-- Make render setups
 	local tileCanvasSetup = {
 		self.albedoCanvas, self.lightFilterCanvas
@@ -167,29 +167,29 @@ function rendering:draw(lerp, dt, performance)
 	local canvasCrushSetup = {
 		boilerplate.gameCanvas, self.crushedLightFilterCanvas
 	}
-	
+
 	local renderDistance = player.vision.maxViewDistance
 	local sensingCircleRadius = 30 -- TODO
 	local viewPadding = 4 -- TODO
 	local fov = 7 * math.tau / 16 -- TODO
 	local ambientLightR, ambientLightG, ambientLightB = 1, 1, 1 -- TODO
-	
+
 	assert(renderDistance <= consts.chunkProcessingRadius, "Player vision is greater than chunk processing radius")
 	assert(boilerplate.settings.graphics.crushStartRatio > 0 and boilerplate.settings.graphics.crushStartRatio <= 1, "Crush start ratio must be between 0 (exclusive) and 1 (inclusive).")
-	
+
 	local preCrushPlayerPosX, preCrushPlayerPosY = consts.preCrushCanvasWidth / 2, consts.preCrushCanvasHeight / 2
-	
+
 	love.graphics.translate(preCrushPlayerPosX, preCrushPlayerPosY)
 	love.graphics.rotate(-player.angle.interpolated)
 	love.graphics.translate(-player.position.interpolated.x, -player.position.interpolated.y)
-	
+
 	local mapSystem = self:getWorld().map
-	
+
 	love.graphics.setCanvas(self.albedoCanvas)
 	love.graphics.clear()
 	love.graphics.setCanvas(self.lightFilterCanvas)
 	love.graphics.clear(1, 1, 1, 0)
-	
+
 	-- Draw toppings
 	love.graphics.setCanvas(tileCanvasSetup)
 	love.graphics.setShader(self.noiseShader)
@@ -205,7 +205,7 @@ function rendering:draw(lerp, dt, performance)
 			end
 		end
 	end
-	
+
 	-- Draw superToppings
 	love.graphics.setCanvas(tileCanvasSetup)
 	love.graphics.setShader(self.noiseShader)
@@ -223,7 +223,7 @@ function rendering:draw(lerp, dt, performance)
 			end
 		end
 	end
-	
+
 	-- Draw entities
 	love.graphics.setCanvas(self.albedoCanvas)
 	love.graphics.setShader()
@@ -239,7 +239,7 @@ function rendering:draw(lerp, dt, performance)
 	for _, e in ipairs(sprites) do
 		self:drawSprite(e)
 	end
-	
+
 	-- Switch to lights phase
 	love.graphics.setCanvas(self.lightingCanvas)
 	self.lightingShader:send("canvasSize", {consts.preCrushCanvasWidth, consts.preCrushCanvasHeight})
@@ -249,7 +249,7 @@ function rendering:draw(lerp, dt, performance)
 	self.lightingShader:send("lightFilterCanvas", self.lightFilterCanvas)
 	love.graphics.setShader(self.lightingShader)
 	love.graphics.setBlendMode("add")
-	
+
 	-- Draw lights
 	for _, e in ipairs(self.lights) do
 		local posInWindowSpace = e.position.interpolated
@@ -261,14 +261,14 @@ function rendering:draw(lerp, dt, performance)
 		love.graphics.draw(boilerplate.assets.lightInfluenceTexture.value, e.position.interpolated.x - e.light.radius, e.position.interpolated.y - e.light.radius, 0, e.light.radius * 2 / consts.lightInfluenceTextureSize)
 	end
 	love.graphics.setColor(1, 1, 1)
-	
+
 	-- Multiply albedo into lighting canvas
 	love.graphics.origin()
 	love.graphics.setShader()
 	love.graphics.setBlendMode("multiply", "premultiplied")
 	love.graphics.draw(self.albedoCanvas)
 	love.graphics.setBlendMode("alpha", "alphamultiply")
-	
+
 	-- Draw lighting canvas to boilerplate canvas
 	-- Draw light filter canvas to crushed light filter canvas
 	love.graphics.setCanvas(boilerplate.gameCanvas)
@@ -296,7 +296,7 @@ function rendering:draw(lerp, dt, performance)
 		0,
 		consts.preCrushCanvasWidth, consts.preCrushCanvasHeight
 	)
-	
+
 	-- Do light shader over view canvas with whiteNullTexture
 	love.graphics.setCanvas(boilerplate.gameCanvas)
 	love.graphics.setBlendMode("multiply", "premultiplied")
@@ -312,10 +312,11 @@ function rendering:draw(lerp, dt, performance)
 	})
 	love.graphics.draw(boilerplate.assets.whiteNullTexture.value, 0, 0, 0, boilerplate.config.canvasSystemWidth, boilerplate.config.canvasSystemHeight)
 	love.graphics.setBlendMode("alpha", "alphamultiply")
-	
+
 	-- Finish
 	love.graphics.setCanvas()
 	love.graphics.setShader()
 end
 
 return rendering
+

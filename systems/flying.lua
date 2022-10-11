@@ -32,7 +32,7 @@ function flying:fixedUpdate(dt)
 			e.velocity.value = vec2.normalise(e.velocity.value) * speed
 		end
 	end
-	
+
 	for _, e in ipairs(self.walkers) do
 		-- Have entities moving faster than their tripThreshold trip up
 		if #e.velocity.value > e.gait.tripThreshold then

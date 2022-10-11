@@ -23,7 +23,7 @@ local function calculateConstituentDrawFields(materialAmount, tableToWriteTo, gr
 	for material, amount in pairs(materialAmount) do
 		local weight = amount * (material.visualWeight or 1)
 		weightTotal = weightTotal + weight
-		
+
 		-- Get colour in linear space
 		local materialRed, materialGreen, materialBlue = love.math.gammaToLinear(material.colour[1], material.colour[2], material.colour[3])
 		local materialAlpha = material.colour[4] or 1
@@ -39,7 +39,7 @@ local function calculateConstituentDrawFields(materialAmount, tableToWriteTo, gr
 		green = green + materialGreen * weight
 		blue = blue + materialBlue * weight
 		alpha = alpha + materialAlpha * weight
-		
+
 		-- Get light filter colour in linear space
 		local materialLightFilterR, materialLightFilterG, materialLightFilterB
 		if material.lightFilterColour then
@@ -54,12 +54,12 @@ local function calculateConstituentDrawFields(materialAmount, tableToWriteTo, gr
 		lightFilterR = lightFilterR + materialLightFilterR * weight
 		lightFilterG = lightFilterG + materialLightFilterG * weight
 		lightFilterB = lightFilterB + materialLightFilterB * weight
-		
+
 		noiseSize = noiseSize + (material.noiseSize or 10) * weight
 		noiseContrast = noiseContrast + (material.noiseContrast or 0.5) * weight
 		noiseBrightness = noiseBrightness + (material.noiseBrightness or 0.5) * weight
 	end
-	
+
 	-- Convert colours back to sRGB
 	tableToWriteTo.red, tableToWriteTo.green, tableToWriteTo.blue = love.math.linearToGamma(
 		red / weightTotal,
@@ -72,7 +72,7 @@ local function calculateConstituentDrawFields(materialAmount, tableToWriteTo, gr
 		lightFilterG / weightTotal,
 		lightFilterB / weightTotal
 	)
-	
+
 	tableToWriteTo.noiseSize = math.max(consts.minimumTextureNoiseSize,
 		math.floor((noiseSize / weightTotal) / consts.textureNoiseSizeIrresolution) * consts.textureNoiseSizeIrresolution
 	)
@@ -82,7 +82,7 @@ end
 
 function rendering:updateTileRendering(tile)
 	local x, y = tile.globalTileX, tile.globalTileY
-	
+
 	-- Update topping
 	if tile.topping then
 		local materialAmount = {}
@@ -101,7 +101,7 @@ function rendering:updateTileRendering(tile)
 		end
 		calculateConstituentDrawFields(materialAmount, tile.topping)
 	end
-	
+
 	-- Update super topping
 	if tile.superTopping then
 		if tile.superTopping.type == "subLayers" then
@@ -131,7 +131,7 @@ function rendering:updateTileRendering(tile)
 			calculateConstituentDrawFields(materialAmount, tile.superTopping)
 		end
 	end
-	
+
 	local changedTiles = self:getWorld().rendering.changedTiles
 	changedTiles[#changedTiles + 1] = tile
 end

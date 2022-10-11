@@ -25,7 +25,7 @@ function quantities:draw(lerp, dt, performance)
 			bag.interpolated = math.lerp(bag.previousValue, bag.value, lerp)
 		end
 	end
-	
+
 	local function angleLerpPool(pool)
 		local component = pool.__name
 		for _, e in ipairs(pool) do
@@ -33,7 +33,7 @@ function quantities:draw(lerp, dt, performance)
 			bag.interpolated = math.angleLerp(bag.previousValue, bag.value, lerp)
 		end
 	end
-	
+
 	lerpPool(self.position)
 	angleLerpPool(self.angle)
 end

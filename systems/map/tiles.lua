@@ -16,7 +16,7 @@ end
 local function updateGrassMixedMaterialParameters(tile, threadRegistry)
 	-- WARNING: Used in a different copy to the map system's copy of the tiles table by one or more extra threads!
 	-- Excludes rendering parameters (though grassNoiseFullness1 is included), that is done by the updateTileRendering function
-	
+
 	local registry = threadRegistry or registry
 	if not tile.superTopping then
 		return
@@ -24,10 +24,10 @@ local function updateGrassMixedMaterialParameters(tile, threadRegistry)
 	if tile.superTopping.type ~= "subLayers" then
 		return
 	end
-	
+
 	for i = 1, #tile.superTopping.subLayers do
 		local subLayer = tile.superTopping.subLayers[i]
-		
+
 		local weightTotal = 0
 		local grassHealthIncreaseRate = 0
 		local grassHealthDecreaseRate = 0
@@ -36,10 +36,10 @@ local function updateGrassMixedMaterialParameters(tile, threadRegistry)
 		local grassTargetAmountAdd = 0
 		local grassNoiseFullness1 = 0
 		local grassTargetHealthZero = 0
-		
+
 		for _, entry in ipairs(subLayer.lump.constituents) do
 			local material = registry.materials.byName[entry.materialName]
-			
+
 			local weight = entry.amount
 			weightTotal = weightTotal + weight
 			grassHealthIncreaseRate = grassHealthIncreaseRate + material.grassHealthIncreaseRate * weight
@@ -50,7 +50,7 @@ local function updateGrassMixedMaterialParameters(tile, threadRegistry)
 			grassNoiseFullness1 = grassNoiseFullness1 + material.grassNoiseFullness1 * weight
 			grassTargetHealthZero = grassTargetHealthZero + material.grassTargetHealthZero * weight
 		end
-		
+
 		subLayer.mixedGrassHealthIncreaseRate = grassHealthIncreaseRate / weightTotal
 		subLayer.mixedGrassHealthDecreaseRate = grassHealthDecreaseRate / weightTotal
 		subLayer.mixedGrassGrowthRate = grassGrowthRate / weightTotal
@@ -144,7 +144,7 @@ function tiles:tickTile(tile, dt)
 							subLayer.lump.grassHealth = math.min(targetHealth, subLayer.lump.grassHealth - subLayer.mixedGrassHealthDecreaseRate * effectiveDt)
 							changedRendering = true
 						end
-						
+
 						-- Update amount
 						-- Speed of approach should be multiplied with 1 - health downwards and with health upwards.
 						-- Check docs/materials.md.

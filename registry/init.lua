@@ -39,7 +39,7 @@ end
 
 local function createWorldTheme(jsonData, entryName, path)
 	local entry = jsonData
-	
+
 end
 
 function registry.load()

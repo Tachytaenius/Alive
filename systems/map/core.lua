@@ -10,11 +10,11 @@ function core:init()
 	self.loadedChunksGrid = {}
 	self.loadedChunksList = list()
 	self.randomTickTime = 0
-	
+
 	self.activeChunkRequests = 0
 	self.chunkRequests = {}
 	self.chunkLoadingThread = love.thread.newThread("systems/map/threads/loadingGenerating.lua")
-	
+
 	local subWorldId = self:getWorld().id
 	local infoChannelName = consts.chunkInfoChannelName .. subWorldId
 	self.infoChannel = love.thread.getChannel(infoChannelName)
@@ -22,7 +22,7 @@ function core:init()
 	self.requestChannel = love.thread.getChannel(requestChannelName)
 	local resultChannelName = consts.chunkLoadingResultChannelName .. subWorldId
 	self.resultChannel = love.thread.getChannel(resultChannelName)
-	
+
 	self.chunkLoadingThread:start(subWorldId)
 end
 
@@ -35,7 +35,7 @@ function core:newWorld()
 		{materialName = "silt", abundanceMultiply = 7, noiseWidth = 50, noiseHeight = 50},
 		{materialName = "water", abundanceMultiply = 0, abundanceAdd = 10}
 	}
-	
+
 	local infoTable = {
 		registry = registry,
 		soilMaterials = self.soilMaterials,
@@ -56,19 +56,19 @@ function core:fixedUpdate(dt)
 		end
 		return
 	end
-	
+
 	self.randomTickTime = self.randomTickTime + dt
-	
+
 	assert(consts.chunkProcessingRadius <= consts.chunkLoadingRadius, "Chunk loading radius is less than chunk processing radius")
 	assert(consts.chunkLoadingRadius <= consts.chunkUnloadingRadius, "Chunk unloading radius is less than loading radius")
-	
+
 	-- Unload chunks outside of chunk unloading radius
 	for chunk in self.loadedChunksList:elements() do
 		if not self:chunkPositionIsInRadius(chunk.x, chunk.y, player, consts.chunkUnloadingRadius) then
 			self:unloadChunk(chunk)
 		end
 	end
-	
+
 	-- Request loading of all unloaded chunks within loading radius
 	local x1, x2, y1, y2 = self:getChunkIterationStartEnd(player, consts.chunkLoadingRadius)
 	for x = x1, x2 do
@@ -80,7 +80,7 @@ function core:fixedUpdate(dt)
 			end
 		end
 	end
-	
+
 	-- Receive chunks already loaded (don't wait for not-yet-loaded chunks)
 	while true do
 		local chunk = self.resultChannel:pop()
@@ -89,7 +89,7 @@ function core:fixedUpdate(dt)
 		end
 		self:receiveChunk(chunk)
 	end
-	
+
 	-- Force wait for all chunks to load if any chunk in force loading range is unloaded
 	local forceLoadAll = false
 	local x1, x2, y1, y2 = self:getChunkIterationStartEnd(player, consts.chunkForceLoadingRadius)
@@ -119,7 +119,7 @@ function core:fixedUpdate(dt)
 			end
 		end
 	end
-	
+
 	local x1, x2, y1, y2 = self:getChunkIterationStartEnd(player, consts.chunkLoadingRadius)
 	for x = x1, x2 do
 		for y = y1, y2 do
@@ -128,7 +128,7 @@ function core:fixedUpdate(dt)
 			end
 		end
 	end
-	
+
 	-- Tick chunks within processing range
 	local gameInstance = self:getWorld().gameInstance
 	local rng = gameInstance.rng

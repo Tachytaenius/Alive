@@ -16,7 +16,7 @@ local registry = require("registry")
 local util = require("util")
 
 local frameCommands = {
-	
+
 }
 
 local fixedCommands = {
@@ -63,7 +63,7 @@ local settingsTemplate = {
 }
 
 local uiNames = {
-	
+
 }
 
 local assetsConstructors, assetsUtilities = boilerplate.assetsConstructors, boilerplate.assetsUtilities
@@ -133,12 +133,12 @@ local gameInstance
 
 function boilerplate.load(args)
 	registry.load()
-	
+
 	local seed = love.math.random(0, consts.maxWorldSeed)
 	local rng = love.math.newRandomGenerator(seed)
-	
+
 	boilerplate.log.info("Creating game instance")
-	
+
 	gameInstance = {
 		seed = seed,
 		rng = rng,
@@ -147,7 +147,7 @@ function boilerplate.load(args)
 		nextSubWorldId = consts.firstSubWorldId,
 		subWorldsById = {}
 	}
-	
+
 	local mainSubWorld = concord.world()
 	mainSubWorld.id = gameInstance.nextSubWorldId
 	gameInstance.subWorldsById[gameInstance.nextSubWorldId] = mainSubWorld
@@ -162,14 +162,14 @@ function boilerplate.load(args)
 		:addSystem(systems.movement)
 		:addSystem(systems.rendering)
 		:addSystem(systems.hud)
-	
+
 	local player = concord.entity():assemble(assemblages.testEntity):give("player")
 	mainSubWorld:addEntity(player)
-	
+
 	for _, subWorld in ipairs(gameInstance.subWorldsById) do
 		subWorld:emit("newWorld")
 	end
-	
+
 	boilerplate.log.info("Done initialising game instance")
 end
 

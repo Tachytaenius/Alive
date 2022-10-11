@@ -17,10 +17,10 @@ varying float fragmentNoiseFullness; // Controls amount of pixels to discard
 	attribute float VertexContrast;
 	attribute float VertexBrightness;
 	attribute float VertexFullness;
-	
+
 	vec4 position(mat4 transformProjection, vec4 vertexPosition) {
 		vec4 transformedPosition = transformProjection * vertexPosition;
-		
+
 		fragmentPosition = vertexPosition.xy;
 		fragmentColour = gammaCorrectColor(VertexColor);
 		fragmentLightFilterColour = gammaCorrectColor(VertexLightFilterColour);
@@ -28,7 +28,7 @@ varying float fragmentNoiseFullness; // Controls amount of pixels to discard
 		fragmentContrast = VertexContrast;
 		fragmentBrightness = VertexBrightness;
 		fragmentNoiseFullness = VertexFullness;
-		
+
 		return transformedPosition;
 	}
 #endif
@@ -41,14 +41,14 @@ varying float fragmentNoiseFullness; // Controls amount of pixels to discard
 		if (fullnessNoise > fragmentNoiseFullness) {
 			discard;
 		}
-		
+
 		vec2 noisePos = fragmentPosition / fragmentNoiseSize;
 		float noise = Texel(noiseTexture, noisePos / noiseTextureSize).r;
 		noise = noise * 2.0 - 1.0; // To [-1, 1]
 		noise *= fragmentContrast;
 		noise += fragmentBrightness * 2.0 - 1.0;
 		noise = noise / 2.0 + 0.5; // Back to [0, 1]
-		
+
 		love_Canvases[0] = vec4(fragmentColour.rgb * noise, fragmentColour.a); // Albedo
 		love_Canvases[1] = fragmentLightFilterColour; // Light filter. Rely on alpha to not change light filter canvas if not supposed to
 	}

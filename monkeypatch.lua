@@ -6,16 +6,16 @@ do
 		  x == 0 and 0 or
 		  x < 0 and -1
 	end
-	
+
 	local floor = math.floor
 	function math.round(x)
 		return floor(x + 0.5)
 	end
-	
+
 	function math.lerp(a, b, i)
 		return a + (b - a) * i
 	end
-	
+
 	local function shortAngleDist(a, b)
 		local d = (b - a) % math.tau
 		return 2 * d % math.tau - d
@@ -33,21 +33,21 @@ end
 -- 		local curR, curG, curB = love.graphics.getColor()
 -- 		love.graphics.setColor(r * curR, g * curG, b * curB)
 -- 	end
--- 
+--
 -- 	local ffi_copy = require("ffi").copy
 -- 	local buffer = love.data.newByteData(64) -- 4*4 floats
 -- 	local address = buffer:getFFIPointer()
--- 
+--
 -- 	function love.graphics.sendVec3(shader, uniform, vector)
 -- 		ffi_copy(address, vector, 12)
 -- 		shader:send(uniform, buffer)
 -- 	end
--- 
+--
 -- 	function love.graphics.sendVec4(shader, uniform, vector)
 -- 		ffi_copy(address, vector, 16)
 -- 		shader:send(uniform, buffer)
 -- 	end
--- 
+--
 -- 	function love.graphics.sendMat4(shader, uniform, matrix)
 -- 		ffi_copy(address, matrix, 64)
 -- 		shader:send(uniform, buffer)

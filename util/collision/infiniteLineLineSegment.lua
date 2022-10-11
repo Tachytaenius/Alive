@@ -6,11 +6,11 @@ return function(line1StartX, line1StartY, line1EndX, line1EndY, line2StartX, lin
 	local line1End = vec2(line1EndX, line1EndY)
 	local line2Start = vec2(line2StartX, line2StartY)
 	local line2End = vec2(line2EndX, line2EndY)
-	
+
 	local direction = vec2.normalise(line1End - line1Start)
 	direction.x, direction.y = -direction.y, direction.x
 	local dotA = vec2.dot(direction, line2Start - line1Start)
 	local dotB = vec2.dot(direction, line2End - line1Start)
-	
+
 	return math.sign(dotA) ~= math.sign(dotB)
 end

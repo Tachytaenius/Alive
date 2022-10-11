@@ -8,7 +8,7 @@ local hud = concord.system({
 })
 
 function hud:init()
-	
+
 end
 
 function hud:draw(lerp, dt, performance)
@@ -16,7 +16,7 @@ function hud:draw(lerp, dt, performance)
 	if not player then
 		return
 	end
-	
+
 	love.graphics.setCanvas(boilerplate.hudCanvas)
 	love.graphics.clear()
 	-- love.graphics.print(

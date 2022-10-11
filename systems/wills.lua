@@ -16,10 +16,10 @@ function wills:fixedUpdate(dt)
 			-- If this is unperformant, then it could be replaced with checking for AI or player or any other "will source" before using will.
 		end
 	end
-	
+
 	for _, e in ipairs(self.willPlayers) do
 		local will = e.will
-		
+
 		will.targetRelativeVelocityMultiplier = vec2()
 		if boilerplate.input.checkFixedUpdateCommand("moveForward") then
 			will.targetRelativeVelocityMultiplier.y = will.targetRelativeVelocityMultiplier.y - 1
@@ -36,7 +36,7 @@ function wills:fixedUpdate(dt)
 		if #will.targetRelativeVelocityMultiplier > 0 then
 			will.targetRelativeVelocityMultiplier = vec2.normalise(will.targetRelativeVelocityMultiplier)
 		end
-		
+
 		will.targetAngularVelocityMultiplier = math.max(-1, math.min(1, boilerplate.fixedMouseDx * boilerplate.settings.mouse.turnSensitivity * consts.turningMouseMovementMultiplier))
 	end
 end

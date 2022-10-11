@@ -18,45 +18,45 @@ local resultChannel = love.thread.getChannel(consts.chunkLoadingResultChannelNam
 local function generateConstituents(x, y, materialsSet)
 	-- All constituents must add up to const.lumpConstituentsTotal
 	local constituents = {}
-	
+
 	-- Get base weights
 	local total1 = 0
-	
+
 	for i, materialsSetEntry in pairs(materialsSet) do
 		local material = registry.materials.byName[materialsSetEntry.materialName]
-		
+
 		local noise = love.math.noise(
 			x / (materialsSetEntry.noiseWidth or 1),
 			y / (materialsSetEntry.noiseHeight or 1),
 			material.id + gameInstanceSeed
 		)
-		
+
 		local amount = noise * materialsSetEntry.abundanceMultiply + (materialsSetEntry.abundanceAdd or 0)
 		constituents[i] = {materialName = materialsSetEntry.materialName, amount = amount}
 		total1 = total1 + amount
 	end
-	
+
 	-- Get proper amounts
 	local total2 = 0
 	for i, entry in ipairs(constituents) do
 		entry.amount = math.floor(consts.lumpConstituentsTotal * entry.amount / total1)
 		total2 = total2 + entry.amount
 	end
-	
+
 	-- Spread remainder (this could be done differently)
 	local i = 1
 	for _ = 1, consts.lumpConstituentsTotal - total2 do
 		constituents[i].amount = constituents[i].amount + 1
 		i = (i - 1 + 1) % #constituents + 1
 	end
-	
+
 	-- Debug test
 	-- local total3 = 0
 	-- for i, entry in ipairs(constituents) do
 	-- 	total3 = total3 + entry.amount
 	-- end
 	-- assert(total3 == consts.lumpConstituentsTotal)
-	
+
 	return constituents
 end
 
@@ -69,7 +69,7 @@ local function generateTile(chunk, localTileX, localTileY)
 		globalTileX = globalTileX, globalTileY = globalTileY
 	}
 	chunk.tiles[localTileX][localTileY] = tile
-	
+
 	-- Generate topping
 	tile.topping = {
 		type = "solid",
@@ -81,7 +81,7 @@ local function generateTile(chunk, localTileX, localTileY)
 		constituents = constituents
 	}
 	tile.topping.lumps.compressionLumpCount = consts.lumpsPerLayer
-	
+
 	-- Generate super topping
 	if love.math.random() < 0.01 then -- TEMP: We can't actually use the game instance RNG in a thread (undefined order) nor love's own one anywhere in fixed update (intended to be used elsewhere like in graphics) for determinism reasons
 		tile.superTopping = {
@@ -116,7 +116,7 @@ local function generateTile(chunk, localTileX, localTileY)
 		local healthAdd = newSubLayer.lump.grassHealth > 0 and newSubLayer.mixedGrassTargetAmountAdd or 0
 		newSubLayer.lump.grassAmount = math.max(0, math.min(1, newSubLayer.lump.grassHealth + healthAdd))
 	end
-	
+
 	return tile
 end
 
@@ -126,7 +126,7 @@ local function generateChunk(chunkX, chunkY)
 		time = 0,
 		randomTickTime = 0
 	}
-	
+
 	-- Make the tiles
 	local tiles = {}
 	chunk.tiles = tiles
@@ -136,7 +136,7 @@ local function generateChunk(chunkX, chunkY)
 			generateTile(chunk, localTileX, localTileY)
 		end
 	end
-	
+
 	return chunk
 end
 
@@ -147,16 +147,16 @@ while quitChannel:peek() ~= "quit" do
 		soilMaterials = newInfo.soilMaterials or soilMaterials
 		gameInstanceSeed = newInfo.gameInstanceSeed or gameInstanceSeed
 	end
-	
+
 	local chunkRequestCoords = requestChannel:pop()
 	if chunkRequestCoords then
 		assert(registry, "Registry not passed to thread")
 		assert(registry.loaded, "Registry passed to thread not loaded")
 		assert(soilMaterials, "Soil materials not passed to thread")
-		
+
 		-- Load or generate chunk
 		local x, y = chunkRequestCoords.x, chunkRequestCoords.y
-		
+
 		local path = "chunks/" .. x .. "," .. y .. ".bin"
 		local info = love.filesystem.getInfo(path)
 		if not info then
@@ -174,7 +174,7 @@ while quitChannel:peek() ~= "quit" do
 					tiles:updateLumpDependentTickValues(tile, registry)
 				end
 			end
-			
+
 			resultChannel:push(chunk)
 		end
 	end
