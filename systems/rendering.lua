@@ -157,6 +157,9 @@ end
 function rendering:draw(lerp, dt, performance)
 	local player = self.players[1]
 	if not player then
+		love.graphics.setCanvas(boilerplate.gameCanvas)
+		love.graphics.clear(0, 0, 0, 1)
+		love.graphics.setCanvas()
 		return
 	end
 
