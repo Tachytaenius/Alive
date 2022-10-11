@@ -43,4 +43,3 @@ function flying:fixedUpdate(dt)
 end
 
 return flying
-

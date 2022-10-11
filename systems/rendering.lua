@@ -319,4 +319,3 @@ function rendering:draw(lerp, dt, performance)
 end
 
 return rendering
-
