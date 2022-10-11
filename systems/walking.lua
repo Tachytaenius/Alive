@@ -32,7 +32,6 @@ function walking:fixedUpdate(dt)
 			end
 			local accelerationDistribution = direction * e.gait.acceleration -- So that you don't get to use all of acceleration on both axes
 
-			-- relativeVelocity = vec2.clone(relativeVelocity) -- The test below returns 0 for acceleration this tick without this line
 			relativeVelocity.x = handleAxis(relativeVelocity.x, targetRelativeVelocity.x, accelerationDistribution.x, dt)
 			relativeVelocity.y = handleAxis(relativeVelocity.y, targetRelativeVelocity.y, accelerationDistribution.y, dt)
 
