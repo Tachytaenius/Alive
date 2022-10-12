@@ -20,8 +20,8 @@ function walking:fixedUpdate(dt)
 	for _, e in ipairs(self.walkers) do
 		if e.will.targetRelativeVelocityMultiplier then
 			local targetRelativeVelocity = e.will.targetRelativeVelocityMultiplier * e.gait.maxSpeed
-
-			local relativeVelocity = vec2.detRotate(e.velocity.value, e.angle and -e.angle.value or 0)
+			local angle = (e.angle and e.angle.value or 0) + math.tau / 4
+			local relativeVelocity = vec2.detRotate(e.velocity.value, -angle)
 
 			local difference = targetRelativeVelocity - relativeVelocity
 			local direction
@@ -35,7 +35,7 @@ function walking:fixedUpdate(dt)
 			relativeVelocity.x = handleAxis(relativeVelocity.x, targetRelativeVelocity.x, accelerationDistribution.x, dt)
 			relativeVelocity.y = handleAxis(relativeVelocity.y, targetRelativeVelocity.y, accelerationDistribution.y, dt)
 
-			e.velocity.value = vec2.detRotate(relativeVelocity, e.angle and e.angle.value or 0)
+			e.velocity.value = vec2.detRotate(relativeVelocity, angle)
 		end
 	end
 

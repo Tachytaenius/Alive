@@ -146,7 +146,7 @@ end
 
 function rendering:shouldDrawChunk(x, y, player, renderDistance, sensingCircleRadius)
 	local lineStart = player.position.interpolated
-	local lineDirection = vec2.rotate(vec2(1, 0), player.angle.interpolated) -- TEMP: Should be vec2.fromAngle
+	local lineDirection = vec2.rotate(vec2(1, 0), player.angle.interpolated + math.tau / 4) -- TEMP: Should be vec2.fromAngle
 	local lineEnd = lineStart - lineDirection -- Subtraction to invert which side of the divided plane is supposed to be drawn
 	return
 		self:getWorld().map:chunkPositionIsInRadius(x, y, player, renderDistance) and
@@ -183,7 +183,7 @@ function rendering:draw(lerp, dt, performance)
 	local preCrushPlayerPosX, preCrushPlayerPosY = consts.preCrushCanvasWidth / 2, consts.preCrushCanvasHeight / 2
 
 	love.graphics.translate(preCrushPlayerPosX, preCrushPlayerPosY)
-	love.graphics.rotate(-player.angle.interpolated)
+	love.graphics.rotate(-(player.angle.interpolated + math.tau / 4))
 	love.graphics.translate(-player.position.interpolated.x, -player.position.interpolated.y)
 
 	local mapSystem = self:getWorld().map
@@ -257,7 +257,7 @@ function rendering:draw(lerp, dt, performance)
 	for _, e in ipairs(self.lights) do
 		local posInWindowSpace = e.position.interpolated
 		posInWindowSpace = posInWindowSpace - player.position.interpolated
-		posInWindowSpace = vec2.rotate(posInWindowSpace, -player.angle.interpolated)
+		posInWindowSpace = vec2.rotate(posInWindowSpace, -(player.angle.interpolated + math.tau / 4))
 		posInWindowSpace = posInWindowSpace + vec2(preCrushPlayerPosX, preCrushPlayerPosY)
 		self.lightingShader:send("lightOrigin", {vec2.components(posInWindowSpace)})
 		love.graphics.setColor(e.light.red, e.light.green, e.light.blue)
