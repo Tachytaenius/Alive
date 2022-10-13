@@ -7,6 +7,7 @@ local tiles = require("systems.map.tiles")
 local registry -- = require("registry")
 local soilMaterials
 local gameInstanceSeed
+local savePathPrefix
 
 local subWorldId = ...
 
@@ -146,6 +147,7 @@ while quitChannel:peek() ~= "quit" do
 		registry = newInfo.registry or registry
 		soilMaterials = newInfo.soilMaterials or soilMaterials
 		gameInstanceSeed = newInfo.gameInstanceSeed or gameInstanceSeed
+		savePathPrefix = newInfo.savePathPrefix or savePathPrefix
 	end
 
 	local chunkRequestCoords = requestChannel:pop()
@@ -155,17 +157,24 @@ while quitChannel:peek() ~= "quit" do
 		assert(soilMaterials, "Soil materials not passed to thread")
 
 		-- Load or generate chunk
+		-- TEMP/HACK: Bodge
 		local x, y = chunkRequestCoords.x, chunkRequestCoords.y
-
-		local path = "chunks/" .. x .. "," .. y .. ".bin"
-		local info = love.filesystem.getInfo(path)
-		if not info then
-			local chunk = generateChunk(x, y)
-			resultChannel:push(chunk)
-		elseif info.type == "directory" then
-			error(path .. " is a directory")
-		else
-			local serialisedData, errorMessage = love.filesystem.read(path)
+		local pathToLoadFrom
+		local firstPathToTry = "current/chunks/" .. x .. "," .. y .. ".bin"
+		local info = love.filesystem.getInfo(firstPathToTry)
+		if info then
+			pathToLoadFrom = firstPathToTry
+		end
+		if not pathToLoadFrom then
+			local secondPathToTry = savePathPrefix .. "chunks/" .. x .. "," .. y .. ".bin"
+			local info = love.filesystem.getInfo(secondPathToTry)
+			if info then
+				pathToLoadFrom = secondPathToTry
+			end
+		end
+		if pathToLoadFrom then
+			-- Load
+			local serialisedData, errorMessage = love.filesystem.read(pathToLoadFrom)
 			assert(serialisedData, "Could not read file for chunk at " .. x .. ", " .. y .. ": " .. errorMessage)
 			local chunk = serialisation.deserialiseChunk(serialisedData, x, y)
 			for x = 0, consts.chunkWidth - 1 do
@@ -174,7 +183,10 @@ while quitChannel:peek() ~= "quit" do
 					tiles:updateLumpDependentTickValues(tile, registry)
 				end
 			end
-
+			resultChannel:push(chunk)
+		else
+			-- Generate
+			local chunk = generateChunk(x, y)
 			resultChannel:push(chunk)
 		end
 	end

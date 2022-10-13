@@ -97,13 +97,13 @@ end
 function chunks:unloadChunk(chunk)
 	self:removeChunkFromLoadedChunksGrid(chunk)
 	self.loadedChunksList:remove(chunk)
-	local info = love.filesystem.getInfo("chunks/")
+	local info = love.filesystem.getInfo("current/chunks/")
 	if not info then
-		love.filesystem.createDirectory("chunks/")
+		love.filesystem.createDirectory("current/chunks/")
 	elseif info.type ~= "directory" then
-		error("There is a non-folder item at chunks/")
+		error("There is a non-folder item at current/chunks/")
 	end
-	local path = "chunks/" .. chunk.x .. "," .. chunk.y .. ".bin"
+	local path = "current/chunks/" .. chunk.x .. "," .. chunk.y .. ".bin"
 	local data = util.saveFiles.serialisation.serialiseChunk(chunk)
 	local success, errorMessage = love.filesystem.write(path, data)
 	if not success then

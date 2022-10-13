@@ -131,11 +131,49 @@ local initConfig = {
 
 local gameInstance
 
+local function ensureDirectory(name)
+	local info = love.filesystem.getInfo(name)
+	if not info then
+		love.filesystem.createDirectory(name)
+	elseif info.type ~= "directory" then
+		error("There is a non-directory item called \"" .. name .. "\" in your Alive data folder, please remove it or rename it to run the game")
+	end
+end
+
+local function recursivelyDelete(item)
+	-- From the wiki
+	if love.filesystem.getInfo(item, "directory") then
+		for _, child in ipairs(love.filesystem.getDirectoryItems(item)) do
+			recursivelyDelete(item .. "/" .. child)
+			love.filesystem.remove(item .. "/" .. child)
+		end
+	elseif love.filesystem.getInfo(item) then
+		love.filesystem.remove(item)
+	end
+	love.filesystem.remove(item)
+end
+
+local function ensureEmptyDirectory(name)
+	-- TEMP/HACK: Bodge
+	local info = love.filesystem.getInfo(name)
+	if not info then
+		ensureDirectory(name)
+		return
+	elseif info.type ~= "directory" then
+		error("There is a non-directory item called \"" .. name .. "\" in your Alive data folder, please remove it or rename it to run the game")
+	end
+	recursivelyDelete(name)
+	ensureDirectory(name)
+end
+
 function boilerplate.load(args)
 	registry.load()
 
 	local seed = love.math.random(0, consts.maxWorldSeed)
 	local rng = love.math.newRandomGenerator(seed)
+
+	ensureEmptyDirectory("current")
+	ensureDirectory("saves")
 
 	boilerplate.log.info("Creating game instance")
 
@@ -144,9 +182,12 @@ function boilerplate.load(args)
 		rng = rng,
 		unsaved = true,
 		time = 0,
+		savePathPrefix = "saves/saveFile/",
 		nextSubWorldId = consts.firstSubWorldId,
 		subWorldsById = {}
 	}
+
+	ensureDirectory(gameInstance.savePathPrefix)
 
 	local mainSubWorld = concord.world()
 	mainSubWorld.id = gameInstance.nextSubWorldId
@@ -214,7 +255,21 @@ function boilerplate.getUnsaved()
 end
 
 function boilerplate.save()
+	boilerplate.log.info("Saving game")
+	local sourceChunksPath = "current/chunks/"
+	local destinationChunksPath = gameInstance.savePathPrefix .. "chunks/"
+	ensureDirectory(destinationChunksPath)
+	for _, itemName in ipairs(love.filesystem.getDirectoryItems(sourceChunksPath)) do
+		local data = love.filesystem.read(sourceChunksPath .. itemName)
+		love.filesystem.remove(sourceChunksPath .. itemName)
+		love.filesystem.write(destinationChunksPath .. itemName, data)
+	end
+	boilerplate.log.info("Saved game")
 	gameInstance.unsaved = false
+end
+
+function boilerplate.onQuit()
+	recursivelyDelete("current")
 end
 
 function boilerplate.killThreads()

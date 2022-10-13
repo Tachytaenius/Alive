@@ -39,7 +39,8 @@ function core:newWorld()
 	local infoTable = {
 		registry = registry,
 		soilMaterials = self.soilMaterials,
-		gameInstanceSeed = self:getWorld().gameInstance.seed
+		gameInstanceSeed = self:getWorld().gameInstance.seed,
+		savePathPrefix = self:getWorld().gameInstance.savePathPrefix
 	}
 	local registryLoad
 	registryLoad, registry.load = registry.load, nil -- Remove function temporarily
