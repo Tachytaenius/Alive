@@ -427,6 +427,9 @@ function boilerplate.init(initConfig, arg)
 			end
 		end
 		-- It is in this code path here that we actually quit
+		if boilerplate.onQuit then
+			boilerplate.onQuit()
+		end
 		if boilerplate.killThreads then
 			log.info("Quitting threads...")
 			if boilerplate.killThreads() then
