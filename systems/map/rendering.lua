@@ -5,7 +5,7 @@ local rendering = {}
 
 function rendering:makeChunkMeshes(chunk)
 	local renderingSystem = self:getWorld().rendering
-	renderingSystem.chunkMeshInfos[chunk] = rendering.chunkMeshInfos[chunk] or {}
+	renderingSystem.chunkMeshInfos[chunk] = renderingSystem.chunkMeshInfos[chunk] or {}
 	local chunkMeshInfo = renderingSystem.chunkMeshInfos[chunk]
 	local tileMeshVertexCount = consts.chunkWidth * consts.chunkHeight * 6
 
