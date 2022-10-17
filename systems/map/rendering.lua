@@ -4,11 +4,15 @@ local consts = require("consts")
 local rendering = {}
 
 function rendering:makeChunkMeshes(chunk)
+	local renderingSystem = self:getWorld().rendering
+	renderingSystem.chunkMeshInfos[chunk] = rendering.chunkMeshInfos[chunk] or {}
+	local chunkMeshInfo = renderingSystem.chunkMeshInfos[chunk]
 	local tileMeshVertexCount = consts.chunkWidth * consts.chunkHeight * 6
-	chunk.toppingMesh = love.graphics.newMesh(consts.tileMeshVertexFormat, tileMeshVertexCount, "triangles", "dynamic")
-	chunk.superToppingMeshes = {}
+
+	chunkMeshInfo.toppingMesh = love.graphics.newMesh(consts.tileMeshVertexFormat, tileMeshVertexCount, "triangles", "dynamic")
+	chunkMeshInfo.superToppingMeshes = {}
 	for i = 1, consts.maxSubLayers do
-		chunk.superToppingMeshes[i] = love.graphics.newMesh(consts.tileMeshVertexFormat, tileMeshVertexCount, "triangles", "dynamic")
+		chunkMeshInfo.superToppingMeshes[i] = love.graphics.newMesh(consts.tileMeshVertexFormat, tileMeshVertexCount, "triangles", "dynamic")
 	end
 end
 

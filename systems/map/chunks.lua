@@ -112,7 +112,10 @@ function chunks:unloadChunk(chunk)
 end
 
 function chunks:checkEmptyMeshes(chunk)
+	local renderingSystem = self:getWorld().rendering
+	local chunkMeshInfo = renderingSystem.chunkMeshInfos[chunk]
 	local toppingPresent, superToppingPresences = false, {}
+	-- NOTE: The booleans in superToppingPresences aren't initialised to false
 	for x = 0, consts.chunkWidth - 1 do
 		for y = 0, consts.chunkHeight - 1 do
 			local tile = chunk.tiles[x][y]
@@ -130,8 +133,8 @@ function chunks:checkEmptyMeshes(chunk)
 			end
 		end
 	end
-	chunk.toppingPresent = toppingPresent
-	chunk.superToppingPresences = superToppingPresences
+	chunkMeshInfo.toppingPresent = toppingPresent
+	chunkMeshInfo.superToppingPresences = superToppingPresences
 end
 
 return chunks

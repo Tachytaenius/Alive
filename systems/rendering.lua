@@ -40,6 +40,7 @@ function rendering:init()
 	self:sendConstantsToShaders()
 
 	self.changedTiles = {}
+	self.chunkMeshInfos = {}
 end
 
 local function setTileMeshVertices(mesh, iBase, x, y, ...)
@@ -59,6 +60,8 @@ function rendering:fixedUpdate(dt)
 		local chunk = tile.chunk
 		local iBase = (localTileX + localTileY * consts.chunkWidth) * 6 + 1
 
+		local chunkMeshInfo = self.chunkMeshInfos[chunk]
+
 		-- Update topping
 		if tile.topping then
 			local
@@ -70,14 +73,14 @@ function rendering:fixedUpdate(dt)
 				nil, nil, nil, 0, -- This isn't a wall
 				tile.topping.noiseSize, tile.topping.noiseContrast, tile.topping.noiseBrightness, 1
 
-			setTileMeshVertices(chunk.toppingMesh, iBase, globalTileX, globalTileY,
+			setTileMeshVertices(chunkMeshInfo.toppingMesh, iBase, globalTileX, globalTileY,
 				colourR, colourG, colourB, colourA,
 				lightFilterColourR, lightFilterColourG, lightFilterColourB, lightFilterColourA,
 				noiseSize, noiseContrast, noiseBrightness, noiseFullness
 			)
 		else
 			for i = 0, 5 do
-				self.toppingMesh:setVertex(iBase + i) -- nil all
+				chunkMeshInfo.toppingMesh:setVertex(iBase + i) -- nil all
 			end
 		end
 
@@ -93,7 +96,7 @@ function rendering:fixedUpdate(dt)
 					tile.superTopping.lightFilterR, tile.superTopping.lightFilterG, tile.superTopping.lightFilterB, 1,
 					tile.superTopping.noiseSize, tile.superTopping.noiseContrast, tile.superTopping.noiseBrightness, 1
 
-				setTileMeshVertices(chunk.superToppingMeshes[1], iBase, globalTileX, globalTileY,
+				setTileMeshVertices(chunkMeshInfo.superToppingMeshes[1], iBase, globalTileX, globalTileY,
 					colourR, colourG, colourB, colourA,
 					lightFilterColourR, lightFilterColourG, lightFilterColourB, lightFilterColourA,
 					noiseSize, noiseContrast, noiseBrightness, noiseFullness
@@ -101,7 +104,7 @@ function rendering:fixedUpdate(dt)
 
 				for j = 2, consts.maxSubLayers do -- Clear meshes used for sub-layers
 					for i = 0, 5 do
-						chunk.superToppingMeshes[j]:setVertex(iBase + i) -- nil all
+						chunkMeshInfo.superToppingMeshes[j]:setVertex(iBase + i) -- nil all
 					end
 				end
 			else -- "subLayers"
@@ -117,14 +120,14 @@ function rendering:fixedUpdate(dt)
 							nil, nil, nil, 0, -- This isn't a wall
 							subLayer.noiseSize, subLayer.noiseContrast, subLayer.noiseBrightness, subLayer.noiseFullness
 
-						setTileMeshVertices(chunk.superToppingMeshes[j], iBase, globalTileX, globalTileY,
+						setTileMeshVertices(chunkMeshInfo.superToppingMeshes[j], iBase, globalTileX, globalTileY,
 							colourR, colourG, colourB, colourA,
 							lightFilterColourR, lightFilterColourG, lightFilterColourB, lightFilterColourA,
 							noiseSize, noiseContrast, noiseBrightness, noiseFullness
 						)
 					else
 						for i = 0, 5 do
-							chunk.superToppingMeshes[j]:setVertex(iBase + i) -- nil all
+							chunkMeshInfo.superToppingMeshes[j]:setVertex(iBase + i) -- nil all
 						end
 					end
 				end
@@ -132,7 +135,7 @@ function rendering:fixedUpdate(dt)
 		else -- No super topping
 			for j = 1, consts.maxSubLayers do
 				for i = 0, 5 do
-					chunk.superToppingMeshes[j]:setVertex(iBase + i) -- nil all
+					chunkMeshInfo.superToppingMeshes[j]:setVertex(iBase + i) -- nil all
 				end
 			end
 		end
@@ -201,9 +204,11 @@ function rendering:draw(lerp, dt, performance)
 		for y = y1, y2 do
 			if self:shouldDrawChunk(x, y, player, renderDistance, sensingCircleRadius) then
 				local chunk = mapSystem:getLoadedChunk(x, y)
-				if chunk.toppingPresent then
-					assert(chunk, "Missing chunk in draw radius at " .. x .. ", " .. y)
-					love.graphics.draw(chunk.toppingMesh)
+				assert(chunk, "Missing chunk in draw radius at " .. x .. ", " .. y)
+				local chunkMeshInfo = self.chunkMeshInfos[chunk]
+				assert(chunkMeshInfo, "Missing chunk mesh set for chunk at " .. x .. ", " .. y)
+				if chunkMeshInfo.toppingPresent then
+					love.graphics.draw(chunkMeshInfo.toppingMesh)
 				end
 			end
 		end
@@ -218,8 +223,10 @@ function rendering:draw(lerp, dt, performance)
 			if self:shouldDrawChunk(x, y, player, renderDistance, sensingCircleRadius) then
 				local chunk = mapSystem:getLoadedChunk(x, y)
 				assert(chunk, "Missing chunk in draw radius at " .. x .. ", " .. y)
-				for i, mesh in ipairs(chunk.superToppingMeshes) do
-					if chunk.superToppingPresences[i] then
+				local chunkMeshInfo = self.chunkMeshInfos[chunk]
+				assert(chunkMeshInfo, "Missing chunk mesh set for chunk at " .. x .. ", " .. y)
+				for i, mesh in ipairs(chunkMeshInfo.superToppingMeshes) do
+					if chunkMeshInfo.superToppingPresences[i] then
 						love.graphics.draw(mesh)
 					end
 				end
